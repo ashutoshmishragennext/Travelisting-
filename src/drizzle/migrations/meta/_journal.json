@@ -1,0 +1,55 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1739267263770,
+      "tag": "0000_daffy_red_ghost",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1739267440552,
+      "tag": "0001_careful_salo",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1739360743881,
+      "tag": "0002_magical_scalphunter",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1739438491908,
+      "tag": "0003_tranquil_hercules",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1739528862432,
+      "tag": "0004_majestic_killer_shrike",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1739600023997,
+      "tag": "0005_wild_gunslinger",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1739775845702,
+      "tag": "0006_steep_thanos",
+      "breakpoints": true
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+ALTER TABLE "sales_commissions" ALTER COLUMN "commission_amount" DROP NOT NULL;
