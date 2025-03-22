@@ -9,7 +9,7 @@ import { Poppins } from "next/font/google";
 export const metadata: Metadata = {
 
 
-  title: "Bizzlisting.com",
+  title: "Travelisting",
   description: "We're here to Increase your Productivity",
   generator: "next.js",
   manifest: "/manifest.json",
@@ -23,8 +23,8 @@ export const metadata: Metadata = {
   ],
   viewport: "minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, viewport-fit=cover",
   icons: [
-    { rel: "apple-touch-icon", url: "/icons-512.png" },
-    { rel: "icon", url: "/icons-512.png" },
+    { rel: "apple-touch-icon", url: "/logo.png" },
+    { rel: "icon", url: "/logo.png" },
   ]
  
 };

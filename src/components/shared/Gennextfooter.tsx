@@ -8,7 +8,7 @@ export default function Navbar() {
         {/* Logo Column */}
         <div className="w-full md:w-1/4 flex items-center justify-center md:justify-start mb-4 md:mb-0">
           <a href="/" className="flex title-font font-medium items-center text-gray-900">
-            <Image src="/logo.png" alt="Gennext Logo" height={40} width={40}  />
+            <Image src="/logo.png" alt="logo" height={98} width={98}  />
           </a>
         </div>
 

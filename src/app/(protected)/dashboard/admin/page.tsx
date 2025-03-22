@@ -299,7 +299,7 @@ const steps: StepType[] = [
       });
 
       
-        router.push(`/vendor/payment/${vendorId}`);
+        router.push(`/vendor/${vendorId}`);
      
 
     } catch (error) {

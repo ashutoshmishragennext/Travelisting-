@@ -153,29 +153,29 @@ export default function Dashboard({ params }: { params: { id: string } }) {
   const [selectedComponent, setSelectedComponent] = useState("Vendor Information");
   const router = useRouter();
   
-  useEffect(() => {
-    // Fetch vendor data and check payment status
-    const checkVendorPayment = async () => {
-      try {
-        const response = await fetch(`/api/vendor?id=${params.id}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch vendor data');
-        }
+  // useEffect(() => {
+  //   // Fetch vendor data and check payment status
+  //   const checkVendorPayment = async () => {
+  //     try {
+  //       const response = await fetch(`/api/vendor?id=${params.id}`);
+  //       if (!response.ok) {
+  //         throw new Error('Failed to fetch vendor data');
+  //       }
         
-        const vendorData = await response.json();
+  //       const vendorData = await response.json();
         
         
-        // Check if payment status is draft and redirect if it is
-        if (vendorData.data.paymentStatus === 'draft') {
-          router.push(`/vendor/payment/${params.id}`);
-        }
-      } catch (error) {
-        console.error('Error fetching vendor data:', error);
-      }
-    };
+  //       // Check if payment status is draft and redirect if it is
+  //       if (vendorData.data.paymentStatus === 'draft') {
+  //         router.push(`/vendor/${params.id}`);
+  //       }
+  //     } catch (error) {
+  //       console.error('Error fetching vendor data:', error);
+  //     }
+  //   };
     
-    checkVendorPayment();
-  }, [params.id, router]);
+  //   checkVendorPayment();
+  // }, [params.id, router]);
 
   return (
     <div>

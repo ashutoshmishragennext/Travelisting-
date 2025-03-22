@@ -164,10 +164,10 @@ export default function CombinedLayout() {
           {/* Logo Section */}
           <div className="flex items-center space-x-2">
             <Link href="/">
-              <div className="flex space-x-2">
-                <Image src="/logo.png" height={24} width={24} alt="Logo" />
+              <div className="flex space-x-1">
+                <Image src="/logo.jpg" height={40} width={40} alt="Logo" />
                 <h1 className="text-primary text-2xl font-normal">
-                  BizzListing
+                  Travelisting
                 </h1>
               </div>
             </Link>
@@ -176,7 +176,7 @@ export default function CombinedLayout() {
           {/* Search and Category Section - Desktop */}
           <div className="hidden md:flex items-center space-x-4 flex-1 max-w-2xl mx-4">
             {/* Category Dropdown */}
-            <div className="relative">
+            {/* <div className="relative">
               <button
                 onClick={() => setCategoryDropdownOpen(!isCategoryDropdownOpen)}
                 className="px-4 py-2 bg-white rounded-lg border border-gray-200 flex items-center space-x-2 hover:bg-primary-foreground"
@@ -220,10 +220,10 @@ export default function CombinedLayout() {
                   </button>
                 </div>
               )}
-            </div>
+            </div> */}
 
             {/* Search Bar */}
-            <div className="relative flex-1">
+            {/* <div className="relative flex-1">
               <input
                 type="text"
                 placeholder={`Search ${activeTab}...`}
@@ -232,7 +232,7 @@ export default function CombinedLayout() {
                 className="w-full px-4 py-2 pl-10 text-gray-700 bg-white border rounded-full shadow-lg shadow-[#d588290f] focus:outline-none focus:border-primary focus:ring-primary"
               />
               <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-            </div>
+            </div> */}
           </div>
 
           {/* Desktop Auth Section */}
@@ -386,7 +386,7 @@ export default function CombinedLayout() {
 
       {/* Category Grid Section */}
 
-      <FoodCarousel items={carouselData} />
+      {/* <FoodCarousel items={carouselData} /> */}
 
       <>
         {/* Popup Modal */}
@@ -428,7 +428,7 @@ export default function CombinedLayout() {
         )}
       </>
       <div className="w-full px-3 sm:px-5 py-6 sm:py-8 bg-gray-50">
-        <div className="flex  items-center mb-4">
+        {/* <div className="flex  items-center mb-4">
           <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
             Featured {activeTab}
           </h2>
@@ -452,7 +452,7 @@ export default function CombinedLayout() {
               ></path>
             </svg>
           </button>
-        </div>
+        </div> */}
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-5">
           {displayedItems.map((item: Category, index: number) => (

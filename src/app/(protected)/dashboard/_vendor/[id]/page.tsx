@@ -10,7 +10,7 @@ import React from 'react'
         <nav className="flex items-center justify-between p-4 bg-blue-50">
         <div className="flex items-center space-x-2">
             <Link href={"/"}>
-          <img src="/logo.png" alt="The Muse Logo" className="h-8" />
+          <img src="/logo.jpg" alt="The Muse Logo" className="h-8" />
           </Link>
           {/* <span className="text-navy-900 font-bold text-xl">the muse</span> */}
         </div>
