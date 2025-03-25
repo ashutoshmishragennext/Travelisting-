@@ -24,6 +24,8 @@ export default function Home() {
       
       {/* <Hero1/> */}
       <div className="font-bold text-[50px] text-yellow-500 align-middle h-screen text-center">Travelisting</div>
+      
+
       {/* <div className=" mt-6 w-full  bg-red-500 h-32"></div> */}
       <Footer/>
     </main>
