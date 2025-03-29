@@ -50,6 +50,34 @@
       "when": 1739775845702,
       "tag": "0006_steep_thanos",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1743070723302,
+      "tag": "0007_superb_dormammu",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1743070875327,
+      "tag": "0008_next_cammi",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1743136880446,
+      "tag": "0009_white_sentinels",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1743139022965,
+      "tag": "0010_peaceful_enchantress",
+      "breakpoints": true
     }
   ]
 }

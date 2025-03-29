@@ -55,13 +55,13 @@ export default function Dashboard() {
 
       switch (role) {
         case "SALE_PERSON":
-          router.push("/dashboard/salePerson");
-          break;
-        case "VENDOR":
-          await checkVendorProfile();
-          break;
+        //   router.push("/dashboard/salePerson");
+        //   break;
+        // case "VENDOR":
+        //   await checkVendorProfile();
+        //   break;
         case "USER":
-          router.push("/");
+          router.push("/dashboard/admin");
           break;
           case "SUPER_ADMIN":
             router.push("/dashboard/superadmin");

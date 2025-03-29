@@ -20,18 +20,32 @@ import {
 // =====================
 export const UserRole = pgEnum("user_role", [
   "USER",
-  "SALE_PERSON",
+  "TRAVEL_AGENT",
+  "HOTEL_ADMIN",
   "SUPER_ADMIN",
-  "VENDOR",
 ]);
-export const visibilityEnum = pgEnum("visibility", ["public", "private"]);
+
+export const DealStatus = pgEnum("deal_status", [
+  "PENDING",
+  "NEGOTIATING",
+  "APPROVED",
+  "REJECTED",
+  "COMPLETED"
+]);
+
+export const PropertyType = pgEnum("property_type", [
+  "HOTEL",
+  "RESORT",
+  "HOMESTAY",
+  "VILLA",
+  "HOSTEL"
+]);
 
 // =====================
 // Tables
 // =====================
 
 // User Table
-
 export const UserTable = pgTable(
   "users",
   {
@@ -39,27 +53,23 @@ export const UserTable = pgTable(
     name: varchar("name", { length: 255 }).notNull(),
     email: varchar("email", { length: 255 }).notNull(),
     emailVerified: timestamp("email_verified", { mode: "date" }),
+    vendorProfileId: uuid("vendor_profile_id").references(
+      () => VendorProfileTable.id
+    ),
     emailVerifToken: varchar("email_verif_token", { length: 255 }),
     password: varchar("password", { length: 255 }).notNull(),
     mobile: text("mobile"),
-    role: UserRole("role").default("USER").notNull(),
-vendorProfileId: uuid("vendor_profile_id").references(
-      () => VendorProfileTable.id
-    ),
+    role: UserRole("role").default("TRAVEL_AGENT").notNull(),
     profilePic: text("profile_pic"),
-    coverPic: text("cover_pic"),
-    secureProfilePic: text("secure_profile_pic"),
-    createdBy: uuid("created_by"),
+    companyName: varchar("company_name", { length: 200 }),
+    gstNumber: varchar("gst_number", { length: 50 }),
+    specializations: text("specializations").array(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => ({
     emailKey: uniqueIndex("users_email_key").on(table.email),
-    nameEmailMobileIdx: index("users_name_email_mobile_idx").on(
-      table.name,
-      table.email,
-      table.mobile
-    ),
+    nameEmailIdx: index("users_name_email_idx").on(table.name, table.email),
   })
 );
 
@@ -99,140 +109,154 @@ export const VendorProfileTable = pgTable("vendor_profiles", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-// Service Category Table
-export const ServiceCategoryTable = pgTable("service_categories", {
-  id: uuid("category_id").defaultRandom().primaryKey().notNull(),
-  name: varchar("category_name", { length: 100 }).notNull(),
-  logo: text("logo"),
-  description: text("description"),
+// Property Table
+export const PropertyTable = pgTable("properties", {
+  id: uuid("id").defaultRandom().primaryKey().notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  propertyType: PropertyType("property_type").notNull(),
+  category: varchar("category", { length: 50 }), // Luxury, Budget, etc.
+  subcategory: varchar("subcategory", { length: 50 }), // Resort, City Hotel, etc.
+  starRating: integer("star_rating"),
+  chainId: uuid("chain_id").references(() => HotelChainTable.id),
+  
+  address: text("address"),
+  state: text("state"),
+  city: text("city"),
+  pincode: varchar("pincode", { length: 20 }),
+  
+  contactName: varchar("contact_name", { length: 100 }),
+  contactEmail: varchar("contact_email", { length: 255 }),
+  contactPhone: varchar("contact_phone", { length: 20 }),
+  
+  amenities: json("amenities"),
+  photos: json("photos"),
+  
   isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-// Service Table
-export const ServiceTable = pgTable("services", {
-  id: uuid    ("service_id").defaultRandom().primaryKey().notNull(),
-  categoryId: uuid("category_id")
+// Hotel Chains Table
+export const HotelChainTable = pgTable("hotel_chains", {
+  id: uuid("id").defaultRandom().primaryKey().notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  websiteUrl: text("website_url"),
+  headquarters: text("headquarters"),
+  properties: integer("properties_count").default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Travel Agent Deals Table
+export const TravelAgentDealTable = pgTable("travel_agent_deals", {
+  id: uuid("id").defaultRandom().primaryKey().notNull(),
+  travelAgentId: uuid("travel_agent_id")
     .notNull()
-    .references(() => ServiceCategoryTable.id),
-  name: varchar("service_name", { length: 200 }).notNull(),
-  description: text("description"),
-  image:text("logo"),
-  requiredCertifications: text("required_certifications").array(),
-  isActive: boolean("is_active").default(true).notNull(),
+    .references(() => UserTable.id),
+  propertyId: uuid("property_id")
+    .notNull()
+    .references(() => PropertyTable.id),
+  
+  commissionRate: decimal("commission_rate", { precision: 5, scale: 2 }),
+  status: DealStatus("status").default("PENDING").notNull(),
+  
+  validFrom: date("valid_from"),
+  validTo: date("valid_to"),
+  
+  specialRates: json("special_rates"),
+  specialConditions: text("special_conditions"),
+  
+  roomTypes: json("room_types"),
+  discountDetails: json("discount_details"),
+  
+  notes: text("notes"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-// Vendor Service Table
-export const VendorServiceTable = pgTable(
-  "vendor_services",
-  {
-    id: uuid("vendor_service_id").defaultRandom().primaryKey().notNull(),
-    vendorId: uuid("vendor_id")
-      .notNull()
-      .references(() => VendorProfileTable.id),
-    serviceId: uuid("service_id")
-      .notNull()
-      .references(() => ServiceTable.id),
-    experienceYears: integer("experience_years"),
-    photo: text("photo").array(),
-    modeOfService: varchar("mode_of_service", { length: 50 }),
+// Communication Log Table
+export const CommunicationLogTable = pgTable("communication_logs", {
+  id: uuid("id").defaultRandom().primaryKey().notNull(),
+  dealId: uuid("deal_id")
+    .notNull()
+    .references(() => TravelAgentDealTable.id),
+  senderId: uuid("sender_id")
+    .notNull()
+    .references(() => UserTable.id),
+  receiverId: uuid("receiver_id")
+    .notNull()
+    .references(() => UserTable.id),
+  
+  messageType: varchar("message_type", { length: 50 }), // EMAIL, CHAT, CALL, etc.
+  message: text("message"),
+  
+  attachments: json("attachments"),
+  readStatus: boolean("read_status").default(false),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
 
-    description: varchar("description", { length: 500 }),
-    pricingModel: varchar("pricing_model", { length: 50 }),
-    price: varchar("price", { length: 50 }),
-    location: varchar("location", { length: 150 }),
+// =====================
+// Relations
+// =====================
 
-    currency: varchar("currency", { length: 3 }),
-    isActive: boolean("is_currently_offered").default(true).notNull(),
-  },
-  (table) => ({
-    vendorServiceUnique: uniqueIndex("vendor_service_unique_idx").on(
-      table.vendorId,
-      table.serviceId
-    ),
+export const userRelations = relations(UserTable, ({ many }) => ({
+  deals: many(TravelAgentDealTable),
+  sentMessages: many(CommunicationLogTable, {
+    relationName: "sentMessages"
+  }),
+  receivedMessages: many(CommunicationLogTable, {
+    relationName: "receivedMessages"
+  }),
+}));
+
+export const propertyRelations = relations(PropertyTable, ({ one, many }) => ({
+  chain: one(HotelChainTable, {
+    fields: [PropertyTable.chainId],
+    references: [HotelChainTable.id],
+  }),
+  deals: many(TravelAgentDealTable),
+}));
+
+export const hotelChainRelations = relations(HotelChainTable, ({ many }) => ({
+  properties: many(PropertyTable),
+}));
+
+export const travelAgentDealRelations = relations(
+  TravelAgentDealTable,
+  ({ one, many }) => ({
+    travelAgent: one(UserTable, {
+      fields: [TravelAgentDealTable.travelAgentId],
+      references: [UserTable.id],
+    }),
+    property: one(PropertyTable, {
+      fields: [TravelAgentDealTable.propertyId],
+      references: [PropertyTable.id],
+    }),
+    communications: many(CommunicationLogTable),
   })
 );
 
-export const ProductCategoryTable = pgTable("product_categories", {
-  id: uuid("category_id").defaultRandom().primaryKey().notNull(),
-  name: varchar("category_name", { length: 100 }).notNull(),
-  logo: text("logo"),
-  description: text("description"),
-  isActive: boolean("is_active").default(true).notNull(),
-});
-
-// Product Table
-export const ProductTable = pgTable("products", {
-  id: uuid("product_id").defaultRandom().primaryKey().notNull(),
-  categoryId: uuid("category_id")
-    .notNull()
-    .references(() => ProductCategoryTable.id),
-  name: varchar("product_name", { length: 200 }).notNull(),
-  description: text("description"),
-  image:text("logo"),
-  requiredCertifications: text("required_certifications").array(),
-  isActive: boolean("is_active").default(true).notNull(),
-});
-
-// Vendor Product Table
-export const VendorProductTable = pgTable(
-  "vendor_products",
-  {
-    id: uuid("vendor_product_id").defaultRandom().primaryKey().notNull(),
-    vendorId: uuid("vendor_id")
-      .notNull()
-      .references(() => VendorProfileTable.id),
-    productId: uuid("product_id")
-      .notNull()
-      .references(() => ProductTable.id),
-    experienceYears: integer("experience_years"),
-    photo: text("photo").array(),
-
-    description: text("description"),
-    specifications: text("specifications"),
-    stock: integer("stock"),
-
-    pricingModel: varchar("pricing_model", { length: 50 }),
-    price: text("price"),
-    // rateRangeMax: decimal("rate_range_max", { precision: 10, scale: 2 }),
-    currency: varchar("currency", { length: 3 }),
-    isActive: boolean("is_currently_offered").default(true).notNull(),
-  },
-  (table) => ({
-    vendorProductUnique: uniqueIndex("vendor_product_unique_idx").on(
-      table.vendorId,
-      table.productId
-    ),
+export const communicationLogRelations = relations(
+  CommunicationLogTable,
+  ({ one }) => ({
+    deal: one(TravelAgentDealTable, {
+      fields: [CommunicationLogTable.dealId],
+      references: [TravelAgentDealTable.id],
+    }),
+    sender: one(UserTable, {
+      fields: [CommunicationLogTable.senderId],
+      references: [UserTable.id],
+      relationName: "sentMessages"
+    }),
+    receiver: one(UserTable, {
+      fields: [CommunicationLogTable.receiverId],
+      references: [UserTable.id],
+      relationName: "receivedMessages"
+    }),
   })
 );
-// Certification Table
-export const CertificationTable = pgTable("certifications", {
-  id: uuid("certification_id").defaultRandom().primaryKey().notNull(),
-  vendorId: uuid("vendor_id")
-    .notNull()
-    .references(() => VendorProfileTable.id),
-  name: varchar("certification_name", { length: 200 }).notNull(),
-  issuer: varchar("issuing_body", { length: 200 }).notNull(),
-  issueDate: date("issue_date").notNull(),
-  expiryDate: date("expiry_date").notNull(),
-  certificationNumber: varchar("certification_number", { length: 100 }),
-  verificationUrl: varchar("verification_url", { length: 200 }),
-});
-
-// Reference Table
-export const ReferenceTable = pgTable("references", {
-  id: uuid("reference_id").defaultRandom().primaryKey().notNull(),
-  vendorId: uuid("vendor_id")
-    .notNull()
-    .references(() => VendorProfileTable.id),
-  clientCompanyName: varchar("client_company_name", { length: 200 }).notNull(),
-  clientIndustry: varchar("client_industry", { length: 100 }).notNull(),
-  projectDescription: text("project_description"),
-  servicePeriodStart: date("service_period_start").notNull(),
-  servicePeriodEnd: date("service_period_end").notNull(),
-  contactPersonName: varchar("contact_person_name", { length: 100 }).notNull(),
-  contactEmail: varchar("contact_email", { length: 100 }).notNull(),
-  isPublic: boolean("is_public").default(false).notNull(),
-});
 
 // Email Verification Tokens
 export const EmailVerificationTokenTable = pgTable(
@@ -271,220 +295,17 @@ export const PasswordResetTokenTable = pgTable(
     tokenKey: uniqueIndex("password_reset_tokens_token_key").on(table.token),
   })
 );
-export const PlanTable = pgTable("plans", {
-  id: uuid("id").defaultRandom().primaryKey().notNull(),
-  name: varchar("name", { length: 100 }).notNull(),
-  description: text("description"),
-  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
-  validityYears: integer("validity_years").notNull(),
-  commission: decimal("commission", { precision: 10, scale: 2 }).notNull(),
-  features: json("features"),
-  isActive: boolean("is_active").default(true).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
-
-// Advertisement Plan Table
-export const AdvertisementPlanTable = pgTable("advertisement_plans", {
-  id: uuid("id").defaultRandom().primaryKey().notNull(),
-  vendorId: uuid("vendor_id")
-    .notNull()
-    .references(() => VendorProfileTable.id),
-  categoryType: varchar("category_type", { length: 50 }).notNull(), // 'SERVICE' or 'PRODUCT'
-  categoryId: uuid("category_id").notNull(), // References either ServiceCategoryTable or ProductCategoryTable
-  itemId: uuid("item_id"), // References either ServiceTable or ProductTable
-  image: text("image"),
-  contactNumber: varchar("contact_number", { length: 20 }),
-  isActive: boolean("is_active").default(true).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
-
-export const VendorPaymentTable = pgTable("vendor_payments", {
-  id: uuid("id").defaultRandom().primaryKey().notNull(),
-  vendorId: uuid("vendor_id")
-    .notNull()
-    .references(() => VendorProfileTable.id),
-  planId: uuid("plan_id")
-    .notNull()
-    .references(() => PlanTable.id),
-  orderId: varchar("order_id", { length: 255 }).notNull(),
-  paymentId: varchar("payment_id", { length: 255 }),
-  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
-  currency: varchar("currency", { length: 3 }).default("INR").notNull(),
-  status: varchar("status", { length: 50 }).notNull(),
-  paymentMethod: varchar("payment_method", { length: 50 }),
-  isVerified: boolean("is_verified").default(false),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
-export const SalesCommissionTable = pgTable("sales_commissions", {
-  id: uuid("id").defaultRandom().primaryKey().notNull(),
-  salesPersonId: uuid("sales_person_id")
-    
-    .references(() => UserTable.id),
-  vendorId: uuid("vendor_id")
-    .notNull()
-    .references(() => VendorProfileTable.id),
-  paymentId: uuid("payment_id")
-    .notNull()
-    .references(() => VendorPaymentTable.id),
-  planId: uuid("plan_id")
-    .notNull()
-    .references(() => PlanTable.id),
-  commissionAmount: decimal("commission_amount", { precision: 10, scale: 2 }),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-// =====================
-// Relations
-// =====================
-
-export const vendorPaymentRelations = relations(VendorPaymentTable, ({ one }) => ({
-  vendor: one(VendorProfileTable, {
-    fields: [VendorPaymentTable.vendorId],
-    references: [VendorProfileTable.id],
-  }),
-  plan: one(PlanTable, {
-    fields: [VendorPaymentTable.planId],
-    references: [PlanTable.id],
-  }),
-}));
-export const userRelations = relations(UserTable, ({ one, many }) => ({
-  vendorProfile: one(VendorProfileTable, {
-    fields: [UserTable.vendorProfileId],
-    references: [VendorProfileTable.id],
-  }),
-  createdByUser: one(UserTable, {
-    fields: [UserTable.createdBy],
-    references: [UserTable.id],
-  }),
-  createdUsers: many(UserTable),
-  // Add this new relation
-  salesCommissions: many(SalesCommissionTable),
-}));
-
-export const vendorProfileRelations = relations(
-  VendorProfileTable,
-  ({ many, one }) => ({
-    user: one(UserTable, {
-      fields: [VendorProfileTable.id],
-      references: [UserTable.vendorProfileId],
-    }),
-    vendoruser: one(UserTable, {
-      fields: [VendorProfileTable.userId],
-      references: [UserTable.id],
-    }),
-    products: many(VendorProductTable),
-    services: many(VendorServiceTable),
-    certifications: many(CertificationTable),
-    references: many(ReferenceTable),
-  })
-);
-
-export const serviceCategoryRelations = relations(
-  ServiceCategoryTable,
-  ({ many }) => ({
-    services: many(ServiceTable),
-  })
-);
-
-export const serviceRelations = relations(ServiceTable, ({ one, many }) => ({
-  category: one(ServiceCategoryTable, {
-    fields: [ServiceTable.categoryId],
-    references: [ServiceCategoryTable.id],
-  }),
-  vendorServices: many(VendorServiceTable),
-}));
-
-export const vendorServiceRelations = relations(
-  VendorServiceTable,
-  ({ one }) => ({
-    vendor: one(VendorProfileTable, {
-      fields: [VendorServiceTable.vendorId],
-      references: [VendorProfileTable.id],
-    }),
-    service: one(ServiceTable, {
-      fields: [VendorServiceTable.serviceId],
-      references: [ServiceTable.id],
-    }),
-  })
-);
-
-export const certificationRelations = relations(
-  CertificationTable,
-  ({ one }) => ({
-    vendor: one(VendorProfileTable, {
-      fields: [CertificationTable.vendorId],
-      references: [VendorProfileTable.id],
-    }),
-  })
-);
-
-export const referenceRelations = relations(ReferenceTable, ({ one }) => ({
-  vendor: one(VendorProfileTable, {
-    fields: [ReferenceTable.vendorId],
-    references: [VendorProfileTable.id],
-  }),
-}));
-
-// Add these relations after your existing relations
-export const productCategoryRelations = relations(
-  ProductCategoryTable,
-  ({ many }) => ({
-    products: many(ProductTable),
-  })
-);
-
-export const productRelations = relations(ProductTable, ({ one, many }) => ({
-  category: one(ProductCategoryTable, {
-    fields: [ProductTable.categoryId],
-    references: [ProductCategoryTable.id],
-  }),
-  vendorProducts: many(VendorProductTable),
-}));
+// export const PlanTable = pgTable("plans", {
+//   id: uuid("id").defaultRandom().primaryKey().notNull(),
+//   name: varchar("name", { length: 100 }).notNull(),
+//   description: text("description"),
+//   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+//   validityYears: integer("validity_years").notNull(),
+//   commission: decimal("commission", { precision: 10, scale: 2 }).notNull(),
+//   features: json("features"),
+//   isActive: boolean("is_active").default(true).notNull(),
+//   createdAt: timestamp("created_at").defaultNow().notNull(),
+//   updatedAt: timestamp("updated_at").defaultNow().notNull(),
+// });
 
 
-export const vendorProductRelations = relations(
-  VendorProductTable,
-  ({ one }) => ({
-    vendor: one(VendorProfileTable, {
-      fields: [VendorProductTable.vendorId],
-      references: [VendorProfileTable.id],
-    }),
-    product: one(ProductTable, {
-      fields: [VendorProductTable.productId],
-      references: [ProductTable.id],
-    }),
-  })
-);
-export const salesCommissionRelations = relations(SalesCommissionTable, ({ one }) => ({
-  salesPerson: one(UserTable, {
-    fields: [SalesCommissionTable.salesPersonId],
-    references: [UserTable.id],
-  }),
-  vendor: one(VendorProfileTable, {
-    fields: [SalesCommissionTable.vendorId],
-    references: [VendorProfileTable.id],
-  }),
-  payment: one(VendorPaymentTable, {
-    fields: [SalesCommissionTable.paymentId],
-    references: [VendorPaymentTable.id],
-  }),
-  plan: one(PlanTable, {
-    fields: [SalesCommissionTable.planId],
-    references: [PlanTable.id],
-  }),
-}));
-
-// Add new relations
-export const planRelations = relations(PlanTable, ({ many }) => ({
-  vendorPayments: many(VendorPaymentTable),
-  salesCommissions: many(SalesCommissionTable),
-}));
-
-export const advertisementPlanRelations = relations(AdvertisementPlanTable, ({ one }) => ({
-  vendor: one(VendorProfileTable, {
-    fields: [AdvertisementPlanTable.vendorId],
-    references: [VendorProfileTable.id],
-  }),
-}));

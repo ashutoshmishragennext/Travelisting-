@@ -55,13 +55,7 @@ export async function GET(request: NextRequest) {
         sortingOrder === "asc"
           ? [asc(UserTable[sortBy])]
           : [desc(UserTable[sortBy])],
-          with: {
-            vendorProfile: {
-              columns:{
-                paymentStatus:true,
-              }
-            } 
-          },
+
     });
 
     console.log(`Found ${users.length} records`);
@@ -234,7 +228,7 @@ export async function PUT(request: Request) {
         password: hashedPassword,
         name,
         role,
-        vendorProfileId,
+       
         updatedAt: new Date(),
       })
       .where(eq(UserTable.id, id))

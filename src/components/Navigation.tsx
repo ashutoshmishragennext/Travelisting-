@@ -126,24 +126,13 @@ export default function CombinedLayout() {
   }, [role]);
 
   useEffect(() => {
-    const currentItems = activeTab === "services" ? services : products;
-    const filtered = currentItems.filter((item) =>
-      item.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    setFilteredItems(filtered);
+   
   }, [searchTerm, services, products, activeTab]);
 
-  const handleTabChange = (tab: "services" | "products") => {
-    setActiveTab(tab);
-    setSearchTerm("");
-    setFilteredItems(tab === "services" ? services : products);
-    setCategoryDropdownOpen(false);
-  };
+  
 
   const allItems = activeTab === "services" ? services : products;
-  const displayedItems = showAll
-    ? allItems
-    : allItems.slice(0, initialItemsCount.desktop);
+
   const handleLogout = async () => {
     await signOut({ redirectTo: "/auth/login" });
   };
@@ -326,16 +315,8 @@ export default function CombinedLayout() {
           <div className="md:hidden bg-primary-light p-4 space-y-4">
             {/* Mobile Search and Category */}
             <div className="flex flex-col space-y-4">
-              <select
-                value={activeTab}
-                onChange={(e) =>
-                  handleTabChange(e.target.value as "services" | "products")
-                }
-                className="px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-primary"
-              >
-                <option value="services">Services</option>
-                <option value="products">Products</option>
-              </select>
+           
+          
               <div className="relative">
                 <input
                   type="text"
@@ -455,29 +436,7 @@ export default function CombinedLayout() {
         </div> */}
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-5">
-          {displayedItems.map((item: Category, index: number) => (
-            <div
-              key={index}
-              className="flex flex-col items-center cursor-pointer transform hover:scale-102 transition-all duration-300 bg-white shadow-md hover:shadow-xl rounded-xl p-5 sm:p-4 border border-gray-100"
-              onClick={() => handleNavigate(item.id)}
-            >
-              <div className="bg-white rounded-full p-1 sm:p-2 w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 flex items-center justify-center">
-                {item.logo && (
-                  <img
-                    src={item.logo}
-                    alt={item.name}
-                    className="w-8 h-8 sm:w-10 sm:h-10 md:w-14 md:h-14 lg:w-16 lg:h-16 rounded-full object-contain"
-                  />
-                )}
-              </div>
-              {/* <div className="h-px w-full bg-gradient-to-r from-transparent to-transparent my-2"></div> */}
-              <div className="bg-white w-full rounded-lg py-2">
-                <span className="text-xs sm:text-sm md:text-base text-center font-medium line-clamp-2 px-1 block text-gray-800">
-                  {item.name}
-                </span>
-              </div>
-            </div>
-          ))}
+          
         </div>
 
         {/* {filteredItems.length === 0 && (
