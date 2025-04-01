@@ -124,6 +124,8 @@ export default function AgentSearchPage() {
   const [selectedStates, setSelectedStates] = useState<string[]>([]);
   const [selectedChains, setSelectedChains] = useState<string[]>([]);
   const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
+  const [selectedCities, setSelectedCities] = useState<string[]>([]);
+  const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
 
   // Get unique filter options
   const categories = [...new Set(hotelsData.map(hotel => hotel.category))];
@@ -140,7 +142,8 @@ export default function AgentSearchPage() {
       hotel.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
       hotel.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
       hotel.subcategory.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      hotel.state.toLowerCase().includes(searchTerm.toLowerCase());
+      hotel.state.toLowerCase().includes(searchTerm.toLowerCase())||
+      hotel.city.toLowerCase().includes(searchTerm.toLowerCase()) ;
 
     const matchesCategory = selectedCategories.length === 0 || 
       selectedCategories.includes(hotel.category);
@@ -156,13 +159,20 @@ export default function AgentSearchPage() {
     
     const matchesStars = selectedStars.length === 0 || 
       selectedStars.includes(hotel.ranking);
+    
+    const matchesCities = selectedCities.length === 0 ||
+      selectedCities.includes(hotel.city);
+    const matchesLocations = selectedLocations.length === 0 ||
+      selectedLocations.includes(hotel.location);
 
     return matchesSearch && 
            matchesCategory && 
            matchesStates && 
            matchesChains && 
            matchesStars && 
-           matchesSubcategories;
+           matchesSubcategories&&
+            matchesCities &&
+            matchesLocations;
   });
 
   // Toggle handlers
@@ -180,6 +190,8 @@ export default function AgentSearchPage() {
   const toggleChain = createToggleHandler(setSelectedChains);
   const toggleSubcategory = createToggleHandler(setSelectedSubcategories);
   const toggleStarRating = createToggleHandler(setSelectedStars);
+  const toggleCity = createToggleHandler(setSelectedCities);
+  const toggleLocation = createToggleHandler(setSelectedLocations);
 
   // Render filter section
   const renderFilterSection = (
@@ -232,6 +244,8 @@ export default function AgentSearchPage() {
         {renderFilterSection("States", states, selectedStates, toggleState)}
         {renderFilterSection("Chains", chains, selectedChains, toggleChain)}
         {renderFilterSection("Subcategories", subcategories, selectedSubcategories, toggleSubcategory)}
+        {renderFilterSection("Cities", hotelsData.map(hotel => hotel.city), selectedCities, toggleCity)}
+        {renderFilterSection("Locations", hotelsData.map(hotel => hotel.location), selectedLocations, toggleLocation)}
         
         {/* Star Ratings filter moved to the last */}
         {renderFilterSection(
