@@ -6,6 +6,7 @@ import {
   index,
   integer,
   json,
+  jsonb,
   pgEnum,
   pgTable,
   text,
@@ -22,7 +23,7 @@ export const UserRole = pgEnum("user_role", [
   "USER",
   "TRAVEL_AGENT",
   "HOTEL_ADMIN",
-  "SUPER_ADMIN",
+  
 ]);
 
 export const DealStatus = pgEnum("deal_status", [
@@ -39,6 +40,19 @@ export const PropertyType = pgEnum("property_type", [
   "HOMESTAY",
   "VILLA",
   "HOSTEL"
+]);
+
+export const DealType = pgEnum("deal_type", [
+  "FLIGHT",
+  "HOTEL",
+  "PACKAGE",
+  "CRUISE",
+  "OTHER"
+]);
+
+export const TravelType = pgEnum("travel_type", [
+  "DOMESTIC",
+  "INTERNATIONAL"
 ]);
 
 // =====================
@@ -147,7 +161,102 @@ export const HotelChainTable = pgTable("hotel_chains", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-// Travel Agent Deals Table
+export const DealTypeDefinitionTable = pgTable(
+  "deal_type_definitions",
+  {
+    id: uuid("id").defaultRandom().primaryKey().notNull(),
+    name: text("name").notNull(), // e.g., "Flight", "Hotel", "Cab", "Package"
+    description: text("description"),
+    isActive: boolean("is_active").default(true).notNull(),
+    createdBy: uuid("created_by").references(() => UserTable.id).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  // (table) => [
+  //   uniqueIndex("deal_type_definitions_name_key").on(table.name),
+  // ]
+);
+
+// ===== DEAL TYPE METADATA SCHEMA =====
+export const DealTypeMetadataTable = pgTable(
+  "deal_type_metadata",
+  {
+    id: uuid("id").defaultRandom().primaryKey().notNull(),
+    dealTypeId: uuid("deal_type_id")
+      .references(() => DealTypeDefinitionTable.id, { onDelete: "cascade" })
+      .notNull(),
+    // The schema defines what metadata fields are required for this deal type
+    schema: jsonb("schema").notNull(),
+    // version: text("version").default("1.0"),
+    isActive: boolean("is_active").default(true).notNull(),
+    createdBy: uuid("created_by").references(() => UserTable.id).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  // (table) => [
+  //   index("deal_type_metadata_deal_type_idx").on(table.dealTypeId),
+  // ]
+);
+
+// Modify the existing DealTable to use the dynamic metadata approach
+export const DealTable = pgTable("deals", {
+  id: uuid("id").defaultRandom().primaryKey().notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  dealType: DealType("deal_type").notNull(),
+  travelType: TravelType("travel_type").notNull(),
+  
+  // Travel agent who created the deal
+  travelAgentId: uuid("travel_agent_id")
+    .notNull()
+    .references(() => UserTable.id),
+    
+  // Optional reference to a property (for hotel deals)
+  propertyId: uuid("property_id").references(() => PropertyTable.id),
+  
+  // Common fields
+  description: text("description"),
+  price: decimal("price", { precision: 10, scale: 2 }),
+  discount: decimal("discount", { precision: 5, scale: 2 }),
+  images: json("images"), // Array of image URLs
+  
+  // Contact information (can override travel agent defaults)
+  contactPhones: text("contact_phones").array(),
+  contactEmails: text("contact_emails").array(),
+  
+  // Reference to the deal type definition
+  dealTypeDefinitionId: uuid("deal_type_definition_id")
+    .references(() => DealTypeDefinitionTable.id),
+  
+  // Dynamic metadata content based on the schema defined in DealTypeMetadataTable
+  metadata: jsonb("metadata"),
+  
+  // Keep the original fields for backward compatibility
+  flightDetails: json("flight_details"), // For source, destination, airlines, etc.
+  hotelDetails: json("hotel_details"), // For additional hotel details not in property table
+  
+  // Rich text content with formatting (stored as JSON)
+  formattedContent: json("formatted_content"),
+  
+  // Location details (for both flight destinations and hotels)
+  country: varchar("country", { length: 100 }),
+  state: varchar("state", { length: 100 }),
+  city: varchar("city", { length: 100 }),
+  
+  // Validity dates
+  validFrom: date("valid_from").notNull(),
+  validTo: date("valid_to").notNull(),
+  
+  // Status and visibility
+  isActive: boolean("is_active").default(true).notNull(),
+  isPromoted: boolean("is_promoted").default(false),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+
+
+// Travel Agent Deals Table (existing table - unchanged)
 export const TravelAgentDealTable = pgTable("travel_agent_deals", {
   id: uuid("id").defaultRandom().primaryKey().notNull(),
   travelAgentId: uuid("travel_agent_id")
@@ -197,12 +306,51 @@ export const CommunicationLogTable = pgTable("communication_logs", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Email Verification Tokens
+export const EmailVerificationTokenTable = pgTable(
+  "email_verification_tokens",
+  {
+    id: uuid("id").defaultRandom().primaryKey().notNull(),
+    email: text("email").notNull(),
+    token: uuid("token").notNull(),
+    expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
+  },
+  (table) => ({
+    emailTokenKey: uniqueIndex("email_verification_tokens_email_token_key").on(
+      table.email,
+      table.token
+    ),
+    tokenKey: uniqueIndex("email_verification_tokens_token_key").on(
+      table.token
+    ),
+  })
+);
+
+// Password Reset Tokens
+export const PasswordResetTokenTable = pgTable(
+  "password_reset_tokens",
+  {
+    id: uuid("id").defaultRandom().primaryKey().notNull(),
+    email: text("email").notNull(),
+    token: uuid("token").notNull(),
+    expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
+  },
+  (table) => ({
+    emailTokenKey: uniqueIndex("password_reset_tokens_email_token_key").on(
+      table.email,
+      table.token
+    ),
+    tokenKey: uniqueIndex("password_reset_tokens_token_key").on(table.token),
+  })
+);
+
 // =====================
 // Relations
 // =====================
 
 export const userRelations = relations(UserTable, ({ many }) => ({
   deals: many(TravelAgentDealTable),
+  dynamicDeals: many(DealTable),
   sentMessages: many(CommunicationLogTable, {
     relationName: "sentMessages"
   }),
@@ -217,6 +365,7 @@ export const propertyRelations = relations(PropertyTable, ({ one, many }) => ({
     references: [HotelChainTable.id],
   }),
   deals: many(TravelAgentDealTable),
+  dynamicDeals: many(DealTable),
 }));
 
 export const hotelChainRelations = relations(HotelChainTable, ({ many }) => ({
@@ -258,54 +407,42 @@ export const communicationLogRelations = relations(
   })
 );
 
-// Email Verification Tokens
-export const EmailVerificationTokenTable = pgTable(
-  "email_verification_tokens",
-  {
-    id: uuid("id").defaultRandom().primaryKey().notNull(),
-    email: text("email").notNull(),
-    token: uuid("token").notNull(),
-    expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
-  },
-  (table) => ({
-    emailTokenKey: uniqueIndex("email_verification_tokens_email_token_key").on(
-      table.email,
-      table.token
-    ),
-    tokenKey: uniqueIndex("email_verification_tokens_token_key").on(
-      table.token
-    ),
+
+
+// Add the relations for the new tables
+export const dealTypeDefinitionRelations = relations(
+  DealTypeDefinitionTable,
+  ({ many }) => ({
+    metadataSchemas: many(DealTypeMetadataTable),
+    deals: many(DealTable),
   })
 );
 
-// Password Reset Tokens
-export const PasswordResetTokenTable = pgTable(
-  "password_reset_tokens",
-  {
-    id: uuid("id").defaultRandom().primaryKey().notNull(),
-    email: text("email").notNull(),
-    token: uuid("token").notNull(),
-    expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
-  },
-  (table) => ({
-    emailTokenKey: uniqueIndex("password_reset_tokens_email_token_key").on(
-      table.email,
-      table.token
-    ),
-    tokenKey: uniqueIndex("password_reset_tokens_token_key").on(table.token),
+export const dealTypeMetadataRelations = relations(
+  DealTypeMetadataTable,
+  ({ one }) => ({
+    dealType: one(DealTypeDefinitionTable, {
+      fields: [DealTypeMetadataTable.dealTypeId],
+      references: [DealTypeDefinitionTable.id],
+    }),
   })
 );
-// export const PlanTable = pgTable("plans", {
-//   id: uuid("id").defaultRandom().primaryKey().notNull(),
-//   name: varchar("name", { length: 100 }).notNull(),
-//   description: text("description"),
-//   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
-//   validityYears: integer("validity_years").notNull(),
-//   commission: decimal("commission", { precision: 10, scale: 2 }).notNull(),
-//   features: json("features"),
-//   isActive: boolean("is_active").default(true).notNull(),
-//   createdAt: timestamp("created_at").defaultNow().notNull(),
-//   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-// });
 
-
+// Update the existing dealRelations
+export const dealRelations = relations(
+  DealTable,
+  ({ one }) => ({
+    travelAgent: one(UserTable, {
+      fields: [DealTable.travelAgentId],
+      references: [UserTable.id],
+    }),
+    property: one(PropertyTable, {
+      fields: [DealTable.propertyId],
+      references: [PropertyTable.id],
+    }),
+    dealTypeDefinition: one(DealTypeDefinitionTable, {
+      fields: [DealTable.dealTypeDefinitionId],
+      references: [DealTypeDefinitionTable.id],
+    }),
+  })
+);
