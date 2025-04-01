@@ -31,11 +31,13 @@ interface VendorData {
 interface VendorBasicInfoProps {
   data: VendorData;
   updateData: (data: Partial<VendorData>) => void;
+  handleNextStep: () => void
 }
 
 const VendorBasicInfo: React.FC<VendorBasicInfoProps> = ({
   data,
   updateData,
+  handleNextStep
 }) => {
   const [loading, setLoading] = useState(false);
   const addressInputRef = useRef(null);
@@ -213,12 +215,7 @@ const VendorBasicInfo: React.FC<VendorBasicInfoProps> = ({
           {/* Save and Continue Button */}
           <button
             className="w-full bg-primary text-white py-3 px-6 rounded-lg mt-4 hover:bg-[#d58829d4] transition duration-300"
-            onClick={() => {
-              toast({
-                title: "Information Saved",
-                variant: "default",
-              });
-            }}
+            onClick={handleNextStep}
           >
             Save and Continue
           </button>

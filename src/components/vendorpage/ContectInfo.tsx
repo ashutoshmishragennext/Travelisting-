@@ -42,11 +42,13 @@ interface ContactInfoProps {
   data: ContactInfoData;
   
   updateData: (data: Partial<ContactInfoData>) => void;
+  handleNextStep: () => void
+
 }
 
 const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-const ContactInfo: React.FC<ContactInfoProps> = ({ data, updateData }) => {
+const ContactInfo: React.FC<ContactInfoProps> = ({ data, updateData , handleNextStep }) => {
   const [newPhone, setNewPhone] = useState<string>('');
   const [newEmail, setNewEmail] = useState<string>('');
   const [sameAsPhone, setSameAsPhone] = useState<boolean>(false);
@@ -287,9 +289,7 @@ const ContactInfo: React.FC<ContactInfoProps> = ({ data, updateData }) => {
           {/* Save and Continue Button */}
           <button
             className="w-full bg-amber-500 text-white py-3 px-6 rounded-lg mt-4 hover:bg-amber-600 transition duration-300"
-            onClick={() => {
-              // Save logic
-            }}
+            onClick={handleNextStep}
           >
             Save and Continue
           </button>

@@ -360,10 +360,11 @@ const steps: StepType[] = [
               data={formData}
               updateData={updateData}
               vendorId={vendorId}
+              handleNextStep = {handleNextStep}
             />
 
             {/* Navigation Buttons */}
-            <div className="mt-8 flex justify-between">
+            {/* <div className="mt-8 flex justify-between">
               <button
                 onClick={() => setCurrentStep(prev => prev - 1)}
                 disabled={currentStep === 0}
@@ -384,7 +385,7 @@ const steps: StepType[] = [
                 {currentStep === steps.length - 1 ? 'Complete' : 'Next'}
                 <ChevronRight className="w-4 h-4 ml-2" />
               </button>
-            </div>
+            </div> */}
           </div>
 
           {/* GIF/Animation Section */}

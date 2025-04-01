@@ -40,13 +40,13 @@ interface ContactInfoData {
 
 interface ContactInfoProps {
   data: ContactInfoData;
-
   updateData: (data: Partial<ContactInfoData>) => void;
+  handleNextStep : () => void;
 }
 
 const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-const ContactInfo2: React.FC<ContactInfoProps> = ({ data, updateData }) => {
+const ContactInfo2: React.FC<ContactInfoProps> = ({ data, updateData ,handleNextStep }) => {
   const [newPhone, setNewPhone] = useState<string>("");
   const [newEmail, setNewEmail] = useState<string>("");
   const [sameAsPhone, setSameAsPhone] = useState<boolean>(false);
@@ -258,7 +258,7 @@ const ContactInfo2: React.FC<ContactInfoProps> = ({ data, updateData }) => {
         </div>
 
         {/* Finish Button */}
-        <button className="w-full bg-primary text-white py-3 rounded-md mt-8 hover:bg-[#d58829ee] transition-colors">
+        <button onClick={handleNextStep} className="w-full bg-primary text-white py-3 rounded-md mt-8 hover:bg-[#d58829ee] transition-colors">
           Finish
         </button>
       </div>
