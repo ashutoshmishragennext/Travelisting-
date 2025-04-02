@@ -25,9 +25,9 @@ export const authRoutes: string[] = [
 // Routes which are protected with diffferent roles
 export const protectedRoutes: Record<string, Role[]> = {
   "^/dashboard/admin(/.*)?$": ["USER"],
-  "^/dashboard/superadmin(/.*)?$": ["SUPER_ADMIN"],
-  "^/dashboard/salePerson(/.*)?$": ["SALE_PERSON"],
-  "^/vendor(/.*)?$": ["USER","SALE_PERSON", "VENDOR"],
-  "^/vendorcreation(/.*)?$": ["SALE_PERSON"],
+  // "^/dashboard/superadmin(/.*)?$": ["SUPER_ADMIN"],
+  // "^/dashboard/salePerson(/.*)?$": ["SALE_PERSON"],
+  // "^/vendor(/.*)?$": ["USER","SALE_PERSON", "VENDOR"],
+  // "^/vendorcreation(/.*)?$": ["SALE_PERSON"],
   // "^/dashboard/staff(/.*)?$": ["STAFF"],
 };

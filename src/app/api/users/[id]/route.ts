@@ -7,7 +7,7 @@ import { z } from "zod";
 
 // Move schema to a separate file (e.g., schemas/user.ts)
 const updateUserSchema = z.object({
-  role: z.enum(["USER", "VENDOR", "SALE_PERSON", "SUPER_ADMIN"]).optional(),
+  role: z.enum(["USER", "TRAVEL_AGENT", "HOTEL_ADMIN"]).optional(),
   email: z.string().email().optional(),
   name: z.string().min(1).optional(),
   vendorProfileId: z.string().uuid().optional(),
