@@ -167,13 +167,13 @@ const VendorRegistration = ({ params }: { params: { id: string } }) => {
                 </div>
               </div>
 
-              <VendorPayment
+              {/* <VendorPayment
                 vendorId={vendorId}
                 amount={selectedPlan.price}
                 planId={selectedPlan.id}
                 onSuccess={handlePaymentSuccess}
                 onError={handlePaymentError}
-              />
+              /> */}
             </div>
           )}
         </div>
