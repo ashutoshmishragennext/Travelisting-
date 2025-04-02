@@ -124,7 +124,7 @@ const VendorBasicInfo: React.FC<VendorBasicInfoProps> = ({
       <div className="w-full md:w-1/2">
         <div className="mb-8">
           <h2 className="text-xl font-bold mb-6 text-gray-800">
-            Enter Basic Business Details
+            Enter Basic Agency Details
           </h2>
           <div className="flex justify-between items-center">
             <div className="border-b-4 border-primary w-32 "></div>
@@ -141,7 +141,7 @@ const VendorBasicInfo: React.FC<VendorBasicInfoProps> = ({
               value={data.companyName || ""}
               onChange={(e) => updateData({ companyName: e.target.value })}
               className="w-full bg-gray-50 rounded-lg p-3 text-gray-700"
-              placeholder="Business Name"
+              placeholder="Agency Name"
             />
           </div>
 
@@ -253,7 +253,7 @@ const VendorBasicInfo: React.FC<VendorBasicInfoProps> = ({
                     </div>
                     <div>
                       <h3 className="font-semibold text-sm">
-                        {data.companyName || "Business Name"}
+                        {data.companyName || "Agency Name"}
                       </h3>
                       <p className="text-xs text-gray-500">
                         Restaurant and Coffee
