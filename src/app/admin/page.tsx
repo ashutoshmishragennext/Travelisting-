@@ -21,6 +21,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import AdminTemplateCreator from "@/components/admin/Template-creator";
+import DealTemplates from "@/components/admin/DisplayTemplate";
 
 
 export default function AdminDashboard() {
@@ -53,7 +54,7 @@ export default function AdminDashboard() {
       case 'templates':
         return <AdminTemplateCreator/>;
       case 'first':
-        return <p>First</p>;
+        return <DealTemplates/>;
       case 'second':
         return <p>Second</p>;
       case 'third':
