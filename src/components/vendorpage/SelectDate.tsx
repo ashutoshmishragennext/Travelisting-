@@ -160,10 +160,11 @@ const ContactInfo2: React.FC<ContactInfoProps> = ({ data, updateData ,handleNext
 
         {/* Business Opening Days - Redesigned */}
         <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <div className="h-1 bg-primary w-28 rounded"></div>
-            <div className="h-1 bg-primary w-28 rounded"></div>
-            <div className="h-1 bg-primary w-28 rounded"></div>
+          <div className="grid grid-cols-4 gap-2">
+            <div className="h-1 bg-primary rounded"></div>
+            <div className="h-1 bg-primary rounded"></div>
+            <div className="h-1 bg-primary rounded"></div>
+            <div className="h-1 bg-primary rounded"></div>
           </div>
 
           <div className="flex flex-wrap gap-2 my-4">

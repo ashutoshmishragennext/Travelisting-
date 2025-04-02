@@ -155,10 +155,11 @@ const ContactInfo: React.FC<ContactInfoProps> = ({ data, updateData , handleNext
           <h2 className="text-xl font-bold mb-6 text-gray-800">
             Add Contact Details
           </h2>
-          <div className="flex gap-4 mb-6">
-            <div className="border-b-4 border-amber-500 w-20"></div>
-            <div className="border-b-4 border-amber-500 w-20"></div>
-            <div className="border-b-4 border-gray-200 w-20"></div>
+          <div className="grid grid-cols-4 gap-4 mb-6">
+            <div className="border-b-4 border-amber-500 "></div>
+            <div className="border-b-4 border-amber-500 "></div>
+            <div className="border-b-4 border-gray-200 "></div>
+            <div className="border-b-4 border-gray-200 "></div>
           </div>
         </div>
         

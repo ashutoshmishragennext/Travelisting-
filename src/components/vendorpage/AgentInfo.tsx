@@ -1,3 +1,7 @@
+
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import React, { useState, useEffect } from 'react';
 import { Input } from "../ui/input";
 import { Checkbox } from "../ui/checkbox";
@@ -8,6 +12,7 @@ import { useCurrentUser } from '@/hooks/auth';
 import ImageCropper from '../shared/imagecrop/Imagecrop';
 import { toast } from '../ui/use-toast';
 import Image from 'next/image';
+
 
 interface UserData {
   id: string;
@@ -39,6 +44,12 @@ interface ContactInfoData {
     start: string; 
     end: string;
   };
+  hotelIds ?: string[];
+  isDomestic ?: boolean;
+  isInternational ?: boolean;
+  bussinessType ?: string;
+  hotels ?: string[];
+
 }
 
 interface HotelChain {
@@ -60,6 +71,7 @@ interface ContactInfoProps {
 interface FlightData {
   type: 'International' | 'Domestic';
   type2: 'International' | 'Domestic';
+  type3 : "B2B" | "B2C";
   source: string;
   destination: string;
   image: string | null;
@@ -72,6 +84,11 @@ interface FlightData {
 
 const serviceTypes = ["Flight", "Hotel"];
 
+interface HotelChain2 {
+    id : string;
+    name : string;
+}
+
 const AgentInfo: React.FC<ContactInfoProps> = ({ data, updateData, handleNextStep }) => {
   // Base contact info states
   const [newPhone, setNewPhone] = useState<string>('');
@@ -79,17 +96,20 @@ const AgentInfo: React.FC<ContactInfoProps> = ({ data, updateData, handleNextSte
   const [sameAsPhone, setSameAsPhone] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  
+  const [fromInput , setFromInput] = useState<string>("");
+  const [showFromDropdown , setShowFromDropdown] = useState<boolean>(false);
+
   // New states for service selection
-  const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [selectedServices, setSelectedServices] = useState<string[]>(["Flight"]);
   const [hotelChains, setHotelChains] = useState<HotelChain[]>([]);
-  const [selectedHotelChain, setSelectedHotelChain] = useState<string>('');
+  const [selectedHotelChains, setSelectedHotelChains] = useState<HotelChain2[]>([]); // Changed to array for multiple selection
   const [isHotelLoading, setIsHotelLoading] = useState<boolean>(false);
   
   // Flight specific states
   const [flightData, setFlightData] = useState<FlightData>({
     type: 'Domestic',
-    type2: 'International',
+    type2: 'Domestic',
+    type3 : "B2B",
     source: '',
     destination: '',
     image: null,
@@ -143,10 +163,9 @@ const AgentInfo: React.FC<ContactInfoProps> = ({ data, updateData, handleNextSte
   
   // Fetch hotel chains when Hotel is selected
   useEffect(() => {
-    if (selectedServices.includes('Hotel')) {
       fetchHotelChains();
-    }
-  }, [selectedServices]);
+  }, []);
+
   
   const fetchHotelChains = async () => {
     try {
@@ -247,6 +266,24 @@ const AgentInfo: React.FC<ContactInfoProps> = ({ data, updateData, handleNextSte
     }));
   };
 
+  // New function to handle hotel chain toggling
+  const handleHotelChainToggle = (hotelId: string, hotelName: string) => {
+    setSelectedHotelChains(prev => {
+        const isAlreadySelected = prev.some(hotel => hotel.id === hotelId);
+        
+        if (isAlreadySelected) {
+            // Remove the hotel if it's already selected (toggle off)
+            return prev.filter(hotel => hotel.id !== hotelId);
+        } else {
+            // Add the hotel if it's not selected
+            return [...prev, { id: hotelId, name: hotelName }];
+        }
+    });
+
+    setShowFromDropdown(false);
+    setFromInput("");
+};
+
   
   const handleKeyPress = (
     e: React.KeyboardEvent,
@@ -272,41 +309,6 @@ const AgentInfo: React.FC<ContactInfoProps> = ({ data, updateData, handleNextSte
   };
   
 
-//   const handleCroppedImage = async (
-//       croppedImage: string,
-//       type: "logo" | "cover"
-//     ) => {
-//       const response = await fetch(croppedImage);
-//       const blob = await response.blob();
-//       const formData = new FormData();
-//       formData.append("image", blob, `${type}-image.jpg`);
-  
-//       try {
-//         const response = await fetch("/api/media/upload", {
-//           method: "POST",
-//           body: formData,
-//         });
-  
-//         if (!response.ok) throw new Error("Image upload failed");
-  
-//         const result = await response.json();
-//         setFlightData(prev => ({
-//             ...prev,
-//             image: result.url
-//           }));
-//             toast({
-//           title: "Image uploaded successfully",
-//           variant: "default",
-//         });
-//       } catch (error) {
-//         console.error("Error uploading image:", error);
-//         toast({
-//           title: "Error uploading image",
-//           variant: "destructive",
-//         });
-//       }
-//     };
-
   if (isLoading) {
     return <div className="flex justify-center items-center h-screen"><Loader/></div>;
   }
@@ -315,79 +317,68 @@ const AgentInfo: React.FC<ContactInfoProps> = ({ data, updateData, handleNextSte
     return <div className="text-red-500 p-4">Error: {error}</div>;
   }
 
+  const handleSubmit = () => {
+
+    updateData({ bussinessType : flightData.type3 });
+    updateData({ isDomestic : flightData.type === "Domestic" });
+    updateData({ isInternational : flightData.type2 === "International" });
+    updateData({ bussinessType : flightData.type3 });
+    let data : any = [];
+    selectedHotelChains.map((item) => {
+        data.push(item.id);
+    })    
+    updateData({ hotelIds : data });
+
+
+    handleNextStep()
+  }
+
   return (
     <div className="max-w-3xl mx-auto flex flex-col md:flex-row gap-8 p-6">
       <div className="w-full md:w-1/2">
         <div className="mb-8">
           <h2 className="text-xl font-bold mb-6 text-gray-800">
-            Add Contact Details
+            Add Listing Details
           </h2>
-          <div className="flex gap-4 mb-6">
-            <div className="border-b-4 border-amber-500 w-20"></div>
-            <div className="border-b-4 border-amber-500 w-20"></div>
-            <div className="border-b-4 border-gray-200 w-20"></div>
+          <div className="flex gap-2 mb-6">
+            <div className="border-b-4 border-amber-500 w-14"></div>
+            <div className="border-b-4 border-amber-500 w-14"></div>
+            <div className="border-b-4 border-amber-500 w-14"></div>
+            <div className="border-b-4 border-gray-200 w-14"></div>
           </div>
         </div>
         
-        <div className="space-y-4 mb-0">
+        <div className="space-y-4 mb-0 min-h-[60vh] relative flex flex-col justify-between ">
           {/* Service Type Selection */}
-          <div className="mb-6">
-            <h3 className="text-md font-semibold mb-3 text-gray-700">Select Service Types</h3>
-            <div className="flex flex-wrap gap-3">
-              {serviceTypes.map((service) => (
-                <div key={service} className="flex items-center space-x-2">
-                  <Checkbox 
-                    id={`service-${service}`}
-                    checked={selectedServices.includes(service)}
-                    onCheckedChange={() => handleServiceToggle(service)}
-                    className="h-4 w-4 border-amber-500 text-amber-500 rounded"
-                  />
-                  <label 
-                    htmlFor={`service-${service}`} 
-                    className="text-sm text-gray-600 cursor-pointer"
-                  >
-                    {service}
-                  </label>
-                </div>
-              ))}
-            </div>
-          </div>
-          
-          {/* Hotel Chain Selection */}
-          {selectedServices.includes('Hotel') && (
+
+          <div>
             <div className="mb-6">
-              <h3 className="text-md font-semibold mb-3 text-gray-700">Select Hotel Chain</h3>
-              {isHotelLoading ? (
-                <div className="flex items-center justify-center p-4"><Loader /></div>
-              ) : (
-                <div className="space-y-3">
-                  {hotelChains.map((hotel) => (
-                    <div key={hotel.id} className="flex items-center space-x-2">
-                      <Checkbox 
-                        id={`hotel-${hotel.id}`}
-                        checked={selectedHotelChain === hotel.id}
-                        onCheckedChange={() => setSelectedHotelChain(hotel.id)}
+                <h3 className="text-md font-semibold mb-3 text-gray-700">Select Service Types</h3>
+                <div className="flex flex-wrap gap-3">
+                {serviceTypes.map((service) => (
+                    <div key={service} className="flex items-center space-x-2">
+                    <Checkbox 
+                        id={`service-${service}`}
+                        checked={selectedServices.includes(service)}
+                        onCheckedChange={() => handleServiceToggle(service)}
                         className="h-4 w-4 border-amber-500 text-amber-500 rounded"
-                      />
-                      <label 
-                        htmlFor={`hotel-${hotel.id}`} 
+                    />
+                    <label 
+                        htmlFor={`service-${service}`} 
                         className="text-sm text-gray-600 cursor-pointer"
-                      >
-                        <div className="font-medium">{hotel.name}</div>
-                        <div className="text-xs text-gray-500">{hotel.description}</div>
-                        <div className="text-xs text-gray-400">{hotel.properties} properties • {hotel.headquarters}</div>
-                      </label>
+                    >
+                        {service}
+                    </label>
                     </div>
-                  ))}
+                ))}
                 </div>
-              )}
             </div>
-          )}
-          
-          {/* Flight Details */}
-          {selectedServices.includes('Flight') && (
+
+                    {/* Flight Details */}
+            
+            {selectedServices.includes('Flight') && (
             <div className="mb-6 space-y-4">
-              <h3 className="text-md font-semibold mb-3 text-gray-700">Flight Details</h3>
+              <h3 className="text-md font-semibold mb-3 text-gray-700">Flight List Type</h3>
               
               {/* Flight Type */}
               <div className="flex items-center space-x-4">
@@ -420,14 +411,48 @@ const AgentInfo: React.FC<ContactInfoProps> = ({ data, updateData, handleNextSte
                   </label>
                 </div>
               </div>
-              
+
+            <div className=' space-y-4'>
+              <label htmlFor="bussiness" className=''>Lister type</label>
+
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="flight-domestic"
+                    checked={flightData.type3 === 'B2B'}
+                    onCheckedChange={() => setFlightData(prev => ({...prev, type3: 'B2B'}))}
+                    className="h-4 w-4 border-amber-500 text-amber-500 rounded"
+                  />
+                  <label 
+                    htmlFor="flight-domestic" 
+                    className="text-sm text-gray-600 cursor-pointer"
+                  >
+                    B2B
+                  </label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="flight-international"
+                    checked={flightData.type3 === 'B2C'}
+                    onCheckedChange={() => setFlightData(prev => ({...prev, type3: "B2C" }))}
+                    className="h-4 w-4 border-amber-500 text-amber-500 rounded"
+                  />
+                  <label 
+                    htmlFor="flight-international" 
+                    className="text-sm text-gray-600 cursor-pointer"
+                  >
+                    B2C
+                  </label>
+                </div>
+              </div>
+              </div>
               
               {/* Flight Contact Details */}
-              <div>
+              {/* <div>
                 <h4 className="text-sm font-medium mb-2 text-gray-700">Flight Contact Details</h4>
-                
+                 */}
                 {/* Phone Numbers */}
-                <div className="mb-3">
+                {/* <div className="mb-3">
                   <div className="flex gap-2">
                     <div className="w-1/4 relative">
                       <div className="flex items-center justify-between bg-gray-50 rounded-lg p-3 text-gray-700 border border-gray-200">
@@ -453,7 +478,6 @@ const AgentInfo: React.FC<ContactInfoProps> = ({ data, updateData, handleNextSte
                     + Add Phone Number
                   </button>
                   
-                  {/* Display flight phone numbers */}
                   <div className="flex flex-wrap gap-2 mt-2">
                     {flightData.contacts.phones.map((phone, index) => (
                       <div key={index} className="bg-gray-100 rounded-full px-3 py-1 flex items-center text-sm">
@@ -469,7 +493,6 @@ const AgentInfo: React.FC<ContactInfoProps> = ({ data, updateData, handleNextSte
                   </div>
                 </div>
                 
-                {/* Email Addresses */}
                 <div className="mb-3">
                   <Input
                     type="email"
@@ -486,7 +509,6 @@ const AgentInfo: React.FC<ContactInfoProps> = ({ data, updateData, handleNextSte
                     + Add Email Address
                   </button>
                   
-                  {/* Display flight email addresses */}
                   <div className="flex flex-wrap gap-2 mt-2">
                     {flightData.contacts.emails.map((email, index) => (
                       <div key={index} className="bg-gray-100 rounded-full px-3 py-1 flex items-center text-sm">
@@ -502,13 +524,83 @@ const AgentInfo: React.FC<ContactInfoProps> = ({ data, updateData, handleNextSte
                   </div>
                 </div>
               </div>
+               */}
+
             </div>
           )}
 
+          
+          {/* Hotel Chain Selection - Modified for multiple selection */}
+          {selectedServices.includes('Hotel') && (
+            <div className="mb-6">
+              <h3 className="text-md font-semibold mb-3 text-gray-700">Select Hotel Chains</h3>
+              {isHotelLoading ? (
+                <div className="flex items-center justify-center p-4"><Loader /></div>
+              ) : (
+                <div className="space-y-3">
+                  
+                    <div className="relative w-full">
+                    <label className="block text-sm font-medium text-gray-700">
+                        Hotel Name
+                    </label>
+                    <div className="mt-1 relative rounded-md shadow-sm">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        {/* <Plane className="h-5 w-5 text-gray-400" /> */}
+                        </div>
+                        <input
+                        type="text"
+                        value={fromInput}
+                        onChange={(e) => setFromInput(e.target.value)}
+                        onFocus={() => setShowFromDropdown(true)}
+                        className="block w-full pl-4 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm"
+                        placeholder="Hotel Name"
+                        />
+                    </div>
+                    {showFromDropdown && hotelChains.length > 0 && (
+                        <div className="absolute z-10 mt-1 w-full bg-white shadow-lg rounded-md max-h-60 overflow-auto">
+                        {isLoading ? (
+                            <div className="p-2 text-center text-gray-500">
+                            Loading...
+                            </div>
+                        ) : (
+                            hotelChains.filter((item) => item.name.toLowerCase().includes(fromInput.toLowerCase())).map((hotel) => (
+                                <div 
+                                key={`hotel-${hotel.id}`} 
+                                className="text-sm text-gray-600 cursor-pointer pb-2"
+                                onClick={() => handleHotelChainToggle(hotel.id , hotel.name)}
+                            >
+                                <div className="font-medium">{hotel.name}</div>
+                                <div className="text-xs text-gray-400">{hotel.properties} properties • {hotel.headquarters}</div>
+                            </div>
+                            ))
+                        )}
+                        </div>
+                    )}
+                    </div>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                    {selectedHotelChains.map((hotel, index) => (
+                      <div key={index} className="bg-gray-100 rounded-full px-3 py-1 flex items-center text-sm">
+                        <span>{hotel.name}</span>
+                        <button 
+                          onClick={() => handleRemoveFlightPhone(index)}
+                          className="ml-2 text-gray-500 hover:text-red-500"
+                        >
+                          <X onClick={() => handleHotelChainToggle(hotel.id , hotel.name)} className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+          </div>
+          
+
           {/* Save and Continue Button */}
           <button
-            className="w-full bg-amber-500 text-white py-3 px-6 rounded-lg mt-4 hover:bg-amber-600 transition duration-300"
-            onClick={handleNextStep}
+            className="w-full bg-amber-500 text-white relative bottom-0  py-3 px-6 rounded-lg mt-4 hover:bg-amber-600 transition duration-300"
+            onClick={handleSubmit}
           >
             Save and Continue
           </button>
@@ -559,22 +651,7 @@ const AgentInfo: React.FC<ContactInfoProps> = ({ data, updateData, handleNextSte
                   </div>
                 )}
                 
-                {/* Hotel Info (if selected) */}
-                {selectedServices.includes('Hotel') && selectedHotelChain && (
-                  <div className="mb-4">
-                    <h4 className="text-sm font-semibold mb-2">Hotel Chain</h4>
-                    <div className="bg-gray-50 rounded-md p-2">
-                      <p className="text-sm font-medium">
-                        {hotelChains.find(h => h.id === selectedHotelChain)?.name}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {hotelChains.find(h => h.id === selectedHotelChain)?.description}
-                      </p>
-                    </div>
-                  </div>
-                )}
-                
-                {/* Flight Info (if selected) */}
+                                {/* Flight Info (if selected) */}
                 {selectedServices.includes('Flight') && (flightData.source || flightData.destination) && (
                   <div className="mb-4">
                     <h4 className="text-sm font-semibold mb-2">Flight Details</h4>

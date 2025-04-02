@@ -58,8 +58,8 @@ const VendorRegistrationForm: React.FC = () => {
 const steps: StepType[] = [
   { component: VendorBasicInfo, title: 'Basic Information', img: '/basic.gif' },
   { component: ContactInfo, title: 'Contact Information', img: '/basic2.gif' },
-  { component: ContactInfo2, title: 'Contact Information', img: '/basic2.gif' },
   { component: AgentInfo, title: 'Contact Information', img: '/basic2.gif' },
+  { component: ContactInfo2, title: 'Contact Information', img: '/basic2.gif' },
 
   // { component: () => {
   //   if (showOptionsStep) {

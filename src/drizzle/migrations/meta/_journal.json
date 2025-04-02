@@ -92,6 +92,13 @@
       "when": 1743570537851,
       "tag": "0012_huge_micromax",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1743588455538,
+      "tag": "0013_acoustic_wildside",
+      "breakpoints": true
     }
   ]
 }

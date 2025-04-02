@@ -23,6 +23,7 @@ export const UserRole = pgEnum("user_role", [
   "USER",
   "TRAVEL_AGENT",
   "HOTEL_ADMIN",
+  "SUPER_ADMIN"
   
 ]);
 
@@ -101,7 +102,10 @@ export const VendorProfileTable = pgTable("vendor_profiles", {
   establishmentYear: integer("establishment_year"),
   socialLinks: json("social_links"),
   logo: text("logo"),
+  isDomestic : boolean("domestic"),
+  isInternational : boolean("international"),
   coverImage: text("cover_image"),
+  hotelChainIds : text("hotel_chain_ids").array(),
   pictures: json("pictures"),
   primaryContactName: varchar("primary_contact_name", { length: 100 }),
   primaryContactEmail: varchar("primary_contact_email", { length: 100 }),

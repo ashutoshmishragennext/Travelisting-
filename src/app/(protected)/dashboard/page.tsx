@@ -18,31 +18,31 @@ export default function Dashboard() {
 
  
   useEffect(() => {
-    const checkVendorProfile = async () => {
-      if (role === "VENDOR") {
-        try {
-          const response = await fetch(`/api/users?id=${user?.id}`);
-          const data = await response.json();
+    // const checkVendorProfile = async () => {
+    //   if (role === "VENDOR") {
+    //     try {
+    //       const response = await fetch(`/api/users?id=${user?.id}`);
+    //       const data = await response.json();
          
-          if (data && data.length > 0) {
-            const vendorData = data[0];
+    //       if (data && data.length > 0) {
+    //         const vendorData = data[0];
             
 
-            if (vendorData.vendorProfileId === null) {
-              router.push("/dashboard/admin");
-            } 
+    //         if (vendorData.vendorProfileId === null) {
+    //           router.push("/dashboard/admin");
+    //         } 
           
-            else if(vendorData.vendorProfileId ) {
-              router.push(`/vendor/edit/${vendorData.vendorProfileId}`);
-            }
-          }
-        } catch (error) {
-          console.error("Error fetching vendor data:", error);
-          // Handle error case - redirect to a default route or show error message
-          router.push("/dashboard/admin");
-        }
-      }
-    };
+    //         else if(vendorData.vendorProfileId ) {
+    //           router.push(`/vendor/edit/${vendorData.vendorProfileId}`);
+    //         }
+    //       }
+    //     } catch (error) {
+    //       console.error("Error fetching vendor data:", error);
+    //       // Handle error case - redirect to a default route or show error message
+    //       router.push("/dashboard/admin");
+    //     }
+    //   }
+    // };
 
     const handleRouting = async () => {
       if (!role) {
@@ -54,7 +54,7 @@ export default function Dashboard() {
       setIsRedirecting(true);
 
       switch (role) {
-        case "SALE_PERSON":
+        // case "SALE_PERSON":
         //   router.push("/dashboard/salePerson");
         //   break;
         // case "VENDOR":

@@ -127,9 +127,10 @@ const VendorBasicInfo: React.FC<VendorBasicInfoProps> = ({
             Enter Basic Agency Details
           </h2>
           <div className="flex justify-between items-center">
-            <div className="border-b-4 border-primary w-32 "></div>
-            <div className="border-b-4 border-gray-200 w-32"></div>
-            <div className="border-b-4 border-gray-200 w-32"></div>
+            <div className="border-b-4 border-primary w-24 "></div>
+            <div className="border-b-4 border-gray-200 w-24"></div>
+            <div className="border-b-4 border-gray-200 w-24"></div>
+            <div className="border-b-4 border-gray-200 w-24"></div>
           </div>
         </div>
 
@@ -163,14 +164,14 @@ const VendorBasicInfo: React.FC<VendorBasicInfoProps> = ({
             <Input
               type="text"
               value={data.addressLine1 || ""}
-              onChange={(e) => updateData({ addressLine1: e.target.value })}
+              onChange={(e) => updateData({ headquartersAddress: e.target.value })}
               className="w-full bg-gray-50 rounded-lg p-3 text-gray-700"
-              placeholder="Address Line 1"
+              placeholder="Address"
             />
           </div>
 
           {/* Address Line 2 */}
-          <div>
+          {/* <div>
             <Input
               type="text"
               value={data.addressLine2 || ""}
@@ -178,7 +179,7 @@ const VendorBasicInfo: React.FC<VendorBasicInfoProps> = ({
               className="w-full bg-gray-50 rounded-lg p-3 text-gray-700"
               placeholder="Address Line 2"
             />
-          </div>
+          </div> */}
 
           {/* City and State in same row */}
           <div className="flex gap-4">
@@ -198,18 +199,24 @@ const VendorBasicInfo: React.FC<VendorBasicInfoProps> = ({
             />
           </div>
           <div className="flex gap-4">
+            <div>
+            <label htmlFor="logo" className=" text-sm pl-2">Logo</label>
             <ImageCropper
               onImageCropped={(croppedImage) =>
                 handleCroppedImage(croppedImage, "logo")
               }
               type="logo"
             />
+            </div>
+            <div> 
+              <label htmlFor="cover" className=" text-sm pl-2">Cover</label>
             <ImageCropper
               onImageCropped={(croppedImage) =>
                 handleCroppedImage(croppedImage, "cover")
               }
               type="cover"
             />
+            </div>
           </div>
 
           {/* Save and Continue Button */}
