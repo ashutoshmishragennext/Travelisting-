@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     const dealTypes = await db
       .select()
       .from(DealTypeDefinitionTable)
-      .execute();
+      
     
     return NextResponse.json({ dealTypes }, { status: 200 });
   } catch (error) {
