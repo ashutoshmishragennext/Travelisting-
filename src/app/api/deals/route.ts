@@ -1,8 +1,7 @@
-// app/api/deals/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
-import { eq } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 import { DealTable } from "@/drizzle/schema";
 
 export async function GET(request: NextRequest) {
@@ -11,16 +10,48 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const dealType = searchParams.get("dealType");
     const travelType = searchParams.get("travelType");
+    const city = searchParams.get("city");
+    const country = searchParams.get("country");
+    const limit = searchParams.get("limit") ? parseInt(searchParams.get("limit")!) : undefined;
+    const isActive = searchParams.has("isActive") ? searchParams.get("isActive") === "true" : undefined;
     
+    // Build query with filters
     let query = db.select().from(DealTable);
     
-    // Apply filters if they exist
+    // Apply filters conditionally
+    const conditions = [];
+    
     if (dealType) {
-      query = query.where(eq(DealTable.dealType, dealType));
+      conditions.push(eq(DealTable.dealType, dealType));
     }
     
     if (travelType) {
-      query = query.where(eq(DealTable.travelType, travelType));
+      conditions.push(eq(DealTable.travelType, travelType));
+    }
+    
+    if (city) {
+      conditions.push(eq(DealTable.city, city));
+    }
+    
+    if (country) {
+      conditions.push(eq(DealTable.country, country));
+    }
+    
+    if (isActive !== undefined) {
+      conditions.push(eq(DealTable.isActive, isActive));
+    }
+    
+    // Apply all conditions if they exist
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+    
+    // Sort by newest first
+    query = query.orderBy(desc(DealTable.createdAt));
+    
+    // Apply limit if specified
+    if (limit) {
+      query = query.limit(limit);
     }
     
     const deals = await query.execute();
@@ -46,33 +77,36 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    
-    // Insert new deal
-    const newDeal = await db.insert(DealTable).values({
-      
+
+    // Create the deal insertion object exactly matching the schema
+    const dealData = {
+      title: body.title,
       dealType: body.dealType,
       travelType: body.travelType,
       travelAgentId: body.travelAgentId,
-      propertyId: body.propertyId,
-      description: body.description,
-      price: body.price,
-      discount: body.discount,
-      images: body.images,
-      contactPhones: body.contactPhones,
-      contactEmails: body.contactEmails,
-      dealTypeDefinitionId: body.dealTypeDefinitionId,
-      metadata: body.metadata,
-      flightDetails: body.flightDetails,
-      hotelDetails: body.hotelDetails,
-      formattedContent: body.formattedContent,
-      country: body.country,
-      state: body.state,
-      city: body.city,
+      propertyId: body.propertyId || null,
+      description: body.description || null,
+      price: body.price || null,
+      discount: body.discount || null,
+      images: body.images || null,
+      contactPhones: body.contactPhones || null,
+      contactEmails: body.contactEmails || null,
+      dealTypeDefinitionId: body.dealTypeDefinitionId || null,
+      metadata: body.metadata || null,
+      flightDetails: body.flightDetails || null,
+      hotelDetails: body.hotelDetails || null,
+      formattedContent: body.formattedContent || null,
+      country: body.country || null,
+      state: body.state || null,
+      city: body.city || null,
       validFrom: new Date(body.validFrom),
       validTo: new Date(body.validTo),
-      isActive: body.isActive ?? true,
-      isPromoted: body.isPromoted ?? false,
-    }).returning();
+      isActive: body.isActive !== undefined ? body.isActive : true,
+      isPromoted: body.isPromoted !== undefined ? body.isPromoted : false,
+    };
+    
+    // Insert new deal
+    const newDeal = await db.insert(DealTable).values(dealData).returning();
     
     return NextResponse.json({ deal: newDeal[0] }, { status: 201 });
   } catch (error) {
@@ -84,10 +118,6 @@ export async function POST(request: NextRequest) {
   }
 }
 
-
-
-
-
-
-
-
+export async function HEAD(request: NextRequest) {
+  return NextResponse.json({}, { status: 200 });
+}
