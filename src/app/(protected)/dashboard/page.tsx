@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 
 export default function Dashboard() {
   const router = useRouter();
-  const role = useCurrentRole();
+  const role = useCurrentRole() as "USER" | "TRAVEL_AGENT" | "HOTEL_ADMIN" | "SALE_PERSON" | "SUPER_ADMIN" | undefined;
   const user = useCurrentUser();
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -19,7 +19,7 @@ export default function Dashboard() {
  
   useEffect(() => {
     const checkVendorProfile = async () => {
-      if (role === "VENDOR") {
+      if (role === "HOTEL_ADMIN") { // Replace "VENDOR" with a valid type value
         try {
           const response = await fetch(`/api/users?id=${user?.id}`);
           const data = await response.json();

@@ -1,8 +1,9 @@
 // app/api/deal-type-metadata/route.ts
+
+
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { DealTypeMetadataTable } from "@/drizzle/schema";
 
 export async function GET(request: NextRequest) {
@@ -10,16 +11,21 @@ export async function GET(request: NextRequest) {
     // Get query parameters for filtering
     const { searchParams } = new URL(request.url);
     const dealTypeId = searchParams.get("dealTypeId");
-    
-    let query = db.select().from(DealTypeMetadataTable);
-    
+
+    const conditions = [];
+
     // Apply filter if it exists
     if (dealTypeId) {
-      query = query.where(eq(DealTypeMetadataTable.dealTypeId, dealTypeId));
+      conditions.push(eq(DealTypeMetadataTable.dealTypeId, dealTypeId));
     }
-    
-    const metadata = await query.execute();
-    
+
+    // Fetch data using conditions
+    const metadata = await db
+      .select()
+      .from(DealTypeMetadataTable)
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
+      .execute();
+
     return NextResponse.json({ metadata }, { status: 200 });
   } catch (error) {
     console.error("Error fetching deal type metadata:", error);
@@ -29,6 +35,7 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
 
 export async function POST(request: NextRequest) {
   try {
