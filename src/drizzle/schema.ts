@@ -42,13 +42,13 @@ export const PropertyType = pgEnum("property_type", [
   "HOSTEL"
 ]);
 
-export const DealType = pgEnum("deal_type", [
-  "FLIGHT",
-  "HOTEL",
-  "PACKAGE",
-  "CRUISE",
-  "OTHER"
-]);
+// export const DealType = pgEnum("deal_type", [
+//   "FLIGHT",
+//   "HOTEL",
+//   "PACKAGE",
+//   "CRUISE",
+//   "OTHER"
+// ]);
 
 export const TravelType = pgEnum("travel_type", [
   "DOMESTIC",
@@ -202,7 +202,7 @@ export const DealTypeMetadataTable = pgTable(
 export const DealTable = pgTable("deals", {
   id: uuid("id").defaultRandom().primaryKey().notNull(),
   title: varchar("title", { length: 255 }).notNull(),
-  dealType: DealType("deal_type").notNull(),
+  // dealType: DealType("deal_type").notNull(),
   travelType: TravelType("travel_type").notNull(),
   
   // Travel agent who created the deal
