@@ -34,7 +34,7 @@ export async function registerUser(values: z.infer<typeof RegisterUserSchema>) {
     password: hashedPassword,
     mobile,
     createdBy: null,
-    role: role || "VENDOR",
+    role: role ?? "USER",
     organisationId: ''
   });
 

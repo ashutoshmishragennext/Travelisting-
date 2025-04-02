@@ -8,6 +8,7 @@ import React, { useState } from 'react';
 import ContactInfo from '@/components/vendorpage/ContectInfo';
 import ContactInfo2 from '@/components/vendorpage/SelectDate';
 import { useCurrentUser } from '@/hooks/auth';
+import AgentInfo from "@/components/vendorpage/AgentInfo";
 
 // import ContactInfo from '@/components/vendorpage/ContectInfo';
 
@@ -58,6 +59,8 @@ const steps: StepType[] = [
   { component: VendorBasicInfo, title: 'Basic Information', img: '/basic.gif' },
   { component: ContactInfo, title: 'Contact Information', img: '/basic2.gif' },
   { component: ContactInfo2, title: 'Contact Information', img: '/basic2.gif' },
+  { component: AgentInfo, title: 'Contact Information', img: '/basic2.gif' },
+
   // { component: () => {
   //   if (showOptionsStep) {
   //     return (

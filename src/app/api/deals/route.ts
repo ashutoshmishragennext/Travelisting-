@@ -6,9 +6,8 @@ import { DealTable } from "@/drizzle/schema";
 
 export async function GET(request: NextRequest) {
   try {
-    // Get query parameters for filtering
     const { searchParams } = new URL(request.url);
-    const dealType = searchParams.get("dealType");
+    const dealTypeDefinitionId = searchParams.get("dealType");
     const travelType = searchParams.get("travelType");
     const city = searchParams.get("city");
     const country = searchParams.get("country");
@@ -53,29 +52,30 @@ export async function GET(request: NextRequest) {
     if (limit) {
       query = query.limit(limit);
     }
-    
-    const deals = await query.execute();
-    
+    if (country) conditions.push(eq(DealTable.country, country));
+    if (state) conditions.push(eq(DealTable.state, state));
+    if (city) conditions.push(eq(DealTable.city, city));
+
+    // Fetch data with conditions
+    const deals = await db
+      .select()
+      .from(DealTable)
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
+      .execute();
+
     return NextResponse.json({ deals }, { status: 200 });
   } catch (error) {
     console.error("Error fetching deals:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch deals" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fetch deals" }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
-    // Validate required fields
-    if (!body.title || !body.dealType || !body.travelType || !body.travelAgentId || !body.validFrom || !body.validTo) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
+
+    if (!body.title || !body.travelType || !body.travelAgentId || !body.validFrom || !body.validTo) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
     // Create the deal insertion object exactly matching the schema
@@ -111,10 +111,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ deal: newDeal[0] }, { status: 201 });
   } catch (error) {
     console.error("Error creating deal:", error);
-    return NextResponse.json(
-      { error: "Failed to create deal" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to create deal" }, { status: 500 });
   }
 }
 

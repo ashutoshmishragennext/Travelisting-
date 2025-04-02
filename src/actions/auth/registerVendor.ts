@@ -28,14 +28,14 @@ export async function registerUser(values: RegisterUserInput) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    type UserRole = "USER"  | "SUPER_ADMIN" | "VENDOR";
+    type UserRole = "USER" | "TRAVEL_AGENT" | "HOTEL_ADMIN";
     const createUserId=  await createUser({
         name,
         email,
         password: hashedPassword,
         mobile,
         createdBy: createdBy ?? '',
-        role: (role as UserRole) || "VENDOR",  // Type assertion approach
+        role: (role as UserRole) || 'USER',  // Type assertion approach
         organisationId: ''
       }); 
       // console.log("createdUserId",createUserId);

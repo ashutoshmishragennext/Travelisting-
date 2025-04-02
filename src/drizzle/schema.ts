@@ -26,6 +26,11 @@ export const UserRole = pgEnum("user_role", [
   
 ]);
 
+export const bussinessTypes = pgEnum("bussiness_types", [
+  "B2B",
+  "B2C",  
+]);
+
 export const DealStatus = pgEnum("deal_status", [
   "PENDING",
   "NEGOTIATING",
@@ -114,6 +119,7 @@ export const VendorProfileTable = pgTable("vendor_profiles", {
   insuranceCoverage: json("insurance_coverage"),
   businessOpeningDays: text("business_opening_days").array(),
   anotherMobileNumbers: text("another_mobile_numbers").array(),
+  bussinessType: bussinessTypes("bussiness_type").default("B2B").notNull(),
   advertisment: text("advertisment").array(),
   anotheremails: text("another_emails").array(),
   businessTiming: json("business_timing"),
