@@ -138,8 +138,9 @@ const ContactInfoPage = ({ vendorId }: ContactInfoPageProps) => {
           <form onSubmit={handleSubmit} className="space-y-6">
             <ContactInfo
               data={formData}
-              updateData={handleUpdateData}
-            />
+              updateData={handleUpdateData} handleNextStep={function (): void {
+                throw new Error('Function not implemented.');
+              } }            />
             
             <div className="flex justify-end space-x-4 pt-6">
               <Button

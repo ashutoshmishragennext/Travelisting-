@@ -131,7 +131,7 @@ const VendorList: React.FC = () => {
           <CardContent className="pt-6">
             <RegisterFormVendor 
               text="Create your account" 
-              role="VENDOR" 
+              role="USER" 
               vendorId={user?.id} 
             />
           </CardContent>

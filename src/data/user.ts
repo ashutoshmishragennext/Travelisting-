@@ -20,7 +20,7 @@ export async function createUser(data: UserData) {
         email: data.email,
         name: data.name,
         password: data.password,
-        createdBy: data.createdBy,
+        // createdBy: data.createdBy, // Removed as it does not exist in the schema
         mobile: data.mobile,
         role: data.role,
         updatedAt: new Date(),
