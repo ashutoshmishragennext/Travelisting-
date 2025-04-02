@@ -1,17 +1,10 @@
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-import React, { useState, useEffect } from 'react';
-import { Input } from "../ui/input";
-import { Checkbox } from "../ui/checkbox";
-import { X, ChevronDown, Calendar, Upload } from "lucide-react";
+import { X } from "lucide-react";
+import React, { useEffect, useState } from 'react';
 import Loader from '../shared/Loader';
+import { Checkbox } from "../ui/checkbox";
 
 import { useCurrentUser } from '@/hooks/auth';
-import ImageCropper from '../shared/imagecrop/Imagecrop';
-import { toast } from '../ui/use-toast';
-import Image from 'next/image';
 
 
 interface UserData {
@@ -105,6 +98,9 @@ const AgentInfo: React.FC<ContactInfoProps> = ({ data, updateData, handleNextSte
   const [selectedHotelChains, setSelectedHotelChains] = useState<HotelChain2[]>([]); // Changed to array for multiple selection
   const [isHotelLoading, setIsHotelLoading] = useState<boolean>(false);
   
+  const unUsedVars = () => {
+    
+  }
   // Flight specific states
   const [flightData, setFlightData] = useState<FlightData>({
     type: 'Domestic',
@@ -333,6 +329,7 @@ const AgentInfo: React.FC<ContactInfoProps> = ({ data, updateData, handleNextSte
     handleNextStep()
   }
 
+
   return (
     <div className="max-w-3xl mx-auto flex flex-col md:flex-row gap-8 p-6">
       <div className="w-full md:w-1/2">
@@ -348,6 +345,9 @@ const AgentInfo: React.FC<ContactInfoProps> = ({ data, updateData, handleNextSte
           </div>
         </div>
         
+        <div onClick={unUsedVars} className=" hidden">
+
+        </div>
         <div className="space-y-4 mb-0 min-h-[60vh] relative flex flex-col justify-between ">
           {/* Service Type Selection */}
 
