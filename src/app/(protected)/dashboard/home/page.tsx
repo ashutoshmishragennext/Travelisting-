@@ -1,31 +1,21 @@
 'use client';
 
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import Deals from "@/components/home/Deals";
+// import Profile from "@/components/home/Profile";
 import { useCurrentUser } from '@/hooks/auth';
 import {
   ChevronLeft,
   ChevronRight,
   File,
-  LogOut,
-  Menu,
-  Settings,
-  Users,
-  FileText,
-  // Templates
+  FileText
 } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { useSession } from 'next-auth/react';
-import AdminTemplateCreator from "@/components/admin/Template-creator";
-import DealTemplates from "@/components/admin/DisplayTemplate";
-import profile from "@/components/home/Profile";
-import Profile from "@/components/home/Profile";
-import HotelChain from "@/components/home/HotelChain";
 
+
+
+import HotelChain from "@/components/home/HotelChain";
 
 export default function AdminDashboard() {
   const { status } = useSession();
@@ -34,6 +24,8 @@ export default function AdminDashboard() {
   
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeComponent, setActiveComponent] = useState('profile');
+  if (status === 'unauthenticated') {
+    router.push('/auth/login');  }
 
   if (status === 'loading') {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
@@ -47,7 +39,7 @@ export default function AdminDashboard() {
   const navItems = [
     { id: 'profile', label: 'Profile', icon: <FileText className="h-5 w-5" /> },
     { id: 'hotel', label: 'Bussiness', icon: <FileText className="h-5 w-5" /> },
-    { id: 'first', label: 'First', icon: <File className="h-5 w-5" /> },
+    { id: 'deals', label: 'Deals', icon: <File className="h-5 w-5" /> },
     // { id: 'second', label: 'Second', icon: <Users className="h-5 w-5" /> },
     // { id: 'third', label: 'Third', icon: <File className="h-5 w-5" /> },
   ];
@@ -56,11 +48,11 @@ export default function AdminDashboard() {
   const renderMainContent = () => {
     switch (activeComponent) {
       case 'profile':
-        return <Profile/>;
+        return <p>profile</p>;
       case 'hotel':
         return <HotelChain/>;
-      case 'first':
-        return <DealTemplates/>;
+      case 'deals':
+          return <Deals/>;
       case 'second':
         return <p>Second</p>;
       case 'third':
@@ -115,7 +107,7 @@ export default function AdminDashboard() {
           } bg-white border-r transition-all duration-300 ease-in-out h-[calc(100vh-64px)] flex flex-col justify-between`}
         >
           <div>
-            <div className="flex justify-end p-2 md:hidden">
+            <div className="flex justify-end p-2 ">
               <button 
                 onClick={toggleSidebar} 
                 className="p-1 text-gray-500 hover:bg-gray-100 rounded-full"

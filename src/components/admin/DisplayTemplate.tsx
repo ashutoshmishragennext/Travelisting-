@@ -1,3 +1,4 @@
+//display template for deal type metadata
 'use client';
 
 import { useState, useEffect } from 'react';

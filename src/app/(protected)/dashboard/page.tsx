@@ -66,6 +66,8 @@ export default function Dashboard() {
           case "SUPER_ADMIN":
             router.push("/dashboard/superadmin");
             break;
+        case "TRAVEL_AGENT":
+          router.push("/dashboard/home");
         default:
           setIsRedirecting(false);
           break;

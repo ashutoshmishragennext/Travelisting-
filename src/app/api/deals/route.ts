@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     
     // Validate required fields
-    if (!body.title || !body.travelType || !body.travelAgentId || !body.validFrom || !body.validTo) {
+    if ( !body.travelAgentId  || !body.validTo) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
