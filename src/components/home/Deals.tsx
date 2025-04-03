@@ -1,27 +1,20 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
   CardTitle,
-  CardFooter
+  CardFooter,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { 
-  Plus, 
-  AlertCircle, 
-  Calendar, 
-  MapPin, 
-  Tag, 
-  Clock
-} from "lucide-react";
-import { format } from 'date-fns';
-import Image from 'next/image';
-import CreateDealPage from './CreateDeals';
+import { Plus, AlertCircle, Calendar, MapPin, Tag, Clock } from "lucide-react";
+import { format } from "date-fns";
+import Image from "next/image";
+import CreateDealPage from "./CreateDeals";
 
 // Type definition for a Deal
 interface Deal {
@@ -31,7 +24,7 @@ interface Deal {
   description?: string;
   price?: number;
   discount?: number;
-  images?: string[];
+  images?: string;
   country?: string;
   state?: string;
   city?: string;
@@ -55,16 +48,19 @@ export default function Deals() {
       try {
         setLoading(true);
         // In a real application, you would filter by the logged-in travel agent's ID
-        const response = await fetch('/api/deals');
-        
+        const response = await fetch("/api/deals");
+
         if (!response.ok) {
-          throw new Error('Failed to fetch deals');
+          throw new Error("Failed to fetch deals");
         }
-        
+
         const data = await response.json();
+        console.log(data);
         setDeals(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An unknown error occurred');
+        setError(
+          err instanceof Error ? err.message : "An unknown error occurred"
+        );
       } finally {
         setLoading(false);
       }
@@ -120,7 +116,7 @@ export default function Deals() {
           <h1 className="text-3xl font-bold">My Deals</h1>
           <p className="text-muted-foreground">Manage your travel deals</p>
         </div>
-        
+
         <Button onClick={handleCreateDeal} className="flex items-center">
           <Plus className="h-4 w-4 mr-2" />
           Add New Deal
@@ -133,9 +129,12 @@ export default function Deals() {
             <div className="mb-4 p-4 rounded-full bg-muted">
               <Tag className="h-8 w-8 text-primary" />
             </div>
-            <h2 className="text-xl font-semibold mb-2">Create your first deal</h2>
+            <h2 className="text-xl font-semibold mb-2">
+              Create your first deal
+            </h2>
             <p className="text-muted-foreground text-center mb-6 max-w-md">
-              Start attracting customers by creating attractive travel deals. Showcase your best offers to increase bookings.
+              Start attracting customers by creating attractive travel deals.
+              Showcase your best offers to increase bookings.
             </p>
             <Button onClick={handleCreateDeal} className="flex items-center">
               <Plus className="h-4 w-4 mr-2" />
@@ -145,12 +144,12 @@ export default function Deals() {
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {deals.map(deal => (
+          {deals.map((deal) => (
             <Card key={deal.id} className="overflow-hidden">
               <div className="relative h-48 bg-muted">
-                {deal.images && deal.images[0] ? (
+                {deal.images ? (
                   <Image
-                    src={deal.images[0]}
+                    src={deal.images} // Use deal.images directly
                     alt={deal.title}
                     fill
                     className="object-cover"
@@ -166,26 +165,35 @@ export default function Deals() {
                   </div>
                 )}
               </div>
-              
+
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <CardTitle className="text-lg">{deal.title}</CardTitle>
-                  <div className={`h-3 w-3 rounded-full ${deal.isActive ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+                  <div
+                    className={`h-3 w-3 rounded-full ${
+                      deal.isActive ? "bg-green-500" : "bg-gray-400"
+                    }`}
+                  ></div>
                 </div>
                 <CardDescription className="flex items-center">
                   <Calendar className="h-4 w-4 mr-1" />
                   <span>
-                    Valid: {format(new Date(deal.validFrom), 'MMM d')} - {format(new Date(deal.validTo), 'MMM d, yyyy')}
+                    Valid: {format(new Date(deal.validFrom), "MMM d")} -{" "}
+                    {format(new Date(deal.validTo), "MMM d, yyyy")}
                   </span>
                 </CardDescription>
               </CardHeader>
-              
+
               <CardContent>
                 <div className="flex items-center text-sm mb-2">
                   <MapPin className="h-4 w-4 mr-1" />
-                  <span>{[deal.city, deal.state, deal.country].filter(Boolean).join(', ') || 'Location not specified'}</span>
+                  <span>
+                    {[deal.city, deal.state, deal.country]
+                      .filter(Boolean)
+                      .join(", ") || "Location not specified"}
+                  </span>
                 </div>
-                
+
                 {deal.price && (
                   <div className="flex items-center mb-3">
                     <span className="text-xl font-bold">
@@ -198,20 +206,22 @@ export default function Deals() {
                     )}
                   </div>
                 )}
-                
+
                 <p className="text-sm text-muted-foreground line-clamp-2">
                   {deal.description || "No description provided."}
                 </p>
               </CardContent>
-              
+
               <CardFooter className="flex justify-between items-center pt-0">
                 <div className="flex items-center text-sm text-muted-foreground">
                   <Clock className="h-4 w-4 mr-1" />
-                  <span>Added {format(new Date(deal.createdAt), 'MMM d, yyyy')}</span>
+                  <span>
+                    Added {format(new Date(deal.createdAt), "MMM d, yyyy")}
+                  </span>
                 </div>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={() => handleViewDeal(deal.id)}
                 >
                   View

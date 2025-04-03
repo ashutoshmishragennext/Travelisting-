@@ -32,6 +32,7 @@ import {
 import { format } from "date-fns";
 import ImageCropper from "../shared/imagecrop/Imagecrop";
 import { useCurrentUser } from "@/hooks/auth";
+import Image from "next/image";
 
 // Type definitions
 interface Field {
@@ -42,6 +43,7 @@ interface Field {
   sequence: number;
   options?: string[];
 }
+
 
 interface Schema {
   fields: Field[];
@@ -84,7 +86,7 @@ interface DealFormData {
   contactEmails: string[];
   dealTypeDefinitionId: string;
   metadata: Record<string, any>;
-  images: string[];
+  images: string;
   isActive: boolean;
   isPromoted: boolean;
 }
@@ -127,7 +129,7 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
     contactEmails: [""],
     dealTypeDefinitionId: "",
     metadata: {},
-    images: [],
+    images: "",
     isActive: true,
     isPromoted: false,
   });
@@ -343,11 +345,11 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
       const result = await uploadResponse.json();
       console.log("Upload result:", result); // Add this for debugging
 
-      // Add the uploaded image URL to the dealFormData.images array
+      // Add the uploaded image URL to the dealFormData.images
       if (result && result.url) {
         setDealFormData((prevData) => ({
-          ...prevData,
-          images: [...prevData.images, result.url],
+          ...prevData, // Keep all existing form data
+          images: result.url, // Set the images to the URL string
         }));
       } else {
         throw new Error("No URL returned from upload");
@@ -363,15 +365,11 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
   };
 
   // Remove image
-  const handleRemoveImage = (index: number) => {
-    setDealFormData((prev) => {
-      const newImages = [...prev.images];
-      newImages.splice(index, 1);
-      return {
-        ...prev,
-        images: newImages,
-      };
-    });
+  const handleRemoveImage = () => {
+    setDealFormData((prev) => ({
+      ...prev,
+      images: "", // Clear the image by setting it to an empty string
+    }));
   };
 
   // Handle form submission
@@ -396,6 +394,8 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
           (email) => email.trim() !== ""
         ),
       };
+
+      console.log("Submitting deal data:", formattedData); // Debugging line
 
       const response = await fetch("/api/deals", {
         method: "POST",
@@ -857,27 +857,26 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
                     </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                      {dealFormData.images.map((image, index) => (
-                        <div
-                          key={index}
-                          className="relative border rounded-md overflow-hidden"
-                        >
-                          <img
-                            src={image}
-                            alt={`Deal image ${index + 1}`}
-                            className="w-full h-32 object-cover"
+                      {dealFormData.images && (
+                        <div className="relative border rounded-md overflow-hidden">
+                          <Image
+                            src={dealFormData.images}
+                            alt="Deal image"
+                            className="object-cover"
+                            width={200}
+                            height={200}
                           />
                           <Button
                             type="button"
                             variant="destructive"
                             size="sm"
                             className="absolute top-1 right-1 h-7 w-7 opacity-90"
-                            onClick={() => handleRemoveImage(index)}
+                            onClick={handleRemoveImage}
                           >
                             <Trash className="h-3 w-3" />
                           </Button>
                         </div>
-                      ))}
+                      )}
                     </div>
                   </div>
                 </div>

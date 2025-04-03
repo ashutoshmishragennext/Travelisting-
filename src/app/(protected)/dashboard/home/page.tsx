@@ -1,7 +1,7 @@
 'use client';
 
 import Deals from "@/components/home/Deals";
-import Profile from "@/components/home/Profile";
+// import Profile from "@/components/home/Profile";
 import { useCurrentUser } from '@/hooks/auth';
 import {
   ChevronLeft,
@@ -12,13 +12,10 @@ import {
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { useSession } from 'next-auth/react';
-import AdminTemplateCreator from "@/components/admin/Template-creator";
-import DealTemplates from "@/components/admin/DisplayTemplate";
 
-import Profile from "@/components/home/Profile";
+
+
 import HotelChain from "@/components/home/HotelChain";
-
 
 export default function AdminDashboard() {
   const { status } = useSession();
@@ -27,6 +24,8 @@ export default function AdminDashboard() {
   
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeComponent, setActiveComponent] = useState('profile');
+  if (status === 'unauthenticated') {
+    router.push('/auth/login');  }
 
   if (status === 'loading') {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
@@ -49,7 +48,7 @@ export default function AdminDashboard() {
   const renderMainContent = () => {
     switch (activeComponent) {
       case 'profile':
-        return <Profile/>;
+        return <p>profile</p>;
       case 'hotel':
         return <HotelChain/>;
       case 'deals':
