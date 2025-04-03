@@ -12,6 +12,12 @@ import {
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { useSession } from 'next-auth/react';
+import AdminTemplateCreator from "@/components/admin/Template-creator";
+import DealTemplates from "@/components/admin/DisplayTemplate";
+
+import Profile from "@/components/home/Profile";
+import HotelChain from "@/components/home/HotelChain";
 
 
 export default function AdminDashboard() {
@@ -21,11 +27,6 @@ export default function AdminDashboard() {
   
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeComponent, setActiveComponent] = useState('profile');
-
-  if (status === 'unauthenticated') {
-    router.push('/auth/login');
-    return null;
-  }
 
   if (status === 'loading') {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
@@ -38,6 +39,7 @@ export default function AdminDashboard() {
   // Enhanced navigation items for sidebar
   const navItems = [
     { id: 'profile', label: 'Profile', icon: <FileText className="h-5 w-5" /> },
+    { id: 'hotel', label: 'Bussiness', icon: <FileText className="h-5 w-5" /> },
     { id: 'deals', label: 'Deals', icon: <File className="h-5 w-5" /> },
     // { id: 'second', label: 'Second', icon: <Users className="h-5 w-5" /> },
     // { id: 'third', label: 'Third', icon: <File className="h-5 w-5" /> },
@@ -48,8 +50,10 @@ export default function AdminDashboard() {
     switch (activeComponent) {
       case 'profile':
         return <Profile/>;
+      case 'hotel':
+        return <HotelChain/>;
       case 'deals':
-        return <Deals/>;
+          return <Deals/>;
       case 'second':
         return <p>Second</p>;
       case 'third':
