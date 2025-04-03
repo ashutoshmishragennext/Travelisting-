@@ -513,6 +513,7 @@ const Profile = () => {
                             <p className="text-sm text-gray-500">Business Type</p>
                             <p className="text-lg">{vendor.bussinessType}</p>
                           </div>
+                          {/* {vendor.isDomestic || vendor.isInternational &&( */}
                           <div>
                             <p className="text-sm text-gray-500">Business Coverage</p>
                             <div className="flex space-x-2">
@@ -524,6 +525,7 @@ const Profile = () => {
                               )}
                             </div>
                           </div>
+                        {/* // )} */}
                         </div>
                       </div>
 
