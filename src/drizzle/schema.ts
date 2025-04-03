@@ -23,14 +23,11 @@ export const UserRole = pgEnum("user_role", [
   "USER",
   "TRAVEL_AGENT",
   "HOTEL_ADMIN",
-  "SUPER_ADMIN"
+  // "SUPER_ADMIN"
   
 ]);
 
-export const bussinessTypes = pgEnum("bussiness_types", [
-  "B2B",
-  "B2C",  
-]);
+
 
 export const DealStatus = pgEnum("deal_status", [
   "PENDING",
@@ -123,7 +120,7 @@ export const VendorProfileTable = pgTable("vendor_profiles", {
   insuranceCoverage: json("insurance_coverage"),
   businessOpeningDays: text("business_opening_days").array(),
   anotherMobileNumbers: text("another_mobile_numbers").array(),
-  bussinessType: bussinessTypes("bussiness_type").default("B2B").notNull(),
+  bussinessType: text("bussiness_type").notNull(),
   advertisment: text("advertisment").array(),
   anotheremails: text("another_emails").array(),
   businessTiming: json("business_timing"),
@@ -227,7 +224,7 @@ export const DealTable = pgTable("deals", {
   description: text("description"),
   price: decimal("price", { precision: 10, scale: 2 }),
   discount: decimal("discount", { precision: 5, scale: 2 }),
-  images: json("images"), // Array of image URLs
+  images: text("images"), // Array of image URLs
   
   // Contact information (can override travel agent defaults)
   contactPhones: text("contact_phones").array(),

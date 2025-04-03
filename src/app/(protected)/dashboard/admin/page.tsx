@@ -25,6 +25,8 @@ type StepType = {
   img:string;
 };
 
+
+
 const StepCompletionScreen = ({ title, onContinue }:any) => (
   <div className="flex flex-col items-center justify-center p-8 text-center">
     <CheckCircle className="w-16 h-16 text-green-500 mb-4 animate-bounce" />

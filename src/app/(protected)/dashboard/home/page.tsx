@@ -1,27 +1,17 @@
 'use client';
 
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import Deals from "@/components/home/Deals";
+import Profile from "@/components/home/Profile";
 import { useCurrentUser } from '@/hooks/auth';
 import {
   ChevronLeft,
   ChevronRight,
   File,
-  LogOut,
-  Menu,
-  Settings,
-  Users,
-  FileText,
-  // Templates
+  FileText
 } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { useSession } from 'next-auth/react';
-import AdminTemplateCreator from "@/components/admin/Template-creator";
-import DealTemplates from "@/components/admin/DisplayTemplate";
 
 
 export default function AdminDashboard() {
@@ -30,7 +20,12 @@ export default function AdminDashboard() {
   const user = useCurrentUser();
   
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [activeComponent, setActiveComponent] = useState('templates');
+  const [activeComponent, setActiveComponent] = useState('profile');
+
+  if (status === 'unauthenticated') {
+    router.push('/auth/login');
+    return null;
+  }
 
   if (status === 'loading') {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
@@ -42,8 +37,8 @@ export default function AdminDashboard() {
 
   // Enhanced navigation items for sidebar
   const navItems = [
-    { id: 'templates', label: 'Templates', icon: <FileText className="h-5 w-5" /> },
-    { id: 'first', label: 'First', icon: <File className="h-5 w-5" /> },
+    { id: 'profile', label: 'Profile', icon: <FileText className="h-5 w-5" /> },
+    { id: 'deals', label: 'Deals', icon: <File className="h-5 w-5" /> },
     // { id: 'second', label: 'Second', icon: <Users className="h-5 w-5" /> },
     // { id: 'third', label: 'Third', icon: <File className="h-5 w-5" /> },
   ];
@@ -51,10 +46,10 @@ export default function AdminDashboard() {
   // Render the appropriate component based on sidebar selection
   const renderMainContent = () => {
     switch (activeComponent) {
-      case 'templates':
-        return <AdminTemplateCreator/>;
-      case 'first':
-        return <DealTemplates/>;
+      case 'profile':
+        return <Profile/>;
+      case 'deals':
+        return <Deals/>;
       case 'second':
         return <p>Second</p>;
       case 'third':
@@ -109,7 +104,7 @@ export default function AdminDashboard() {
           } bg-white border-r transition-all duration-300 ease-in-out h-[calc(100vh-64px)] flex flex-col justify-between`}
         >
           <div>
-            <div className="flex justify-end p-2 md:hidden">
+            <div className="flex justify-end p-2 ">
               <button 
                 onClick={toggleSidebar} 
                 className="p-1 text-gray-500 hover:bg-gray-100 rounded-full"
