@@ -166,7 +166,7 @@ const AgentInfo: React.FC<ContactInfoProps> = ({ data, updateData, handleNextSte
   const fetchHotelChains = async () => {
     try {
       setIsHotelLoading(true);
-      const response = await fetch('http://localhost:3000/api/hotelChain');
+      const response = await fetch('/api/hotelChain');
       if (!response.ok) {
         throw new Error('Failed to fetch hotel chains');
       }
