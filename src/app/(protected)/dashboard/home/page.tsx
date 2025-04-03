@@ -22,6 +22,8 @@ import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import AdminTemplateCreator from "@/components/admin/Template-creator";
 import DealTemplates from "@/components/admin/DisplayTemplate";
+import profile from "@/components/home/Profile";
+import Profile from "@/components/home/Profile";
 
 
 export default function AdminDashboard() {
@@ -30,7 +32,7 @@ export default function AdminDashboard() {
   const user = useCurrentUser();
   
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [activeComponent, setActiveComponent] = useState('templates');
+  const [activeComponent, setActiveComponent] = useState('profile');
 
   if (status === 'loading') {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
@@ -42,7 +44,7 @@ export default function AdminDashboard() {
 
   // Enhanced navigation items for sidebar
   const navItems = [
-    { id: 'templates', label: 'Templates', icon: <FileText className="h-5 w-5" /> },
+    { id: 'profile', label: 'Profile', icon: <FileText className="h-5 w-5" /> },
     { id: 'first', label: 'First', icon: <File className="h-5 w-5" /> },
     // { id: 'second', label: 'Second', icon: <Users className="h-5 w-5" /> },
     // { id: 'third', label: 'Third', icon: <File className="h-5 w-5" /> },
@@ -51,8 +53,8 @@ export default function AdminDashboard() {
   // Render the appropriate component based on sidebar selection
   const renderMainContent = () => {
     switch (activeComponent) {
-      case 'templates':
-        return <AdminTemplateCreator/>;
+      case 'profile':
+        return <Profile/>;
       case 'first':
         return <DealTemplates/>;
       case 'second':
