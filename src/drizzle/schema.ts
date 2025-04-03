@@ -61,9 +61,37 @@ export const TravelType = pgEnum("travel_type", [
   "INTERNATIONAL"
 ]);
 
+// New enum for advertisement types
+export const AdvertisementType = pgEnum("advertisement_type", [
+  "BANNER",
+  "POPUP",
+  "SIDEBAR",
+  "FEATURED_DEAL",
+  "EMAIL",
+  "NOTIFICATION"
+]);
+
 // =====================
 // Tables
 // =====================
+
+// Advertisement Table
+export const AdvertisementTable = pgTable("advertisements", {
+  id: uuid("id").defaultRandom().primaryKey().notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  type: AdvertisementType("type").notNull(),
+  content: jsonb("content").notNull(), // Dynamic content based on advertisement type
+  imageUrl: text("image_url"),
+  redirectUrl: text("redirect_url"),
+  startDate: timestamp("start_date").notNull(),
+  endDate: timestamp("end_date").notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+  targetAudience: jsonb("target_audience"), // For audience targeting
+  metrics: jsonb("metrics"), // For tracking impressions, clicks, etc.
+  createdBy: uuid("created_by").references(() => VendorProfileTable.id).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
 
 // User Table
 export const UserTable = pgTable(
@@ -128,6 +156,7 @@ export const VendorProfileTable = pgTable("vendor_profiles", {
   anotheremails: text("another_emails").array(),
   businessTiming: json("business_timing"),
   paymentStatus: text("payment_status"),
+  advertisements: jsonb("advertisements"), // New field for dynamic advertisements
 
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -154,6 +183,7 @@ export const PropertyTable = pgTable("properties", {
   
   amenities: json("amenities"),
   photos: json("photos"),
+  advertisements: jsonb("advertisements"), // New field for property-specific advertisements
   
   isActive: boolean("is_active").default(true).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -168,6 +198,7 @@ export const HotelChainTable = pgTable("hotel_chains", {
   websiteUrl: text("website_url"),
   headquarters: text("headquarters"),
   properties: integer("properties_count").default(0),
+  advertisements: jsonb("advertisements"), // New field for chain-specific advertisements
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -250,7 +281,7 @@ export const DealTable = pgTable("deals", {
   // Location details (for both flight destinations and hotels)
   country: varchar("country", { length: 100 }),
   state: varchar("state", { length: 100 }),
-  city: varchar("city", { length: 100 }),
+  city: varchar("city", { length: 100 }),    
   
   // Validity dates
   validFrom: date("valid_from").notNull(),
@@ -259,6 +290,9 @@ export const DealTable = pgTable("deals", {
   // Status and visibility
   isActive: boolean("is_active").default(true).notNull(),
   isPromoted: boolean("is_promoted").default(false),
+  
+  // New field for deal-specific advertisements
+  advertisements: jsonb("advertisements"),
   
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -289,6 +323,7 @@ export const TravelAgentDealTable = pgTable("travel_agent_deals", {
   discountDetails: json("discount_details"),
   
   notes: text("notes"),
+  advertisements: jsonb("advertisements"), // New field for travel agent deal advertisements
   
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -367,6 +402,7 @@ export const userRelations = relations(UserTable, ({ many }) => ({
   receivedMessages: many(CommunicationLogTable, {
     relationName: "receivedMessages"
   }),
+  createdAdvertisements: many(AdvertisementTable)
 }));
 
 export const propertyRelations = relations(PropertyTable, ({ one, many }) => ({
@@ -417,7 +453,16 @@ export const communicationLogRelations = relations(
   })
 );
 
-
+// Add the relations for the new Advertisement table
+export const advertisementRelations = relations(
+  AdvertisementTable,
+  ({ one }) => ({
+    creator: one(UserTable, {
+      fields: [AdvertisementTable.createdBy],
+      references: [UserTable.id],
+    }),
+  })
+);
 
 // Add the relations for the new tables
 export const dealTypeDefinitionRelations = relations(
