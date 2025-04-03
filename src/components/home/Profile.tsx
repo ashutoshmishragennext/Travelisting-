@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Input } from '../ui/input';
+import { useCurrentUser } from '@/hooks/auth';
 
 // Define the VendorData type based on the actual API response
 interface VendorData {
@@ -50,6 +51,7 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [formData, setFormData] = useState<Partial<VendorData>>({});
   const router = useRouter();
+  const user = useCurrentUser()
 
   // Fetch vendor data
   useEffect(() => {
@@ -57,7 +59,7 @@ const Profile = () => {
       try {
         setLoading(true);
         const response = await fetch(
-          'http://localhost:3000/api/vendor?userId=faa4f822-0ea7-4f76-8029-7bf3eb8208d4'
+          `/api/vendor?userId=${user?.id}`
         );
         
         if (!response.ok) {
@@ -168,7 +170,7 @@ const Profile = () => {
       setIsEditing(false);
       
       // Simulate API update
-      const response = await fetch(`http://localhost:3000/api/vendor/${vendor?.id}`, {
+      const response = await fetch(`/api/vendor?id=${vendor?.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
