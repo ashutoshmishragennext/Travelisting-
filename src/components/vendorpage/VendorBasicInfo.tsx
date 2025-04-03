@@ -1,7 +1,8 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Input } from "../ui/input";
 import { toast } from "../ui/use-toast";
 import ImageCropper from "../shared/imagecrop/Imagecrop";
+import { useCurrentUser } from "@/hooks/auth";
 
 interface SocialLinks {
   twitter?: string;
@@ -40,7 +41,7 @@ const VendorBasicInfo: React.FC<VendorBasicInfoProps> = ({
   handleNextStep
 }) => {
   const [loading, setLoading] = useState(false);
-  const addressInputRef = useRef(null);
+  // const addressInputRef = useRef(null);
 
   const handleCroppedImage = async (
     croppedImage: string,
@@ -118,6 +119,30 @@ const VendorBasicInfo: React.FC<VendorBasicInfoProps> = ({
       }
     }
   };
+  const user = useCurrentUser()
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const userId = user?.id;
+        const response = await fetch(`/api/vendor?userId=${userId}`)
+        if(!response.ok)
+          return;
+        const data2 = await response.json();
+        
+        updateData({ companyName: data2.companyName });
+        updateData({ pincode: data2.pincode });
+        updateData({ headquartersAddress: data2.headquartersAddress });
+        updateData({ city: data2.city });
+        updateData({ state: data2.state });
+        updateData({ logo: data2.logo });
+        updateData({ coverImage: data2.coverImage });
+      } catch (error) {
+        console.log("Error" , error);
+      }
+    }
+    fetchData()
+  },[])
 
   return (
     <div className="max-w-4xl mx-auto space-x-12 flex flex-col md:flex-row gap-8 ">
@@ -163,7 +188,7 @@ const VendorBasicInfo: React.FC<VendorBasicInfoProps> = ({
           <div>
             <Input
               type="text"
-              value={data.addressLine1 || ""}
+              value={data.headquartersAddress || ""}
               onChange={(e) => updateData({ headquartersAddress: e.target.value })}
               className="w-full bg-gray-50 rounded-lg p-3 text-gray-700"
               placeholder="Address"

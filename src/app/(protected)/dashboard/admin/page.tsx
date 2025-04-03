@@ -239,49 +239,49 @@ const steps: StepType[] = [
     
   
 
-  const handleServicesSubmit = async (vendorId: string) => {
-    if (!formData.services?.length) return;
+  // const handleServicesSubmit = async (vendorId: string) => {
+  //   if (!formData.services?.length) return;
     
-    try {
-      await Promise.all(formData.services.map((service: any) =>
-        fetch('/api/vendorservice', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...service, vendorId }),
-        })
-      ));
-    } catch (error) {
-      console.error('Error submitting services:', error);
-      toast({
-        title: "Error",
-        description: "Failed to submit vendor services",
-        variant: "destructive"
-      });
-      throw error;
-    }
-  };
+  //   try {
+  //     await Promise.all(formData.services.map((service: any) =>
+  //       fetch('/api/vendorservice', {
+  //         method: 'POST',
+  //         headers: { 'Content-Type': 'application/json' },
+  //         body: JSON.stringify({ ...service, vendorId }),
+  //       })
+  //     ));
+  //   } catch (error) {
+  //     console.error('Error submitting services:', error);
+  //     toast({
+  //       title: "Error",
+  //       description: "Failed to submit vendor services",
+  //       variant: "destructive"
+  //     });
+  //     throw error;
+  //   }
+  // };
 
-  const handleProductsSubmit = async (vendorId: string) => {
-    if (!formData.products?.length) return;
+  // const handleProductsSubmit = async (vendorId: string) => {
+  //   if (!formData.products?.length) return;
     
-    try {
-      await Promise.all(formData.products.map((product: any) =>
-        fetch('/api/vendorproduct', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...product, vendorId }),
-        })
-      ));
-    } catch (error) {
-      console.error('Error submitting products:', error);
-      toast({
-        title: "Error",
-        description: "Failed to submit vendor products",
-        variant: "destructive"
-      });
-      throw error;
-    }
-  };
+  //   try {
+  //     await Promise.all(formData.products.map((product: any) =>
+  //       fetch('/api/vendorproduct', {
+  //         method: 'POST',
+  //         headers: { 'Content-Type': 'application/json' },
+  //         body: JSON.stringify({ ...product, vendorId }),
+  //       })
+  //     ));
+  //   } catch (error) {
+  //     console.error('Error submitting products:', error);
+  //     toast({
+  //       title: "Error",
+  //       description: "Failed to submit vendor products",
+  //       variant: "destructive"
+  //     });
+  //     throw error;
+  //   }
+  // };
 
   const handleFinalSubmit = async () => {
     setLoading(true);
@@ -289,13 +289,13 @@ const steps: StepType[] = [
       const vendorId = await handleVendorSubmit();
      
       
-      if (selectedOptions.has('service')) {
-        await handleServicesSubmit(vendorId);
-      }
+      // if (selectedOptions.has('service')) {
+      //   await handleServicesSubmit(vendorId);
+      // }
       
-      if (selectedOptions.has('product')) {
-        await handleProductsSubmit(vendorId);
-      }
+      // if (selectedOptions.has('product')) {
+      //   await handleProductsSubmit(vendorId);
+      // }
 
       toast({
         title: "Registration Successful! 🎉",
@@ -305,7 +305,7 @@ const steps: StepType[] = [
       });
 
       
-        router.push(`/vendor/${vendorId}`);
+        router.push(`/dashboard/home`);
      
 
     } catch (error) {
