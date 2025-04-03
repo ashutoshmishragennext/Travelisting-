@@ -1,0 +1,1 @@
+ALTER TABLE "deals" ALTER COLUMN "images" SET DATA TYPE text;
