@@ -194,7 +194,7 @@ const steps: StepType[] = [
         // Update user with vendor profile ID
         const updateData = {
           vendorProfileId: newVendorId,
-          role:"USER",
+          role:"TRAVEL_AGENT",
           updatedAt: new Date().toISOString(),
         };
   
