@@ -119,11 +119,11 @@ const VendorBasicInfo: React.FC<VendorBasicInfoProps> = ({
       }
     }
   };
+  const user = useCurrentUser()
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const user = useCurrentUser()
         const userId = user?.id;
         const response = await fetch(`/api/vendor?userId=${userId}`)
         if(!response.ok)
