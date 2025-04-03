@@ -132,3 +132,79 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+// PUT - Update an existing vendor profile
+export async function PUT(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const searchParams = request.nextUrl.searchParams;
+    const vendorProfileId = searchParams.get("id");
+    
+    if (!vendorProfileId) {
+      return NextResponse.json(
+        { error: "Vendor profile ID is required" },
+        { status: 400 }
+      );
+    }
+    
+    // Check if the vendor profile exists
+    const existingProfile = await db.query.VendorProfileTable.findFirst({
+      where: eq(VendorProfileTable.id, vendorProfileId)
+    });
+    
+    if (!existingProfile) {
+      return NextResponse.json(
+        { error: "Vendor profile not found" },
+        { status: 404 }
+      );
+    }
+    
+    // Update the vendor profile
+    const updatedVendorProfile = await db
+      .update(VendorProfileTable)
+      .set({
+        companyName: body.companyName || existingProfile.companyName,
+        legalEntityType: body.legalEntityType || existingProfile.legalEntityType,
+        taxId: body.taxId || existingProfile.taxId,
+        establishmentYear: body.establishmentYear || existingProfile.establishmentYear,
+        socialLinks: body.socialLinks || existingProfile.socialLinks,
+        logo: body.logo || existingProfile.logo,
+        isDomestic: body.isDomestic ?? existingProfile.isDomestic,
+        isInternational: body.isInternational ?? existingProfile.isInternational,
+        coverImage: body.coverImage || existingProfile.coverImage,
+        hotelChainIds: body.hotelChainIds || existingProfile.hotelChainIds,
+        pictures: body.pictures || existingProfile.pictures,
+        primaryContactName: body.primaryContactName || existingProfile.primaryContactName,
+        primaryContactEmail: body.primaryContactEmail || existingProfile.primaryContactEmail,
+        primaryContactPhone: body.primaryContactPhone || existingProfile.primaryContactPhone,
+        whatsappnumber: body.whatsappnumber || existingProfile.whatsappnumber,
+        headquartersAddress: body.headquartersAddress || existingProfile.headquartersAddress,
+        state: body.state || existingProfile.state,
+        city: body.city || existingProfile.city,
+        pincode: body.pincode || existingProfile.pincode,
+        ourcustomers: body.ourcustomers || existingProfile.ourcustomers,
+        operatingCountries: body.operatingCountries || existingProfile.operatingCountries,
+        employeeCountRange: body.employeeCountRange || existingProfile.employeeCountRange,
+        annualRevenueRange: body.annualRevenueRange || existingProfile.annualRevenueRange,
+        regulatoryLicenses: body.regulatoryLicenses || existingProfile.regulatoryLicenses,
+        insuranceCoverage: body.insuranceCoverage || existingProfile.insuranceCoverage,
+        businessOpeningDays: body.businessOpeningDays || existingProfile.businessOpeningDays,
+        anotherMobileNumbers: body.anotherMobileNumbers || existingProfile.anotherMobileNumbers,
+        bussinessType: body.bussinessType || existingProfile.bussinessType,
+        advertisment: body.advertisment || existingProfile.advertisment,
+        anotheremails: body.anotheremails || existingProfile.anotheremails,
+        businessTiming: body.businessTiming || existingProfile.businessTiming,
+        paymentStatus: body.paymentStatus || existingProfile.paymentStatus,
+      })
+      .where(eq(VendorProfileTable.id, vendorProfileId))
+      .returning();
+    
+    return NextResponse.json(updatedVendorProfile[0], { status: 200 });
+  } catch (error) {
+    console.error("Error updating vendor profile:", error);
+    return NextResponse.json(
+      { error: "Failed to update vendor profile" },
+      { status: 500 }
+    );
+  }
+}
