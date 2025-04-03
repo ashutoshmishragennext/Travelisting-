@@ -299,7 +299,7 @@ const Profile = () => {
                       onChange={handleChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                     >
-                      <option value="B2B" className=''>B2B</option>
+                      <option value="B2B" className='hover:bg-primary focus:bg-primary  active:bg-primary'>B2B</option>
                       <option value="B2C">B2C</option>
                       <option value="B2B B2C" >Both</option>
                     </select>
