@@ -3,7 +3,7 @@
 
 import { toast } from "@/components/ui/use-toast";
 import VendorBasicInfo from '@/components/vendorpage/VendorBasicInfo';
-import { CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { CheckCircle, ChevronLeft, ChevronRight, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 // import ContactInfo from '@/components/vendorpage/ContectInfo';
@@ -162,6 +162,8 @@ const steps: StepType[] = [
 
   const handleVendorSubmit = async () => {
     try {
+      const userId = role?.id
+
       const vendorSubmitData = {
         ...formData,
         userId: role?.id,
@@ -185,14 +187,14 @@ const steps: StepType[] = [
       }
       
       const vendorData = await vendorResponse.json();
-      const newVendorId = vendorData.data.id;
+      const newVendorId = vendorData.id;
       setVendorId(newVendorId);
   
-      if (role?.id) {
+      if (userId) {
         // Update user with vendor profile ID
         const updateData = {
           vendorProfileId: newVendorId,
-          role:"VENDOR",
+          role:"USER",
           updatedAt: new Date().toISOString(),
         };
   
@@ -210,6 +212,9 @@ const steps: StepType[] = [
         const updateUserData = await updateUserResponse.json();
         console.log('User updated successfully:', updateUserData);
       }
+
+      console.log("Code reach below the if statement");
+      
   
       toast({
         title: "Success",
@@ -229,16 +234,6 @@ const steps: StepType[] = [
   };
 
     
-
-
-        
-      
-      
-      
-
-    
-  
-
   // const handleServicesSubmit = async (vendorId: string) => {
   //   if (!formData.services?.length) return;
     
@@ -288,15 +283,6 @@ const steps: StepType[] = [
     try {
       const vendorId = await handleVendorSubmit();
      
-      
-      // if (selectedOptions.has('service')) {
-      //   await handleServicesSubmit(vendorId);
-      // }
-      
-      // if (selectedOptions.has('product')) {
-      //   await handleProductsSubmit(vendorId);
-      // }
-
       toast({
         title: "Registration Successful! 🎉",
         description: "Your vendor profile has been created successfully. Redirecting to your profile page...",
@@ -304,10 +290,7 @@ const steps: StepType[] = [
         duration: 3000,
       });
 
-      
         router.push(`/dashboard/home`);
-     
-
     } catch (error) {
       console.error('Final submission error:', error);
       toast({

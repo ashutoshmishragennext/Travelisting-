@@ -44,8 +44,8 @@ export default function AdminDashboard() {
   const navItems = [
     { id: 'templates', label: 'Templates', icon: <FileText className="h-5 w-5" /> },
     { id: 'first', label: 'First', icon: <File className="h-5 w-5" /> },
-    { id: 'second', label: 'Second', icon: <Users className="h-5 w-5" /> },
-    { id: 'third', label: 'Third', icon: <File className="h-5 w-5" /> },
+    // { id: 'second', label: 'Second', icon: <Users className="h-5 w-5" /> },
+    // { id: 'third', label: 'Third', icon: <File className="h-5 w-5" /> },
   ];
 
   // Render the appropriate component based on sidebar selection
