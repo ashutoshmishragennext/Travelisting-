@@ -137,14 +137,14 @@ const AgentInfo: React.FC<ContactInfoProps> = ({ data, updateData, handleNextSte
     return <div className="text-red-500 p-4">Error: {error}</div>;
   }
   const handleSubmit = () => {
-    let data : any = [];
+    let data = "";
     
     if(flightData.type && flightData.type2) {
-        data.push("B2B B2C");
+        data = "B2B B2C";
     } else if(flightData.type) {
-      data.push("B2B");
+      data = "B2B";
     } else if(flightData.type2) {
-      data.push("B2C");
+      data = "B2C";
     } else {
       setError2("Please select at least one value");
       return;
