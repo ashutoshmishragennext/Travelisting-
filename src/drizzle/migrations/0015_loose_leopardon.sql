@@ -1,1 +1,0 @@
-ALTER TABLE "vendor_profiles" ALTER COLUMN "bussiness_type" SET DATA TYPE text;

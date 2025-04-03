@@ -1,1 +1,0 @@
-ALTER TABLE "sales_commissions" ALTER COLUMN "sales_person_id" DROP NOT NULL;

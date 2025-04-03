@@ -1,1 +1,0 @@
-ALTER TABLE "vendor_profiles" ADD COLUMN "advertisment" text[];
