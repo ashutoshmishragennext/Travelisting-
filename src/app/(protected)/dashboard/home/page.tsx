@@ -24,6 +24,7 @@ import AdminTemplateCreator from "@/components/admin/Template-creator";
 import DealTemplates from "@/components/admin/DisplayTemplate";
 import profile from "@/components/home/Profile";
 import Profile from "@/components/home/Profile";
+import HotelChain from "@/components/home/HotelChain";
 
 
 export default function AdminDashboard() {
@@ -45,6 +46,7 @@ export default function AdminDashboard() {
   // Enhanced navigation items for sidebar
   const navItems = [
     { id: 'profile', label: 'Profile', icon: <FileText className="h-5 w-5" /> },
+    { id: 'hotel', label: 'Bussiness', icon: <FileText className="h-5 w-5" /> },
     { id: 'first', label: 'First', icon: <File className="h-5 w-5" /> },
     // { id: 'second', label: 'Second', icon: <Users className="h-5 w-5" /> },
     // { id: 'third', label: 'Third', icon: <File className="h-5 w-5" /> },
@@ -55,6 +57,8 @@ export default function AdminDashboard() {
     switch (activeComponent) {
       case 'profile':
         return <Profile/>;
+      case 'hotel':
+        return <HotelChain/>;
       case 'first':
         return <DealTemplates/>;
       case 'second':
