@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, X, Bell, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ShoppingCart, X, Bell, ChevronLeft, ChevronRight, Lock, Unlock, Save } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { toast } from '@/components/ui/use-toast';
+import ImageCropper from '../shared/imagecrop/Imagecrop';
 
 // Define types
 interface Advertisement {
@@ -11,19 +15,71 @@ interface Advertisement {
   name: string;
   description: string;
   image: string;
-  price : string;
+  price: string;
   createdBy: string;
   createdAt: string;
   updatedAt: string;
 }
 
+interface CustomAd {
+  name: string;
+  description: string;
+  image: string;
+}
+
 const AdvertisementSelector = () => {
+  // Add state for tracking ad purchase status
+  const [bannerBought, setBannerBought] = useState(true);
+  const [popupBought, setPopupBought] = useState(true);
+  const [sidebarBought, setSidebarBought] = useState(false);
+  const [featuredBought, setFeaturedBought] = useState(false);
+  const [notificationBought, setNotificationBought] = useState(false);
+  
+  // State for custom ad content
+  const [customBannerAd, setCustomBannerAd] = useState<CustomAd>({ name: '', description: '', image: '/api/placeholder/400/300' });
+  const [customPopupAd, setCustomPopupAd] = useState<CustomAd>({ name: '', description: '', image: '/api/placeholder/400/300' });
+  const [customSidebarAd, setCustomSidebarAd] = useState<CustomAd>({ name: '', description: '', image: '/api/placeholder/400/300' });
+  const [customFeaturedAd, setCustomFeaturedAd] = useState<CustomAd>({ name: '', description: '', image: '/api/placeholder/400/300' });
+  const [customNotificationAd, setCustomNotificationAd] = useState<CustomAd>({ name: '', description: '', image: '/api/placeholder/400/300' });
+
   const [advertisements, setAdvertisements] = useState<Advertisement[]>([]);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeBannerIndex, setActiveBannerIndex] = useState(0);
   const router = useRouter();
+
+  const handleCroppedImage = async (croppedImage: string) => {
+      // setLoading(true);
+      const response = await fetch(croppedImage);
+      const blob = await response.blob();
+      const formData = new FormData();
+      formData.append("image", blob, "advertisement-image.jpg");
+  
+      try {
+        const response = await fetch("/api/media/upload", {
+          method: "POST",
+          body: formData,
+        });
+  
+        if (!response.ok) throw new Error("Image upload failed");
+  
+        const result = await response.json();
+        // form.setValue("imageUrl", result.url);
+        toast({
+          title: "Image uploaded successfully",
+          variant: "default",
+        });
+      } catch (error) {
+        console.error("Error uploading image:", error);
+        toast({
+          title: "Error uploading image",
+          variant: "destructive",
+        });
+      } finally {
+        // setLoading(false);
+      }
+    };
 
   // Fetch advertisements data
   useEffect(() => {
@@ -51,6 +107,11 @@ const AdvertisementSelector = () => {
 
   // Handle advertisement type selection
   const toggleAdType = (type: string) => {
+    // Check if ad is already bought
+    if (isAdBought(type)) {
+      return;
+    }
+    
     let initialPrice = 0;
 
     if (selectedTypes.includes(type)) {
@@ -61,23 +122,120 @@ const AdvertisementSelector = () => {
       initialPrice += Number(advertisements.find((item) => item.name.toLowerCase().includes(type.toLowerCase()))?.price)
     }
 
-
     selectedTypes.map(items => {
-       const price =  advertisements.find((item) => item.name.toLowerCase().includes(items.toLowerCase()))?.price;
-        if(price) {
-          initialPrice = Number(initialPrice) + Number(price)
-        }
+      const price = advertisements.find((item) => item.name.toLowerCase().includes(items.toLowerCase()))?.price;
+      if(price) {
+        initialPrice = Number(initialPrice) + Number(price)
+      }
     })
 
     setTotalPrice(initialPrice);
   };
 
   // Calculate total price
-  const [totalPrice,setTotalPrice] = useState<string | number>(0);
+  const [totalPrice, setTotalPrice] = useState<string | number>(0);
 
   // Handle checkout
   const handleCheckout = () => {
-    router.push('/checkout');
+    // Simulate purchase
+    selectedTypes.forEach(type => {
+      buyAdvertisement(type);
+    });
+    
+    // Clear selection
+    setSelectedTypes([]);
+    setTotalPrice(0);
+    
+    toast({
+      title: "Purchase Successful",
+      description: "Your advertisements have been purchased successfully.",
+    });
+  };
+
+  // Buy advertisement by type
+  const buyAdvertisement = (type: string) => {
+    switch (type.toUpperCase()) {
+      case "BANNER":
+        setBannerBought(true);
+        break;
+      case "POPUP":
+        setPopupBought(true);
+        break;
+      case "SIDEBAR":
+        setSidebarBought(true);
+        break;
+      case "FEATURED":
+        setFeaturedBought(true);
+        break;
+      case "NOTIFICATION":
+        setNotificationBought(true);
+        break;
+    }
+  };
+
+  // Check if ad is already bought
+  const isAdBought = (type: string): boolean => {
+    switch (type.toUpperCase()) {
+      case "BANNER":
+        return bannerBought; 
+      case "POPUP":
+        return popupBought;
+      case "SIDEBAR":
+        return sidebarBought;
+      case "FEATURED":
+        return featuredBought;
+      case "NOTIFICATION":
+        return notificationBought;
+      default:
+        return false;
+    }
+  };
+
+  // Get custom ad content by type
+  const getCustomAdContent = (type: string): CustomAd => {
+    switch (type.toUpperCase()) {
+      case "BANNER":
+        return customBannerAd;
+      case "POPUP":
+        return customPopupAd;
+      case "SIDEBAR":
+        return customSidebarAd;
+      case "FEATURED":
+        return customFeaturedAd;
+      case "NOTIFICATION":
+        return customNotificationAd;
+      default:
+        return { name: '', description: '', image: '' };
+    }
+  };
+
+  // Update custom ad content
+  const updateCustomAdContent = (type: string, field: keyof CustomAd, value: string) => {
+    switch (type.toUpperCase()) {
+      case "BANNER":
+        setCustomBannerAd({ ...customBannerAd, [field]: value });
+        break;
+      case "POPUP":
+        setCustomPopupAd({ ...customPopupAd, [field]: value });
+        break;
+      case "SIDEBAR":
+        setCustomSidebarAd({ ...customSidebarAd, [field]: value });
+        break;
+      case "FEATURED":
+        setCustomFeaturedAd({ ...customFeaturedAd, [field]: value });
+        break;
+      case "NOTIFICATION":
+        setCustomNotificationAd({ ...customNotificationAd, [field]: value });
+        break;
+    }
+  };
+
+  // Save custom ad
+  const saveCustomAd = (type: string) => {
+    toast({
+      title: "Advertisement Saved",
+      description: `Your ${type} advertisement has been saved successfully.`,
+    });
   };
 
   // Advertisement type options
@@ -118,16 +276,67 @@ const AdvertisementSelector = () => {
     );
   }
 
+  // Render ad configuration form
+  const renderAdConfigForm = (type: string) => {
+    const customAd = getCustomAdContent(type);
+    
+    return (
+      <div className="space-y-4 mb-6">
+        <div>
+          <label className="block text-sm font-medium mb-1">Title</label>
+          <Input 
+            value={customAd.name} 
+            onChange={(e) => updateCustomAdContent(type, 'name', e.target.value)}
+            placeholder={`Enter your ${type} title`}
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Description</label>
+          <Textarea 
+            value={customAd.description} 
+            onChange={(e) => updateCustomAdContent(type, 'description', e.target.value)}
+            placeholder={`Enter your ${type} description`}
+            rows={3}
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Image URL</label>
+          <ImageCropper
+            onImageCropped={handleCroppedImage}
+            type="logo"
+          />
+        </div>
+        <Button 
+          onClick={() => saveCustomAd(type)} 
+          className="w-full"
+        >
+          <Save size={16} className="mr-2" />
+          Save {type} Advertisement
+        </Button>
+      </div>
+    );
+  };
+
   // Render different ad type previews
   const renderAdPreview = (type: string) => {
-    const ad = getAdByType(type);
+    const ad = isAdBought(type) ? getCustomAdContent(type) : getAdByType(type);
     if (!ad) return null;
+
+    // Get title and description based on whether it's a bought ad or not
+    const title = isAdBought(type) ? ad.name : ad.name;
+    const description = isAdBought(type) ? ad.description : ad.description;
+    const image = isAdBought(type) ? ad.image : ad.image;
 
     switch (type) {
       case "BANNER":
         return (
           <div className="w-full overflow-hidden">
             <div className="relative h-52 w-full bg-white shadow-md rounded overflow-hidden">
+              {/* Show lock/unlock icon */}
+              <div className="absolute top-2 right-2 z-10 bg-white/80 rounded-full p-2">
+                {isAdBought(type) ? <Unlock size={16} className="text-green-600" /> : <Lock size={16} className="text-gray-600" />}
+              </div>
+              
               {/* Banner with dots navigation instead of horizontal slider */}
               <div className="relative h-full w-full">
                 {[0, 1, 2].map((i) => (
@@ -137,19 +346,17 @@ const AdvertisementSelector = () => {
                   >
                     <div className="h-full w-full object-cover relative">
                       <Image 
-                        src={ad.image} 
-                        alt={ad.name}
+                        src={image} 
+                        alt={title}
                         layout="fill"
                         objectFit="fit"
                         priority
                       />
                     </div>
                     <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent flex flex-col justify-top space-y-8 items-center pt-4">
-                      <p className="text-white font-bold text-lg">{ad.name}</p>
-                      <p className="mt-2 text-sm text-white px-10 text-center">{ad.description}</p>
+                      <p className="text-white font-bold text-lg">{title}</p>
+                      <p className="mt-2 text-sm text-white px-10 text-center">{description}</p>
                     </div>
-
-
                   </div>
                 ))}
                 
@@ -188,6 +395,11 @@ const AdvertisementSelector = () => {
       case "POPUP":
         return (
           <div className="relative w-full h-72 bg-gray-100 overflow-hidden">
+            {/* Show lock/unlock icon */}
+            <div className="absolute top-2 right-2 z-20 bg-white/80 rounded-full p-2">
+              {isAdBought(type) ? <Unlock size={16} className="text-green-600" /> : <Lock size={16} className="text-gray-600" />}
+            </div>
+            
             <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
               <div className="bg-white shadow-lg rounded-lg w-4/5 max-w-md p-4 relative">
                 {/* Enhanced cross/close button */}
@@ -197,15 +409,15 @@ const AdvertisementSelector = () => {
                 <div className="flex flex-col items-center">
                 <div className="h-32 w-full object-cover relative">
                       <Image 
-                        src={ad.image} 
-                        alt={ad.name}
+                        src={image} 
+                        alt={title}
                         layout="fill"
                         objectFit="fit"
                         priority
                       />
                     </div>
-                  <h3 className="font-bold">{ad.name}</h3>
-                  <p className="text-sm text-center mt-2">{ad.description}</p>
+                  <h3 className="font-bold">{title}</h3>
+                  <p className="text-sm text-center mt-2">{description}</p>
                   <Button size="sm" className="mt-3">Learn More</Button>
                 </div>
               </div>
@@ -216,6 +428,11 @@ const AdvertisementSelector = () => {
       case "SIDEBAR":
         return (
           <div className="flex">
+            {/* Show lock/unlock icon */}
+            <div className="absolute top-2 right-2 z-10 bg-white/80 rounded-full p-2">
+              {isAdBought(type) ? <Unlock size={16} className="text-green-600" /> : <Lock size={16} className="text-gray-600" />}
+            </div>
+            
             <div className="w-2/3 bg-gray-100 h-64 p-4">
               <div className="h-full w-full flex items-center justify-center border border-dashed border-gray-300">
                 <p className="text-gray-500">Main Website Content</p>
@@ -225,16 +442,16 @@ const AdvertisementSelector = () => {
               <div className="h-full flex flex-col rounded overflow-hidden shadow">
                     <div className="h-1/2 w-full object-cover relative">
                       <Image 
-                        src={ad.image} 
-                        alt={ad.name}
+                        src={image} 
+                        alt={title}
                         layout="fill"
                         objectFit="fit"
                         priority
                       />
                     </div>
                 <div className="p-2">
-                  <h4 className="font-bold text-sm">{ad.name}</h4>
-                  <p className="text-xs mt-1">{ad.description.substring(0, 60)}...</p>
+                  <h4 className="font-bold text-sm">{title}</h4>
+                  <p className="text-xs mt-1">{description.substring(0, 60)}...</p>
                   <Button size="sm" variant="outline" className="mt-2 w-full text-xs">View</Button>
                 </div>
               </div>
@@ -245,23 +462,28 @@ const AdvertisementSelector = () => {
       case "FEATURED":
         return (
           <div className="w-full h-64 relative bg-gray-50 rounded-lg overflow-hidden">
-              <div className="h-full w-full object-cover relative">
+            {/* Show lock/unlock icon */}
+            <div className="absolute top-2 right-2 z-10 bg-white/80 rounded-full p-2">
+              {isAdBought(type) ? <Unlock size={16} className="text-green-600" /> : <Lock size={16} className="text-gray-600" />}
+            </div>
+              
+            <div className="h-full w-full object-cover relative">
               <Image 
-                src={ad.image} 
-                alt={ad.name}
+                src={image} 
+                alt={title}
                 layout="fill"
                 objectFit="fit"
                 priority
               />
             </div>
             <div className="absolute inset-0 top-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-between p-4">
-            <div className=' flex space-x-5 items-center'>
-              <span className="bg-blue-600 text-white px-2 py-1 rounded text-xs inline-block w-fit mb-2">FEATURED</span>
-              <h3 className="text-white font-bold text-xl text-center -translate-y-1">{ad.name}</h3>
-            </div>
-            <div className=' flex-1 flex flex-col justify-around '>
-              <p className="text-white/90 text-sm mt-1 px-8 text-center">{ad.description}</p>
-              <Button className="mt-3 w-fit">Learn More</Button>
+              <div className='flex space-x-5 items-center'>
+                <span className="bg-blue-600 text-white px-2 py-1 rounded text-xs inline-block w-fit mb-2">FEATURED</span>
+                <h3 className="text-white font-bold text-xl text-center -translate-y-1">{title}</h3>
+              </div>
+              <div className='flex-1 flex flex-col justify-around'>
+                <p className="text-white/90 text-sm mt-1 px-8 text-center">{description}</p>
+                <Button className="mt-3 w-fit">Learn More</Button>
               </div>
             </div>
           </div>
@@ -270,14 +492,19 @@ const AdvertisementSelector = () => {
       case "NOTIFICATION":
         return (
           <div className="w-full">
+            {/* Show lock/unlock icon */}
+            <div className="absolute top-2 right-2 z-10 bg-white/80 rounded-full p-2">
+              {isAdBought(type) ? <Unlock size={16} className="text-green-600" /> : <Lock size={16} className="text-gray-600" />}
+            </div>
+              
             <div className="bg-white shadow-lg rounded-lg p-3 max-w-sm mx-auto border border-gray-200">
               <div className="flex items-start">
                 <div className="bg-blue-100 p-2 rounded-full mr-3">
                   <Bell size={16} className="text-blue-600" />
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-bold text-sm">{ad.name}</h4>
-                  <p className="text-xs text-gray-600 mt-1">{ad.description.substring(0, 80)}...</p>
+                  <h4 className="font-bold text-sm">{title}</h4>
+                  <p className="text-xs text-gray-600 mt-1">{description.substring(0, 80)}...</p>
                 </div>
                 <button className="text-gray-400 hover:text-gray-600">
                   <X size={16} />
@@ -296,13 +523,13 @@ const AdvertisementSelector = () => {
         return (
           <Card className="overflow-hidden">
             <CardHeader>
-              <CardTitle>{ad.name}</CardTitle>
+              <CardTitle>{title}</CardTitle>
             </CardHeader>
             <div className="relative h-48 bg-gray-100">
               <div className="h-full w-full object-cover relative">
                 <Image 
-                  src={ad.image} 
-                  alt={ad.name}
+                  src={image} 
+                  alt={title}
                   layout="fill"
                   objectFit="cover"
                   priority
@@ -310,7 +537,7 @@ const AdvertisementSelector = () => {
               </div>
             </div>
             <CardContent className="pt-4">
-              <CardDescription>{ad.description}</CardDescription>
+              <CardDescription>{description}</CardDescription>
             </CardContent>
           </Card>
         );
@@ -319,35 +546,67 @@ const AdvertisementSelector = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Select Advertisement Types</h1>
+      <h1 className="text-3xl font-bold mb-8">Advertisement Management</h1>
       
       {/* Advertisement type selector buttons */}
       <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">Choose Advertisement Types</h2>
+        <h2 className="text-xl font-semibold mb-4">Advertisement Types</h2>
         <div className="flex flex-wrap gap-2">
           {adTypes.map(type => (
             <Button 
               key={type}
-              variant={selectedTypes.includes(type) ? "default" : "outline"}
+              variant={isAdBought(type) ? "default" : selectedTypes.includes(type) ? "default" : "outline"}
               onClick={() => toggleAdType(type)}
-              className="min-w-32"
+              className={`min-w-32 ${isAdBought(type) ? "bg-green-600 hover:bg-green-700" : ""}`}
+              disabled={isAdBought(type)}
             >
-              {type.replace('_', ' ')}
+              {isAdBought(type) ? (
+                <><Unlock size={16} className="mr-2" />{type.replace('_', ' ')}</>
+              ) : (
+                <>{selectedTypes.includes(type) ? "" : <Lock size={16} className="mr-2" />}{type.replace('_', ' ')}</>
+              )}
             </Button>
           ))}
         </div>
       </div>
+      
+      {/* Purchased ads section */}
+      {(bannerBought || popupBought || sidebarBought || featuredBought || notificationBought) && (
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold mb-4">Your Purchased Advertisements</h2>
+          <div className="grid grid-cols-1 gap-8">
+            {adTypes.map(type => (
+              isAdBought(type) && (
+                <div key={type} className="p-4 border rounded-lg relative">
+                  <h3 className="font-semibold mb-3 flex items-center">
+                    <Unlock size={16} className="mr-2 text-green-600" /> 
+                    {type} Advertisement
+                  </h3>
+                  {renderAdConfigForm(type)}
+                  <h4 className="font-medium mt-6 mb-3">Preview</h4>
+                  {renderAdPreview(type)}
+                </div>
+              )
+            ))}
+          </div>
+        </div>
+      )}
 
-      {/* Preview section */}
+      {/* Preview section for selected but not purchased ads */}
       {selectedTypes.length > 0 && advertisements.length > 0 && (
         <div className="mb-8">
           <h2 className="text-xl font-semibold mb-4">Selected Advertisement Previews</h2>
           <div className="grid grid-cols-1 gap-8">
             {selectedTypes.map(type => (
-              <div key={type} className="p-4 border rounded-lg">
-                <h3 className="font-semibold mb-3">{getAdByType(type)?.name}</h3>
-                {renderAdPreview(type)}
-              </div>
+              !isAdBought(type) && (
+                <div key={type} className="p-4 border rounded-lg relative">
+                  <h3 className="font-semibold mb-3 flex items-center">
+                    <Lock size={16} className="mr-2 text-gray-600" />
+                    {getAdByType(type)?.name}
+                  </h3>
+                  {renderAdPreview(type)}
+                </div>
+              )
             ))}
           </div>
         </div>
@@ -371,11 +630,11 @@ const AdvertisementSelector = () => {
           </CardContent>
           <CardFooter className="flex flex-wrap justify-between gap-4">
             <div className="text-lg font-semibold">
-              Total: ₹{totalPrice.toLocaleString()}
+              Total: ₹{Number(totalPrice).toLocaleString()}
             </div>
             <Button onClick={handleCheckout} className="flex items-center gap-2">
               <ShoppingCart size={18} />
-              Pay (₹{totalPrice.toLocaleString()})
+              Pay (₹{Number(totalPrice).toLocaleString()})
             </Button>
           </CardFooter>
         </Card>
