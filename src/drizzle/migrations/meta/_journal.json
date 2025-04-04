@@ -127,6 +127,13 @@
       "when": 1743680460503,
       "tag": "0017_futuristic_turbo",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1743745911419,
+      "tag": "0018_familiar_pretty_boy",
+      "breakpoints": true
     }
   ]
 }
