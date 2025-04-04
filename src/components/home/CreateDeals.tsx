@@ -28,11 +28,13 @@ import {
   Trash,
   Upload,
   Info,
+  Loader2,
 } from "lucide-react";
 import { format } from "date-fns";
 import ImageCropper from "../shared/imagecrop/Imagecrop";
 import { useCurrentUser } from "@/hooks/auth";
 import Image from "next/image";
+import { FloatingLabelInput, FloatingLabelSelect, FloatingLabelTextarea } from "../FloatingInput";
 
 // Type definitions
 interface Field {
@@ -43,7 +45,6 @@ interface Field {
   sequence: number;
   options?: string[];
 }
-
 
 interface Schema {
   fields: Field[];
@@ -90,8 +91,9 @@ interface DealFormData {
   isActive: boolean;
   isPromoted: boolean;
 }
+
 interface CreateDealPageProps {
-  onBack: () => void;
+  onBack: (dealCreated?: boolean) => void;
 }
 
 const TRAVEL_TYPES = ["DOMESTIC", "INTERNATIONAL", "BOTH"];
@@ -107,6 +109,8 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState<boolean>(false);
+  const [uploadingImage, setUploadingImage] = useState<boolean>(false);
+  const [pendingSubmit, setPendingSubmit] = useState<boolean>(false);
   const user = useCurrentUser();
 
   // Initialize form data with default values
@@ -133,6 +137,19 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
     isActive: true,
     isPromoted: false,
   });
+
+  // Check if image upload is complete and submit pending form
+  useEffect(() => {
+    const submitPendingForm = async () => {
+      if (pendingSubmit && !uploadingImage && dealFormData.images) {
+        // Now submit the form with the image URL included
+        await submitDealForm();
+        setPendingSubmit(false);
+      }
+    };
+
+    submitPendingForm();
+  }, [pendingSubmit, uploadingImage, dealFormData.images]);
 
   // Fetch deal types and metadata
   useEffect(() => {
@@ -323,6 +340,9 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
   // Handle image upload
   const handleImageUpload = async (croppedImage: string, type: "cover") => {
     try {
+      setUploadingImage(true);
+      setError(null);
+
       // First convert the data URL to a blob
       const response = await fetch(croppedImage);
       const blob = await response.blob();
@@ -343,13 +363,12 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
 
       // Parse the response to get the image URL
       const result = await uploadResponse.json();
-      console.log("Upload result:", result); // Add this for debugging
 
       // Add the uploaded image URL to the dealFormData.images
       if (result && result.url) {
         setDealFormData((prevData) => ({
-          ...prevData, // Keep all existing form data
-          images: result.url, // Set the images to the URL string
+          ...prevData,
+          images: result.url,
         }));
       } else {
         throw new Error("No URL returned from upload");
@@ -361,6 +380,8 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
           error instanceof Error ? error.message : "Unknown error"
         }`
       );
+    } finally {
+      setUploadingImage(false);
     }
   };
 
@@ -372,10 +393,8 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
     }));
   };
 
-  // Handle form submission
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  // Submit the deal form data to the API
+  const submitDealForm = async () => {
     try {
       setSubmitting(true);
 
@@ -395,7 +414,7 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
         ),
       };
 
-      console.log("Submitting deal data:", formattedData); // Debugging line
+      console.log("Submitting deal data:", formattedData);
 
       const response = await fetch("/api/deals", {
         method: "POST",
@@ -411,7 +430,7 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
       }
 
       // Navigate back to deals list on success
-      router.push("/travel-agent/deals");
+      onBack(true);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "An unknown error occurred"
@@ -422,18 +441,33 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
     }
   };
 
+  // Handle form submission
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // If there's an image and it's already uploaded, proceed with form submission
+    if (dealFormData.images) {
+      await submitDealForm();
+    } 
+    // If there's an image being uploaded, set pendingSubmit flag
+    else if (uploadingImage) {
+      setPendingSubmit(true);
+    }
+    // If no image provided or needed, submit directly
+    else {
+      await submitDealForm();
+    }
+  };
+
   // Render metadata field based on field type
   const renderMetadataField = (field: Field) => {
     switch (field.type) {
       case "text":
         return (
           <div className="space-y-2" key={field.id}>
-            <Label htmlFor={field.id}>
-              {field.label}
-              {field.required && <span className="text-red-500">*</span>}
-            </Label>
-            <Input
+            <FloatingLabelInput
               id={field.id}
+              label={field.label}
               value={dealFormData.metadata[field.id] || ""}
               onChange={(e) => handleMetadataChange(field.id, e.target.value)}
               placeholder={`Enter ${field.label.toLowerCase()}`}
@@ -441,16 +475,13 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
             />
           </div>
         );
-
+  
       case "textarea":
         return (
           <div className="space-y-2" key={field.id}>
-            <Label htmlFor={field.id}>
-              {field.label}
-              {field.required && <span className="text-red-500">*</span>}
-            </Label>
-            <Textarea
+            <FloatingLabelTextarea
               id={field.id}
+              label={field.label}
               value={dealFormData.metadata[field.id] || ""}
               onChange={(e) => handleMetadataChange(field.id, e.target.value)}
               placeholder={`Enter ${field.label.toLowerCase()}`}
@@ -458,17 +489,14 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
             />
           </div>
         );
-
+  
       case "number":
         return (
           <div className="space-y-2" key={field.id}>
-            <Label htmlFor={field.id}>
-              {field.label}
-              {field.required && <span className="text-red-500">*</span>}
-            </Label>
-            <Input
+            <FloatingLabelInput
               id={field.id}
               type="number"
+              label={field.label}
               value={dealFormData.metadata[field.id] || ""}
               onChange={(e) =>
                 handleMetadataChange(field.id, parseFloat(e.target.value) || "")
@@ -478,71 +506,65 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
             />
           </div>
         );
-
+  
       case "date":
         return (
           <div className="space-y-2" key={field.id}>
-            <Label htmlFor={field.id}>
-              {field.label}
-              {field.required && <span className="text-red-500">*</span>}
-            </Label>
-            <Input
+            <FloatingLabelInput
               id={field.id}
               type="date"
+              label={field.label}
               value={dealFormData.metadata[field.id] || ""}
               onChange={(e) => handleMetadataChange(field.id, e.target.value)}
               required={field.required}
             />
           </div>
         );
-
+  
       case "select":
         return (
           <div className="space-y-2" key={field.id}>
-            <Label htmlFor={field.id}>
-              {field.label}
-              {field.required && <span className="text-red-500">*</span>}
-            </Label>
             {(field.options ?? []).length <= 3 ? (
-              <div className="flex gap-4">
-                {(field.options ?? []).map((option) => (
-                  <label key={option} className="flex items-center space-x-2">
-                    <input
-                      type="radio"
-                      name={field.id}
-                      value={option}
-                      checked={dealFormData.metadata[field.id] === option}
-                      onChange={() => handleMetadataChange(field.id, option)}
-                      required={field.required}
-                      className="accent-blue-500"
-                    />
-                    <span>{option}</span>
-                  </label>
-                ))}
+              <div>
+                <Label htmlFor={field.id}>
+                  {field.label}
+                  {field.required && <span className="text-red-500">*</span>}
+                </Label>
+                <div className="flex gap-4 mt-1">
+                  {(field.options ?? []).map((option) => (
+                    <label key={option} className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        name={field.id}
+                        value={option}
+                        checked={dealFormData.metadata[field.id] === option}
+                        onChange={() => handleMetadataChange(field.id, option)}
+                        required={field.required}
+                        className="accent-blue-500"
+                      />
+                      <span>{option}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
             ) : (
-              <Select
+              <FloatingLabelSelect
+                id={field.id}
+                label={field.label}
                 value={dealFormData.metadata[field.id] || ""}
                 onValueChange={(value) => handleMetadataChange(field.id, value)}
                 required={field.required}
               >
-                <SelectTrigger>
-                  <SelectValue
-                    placeholder={`Select ${field.label.toLowerCase()}`}
-                  />
-                </SelectTrigger>
-                <SelectContent>
-                  {field.options?.map((option) => (
-                    <SelectItem key={option} value={option}>
-                      {option}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                {field.options?.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </FloatingLabelSelect>
             )}
           </div>
         );
-
+  
       case "array":
         return (
           <div className="space-y-2" key={field.id}>
@@ -556,7 +578,9 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
                 : [""]
               ).map((item: string, index: number) => (
                 <div key={index} className="flex gap-2">
-                  <Input
+                  <FloatingLabelInput
+                    id={`${field.id}-${index}`}
+                    label={`${field.label} Item ${index + 1}`}
                     value={item}
                     onChange={(e) =>
                       handleMetadataArrayItemChange(
@@ -596,7 +620,7 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
             </div>
           </div>
         );
-
+  
       case "object":
         return (
           <div className="space-y-2" key={field.id}>
@@ -630,7 +654,7 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
             </div>
           </div>
         );
-
+  
       default:
         return (
           <div key={field.id} className="text-gray-500">
@@ -639,7 +663,7 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
         );
     }
   };
-
+  
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -647,25 +671,25 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
       </div>
     );
   }
-
+  
   return (
-    <div className="container mx-auto  px-4">
+    <div className="container mx-auto px-4">
       <Button
         variant="ghost"
         className="mb-6 flex items-center"
-        onClick={onBack} // Use the onBack prop instead of router.push
+        onClick={() => onBack(false)}
       >
         <ArrowLeft className="h-4 w-4 mr-2" />
         Back to Deals
       </Button>
-
+  
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-md mb-6 flex items-start">
           <AlertCircle className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
           <span>{error}</span>
         </div>
       )}
-
+  
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Combined Deal Selection and Details Card */}
         <Card>
@@ -678,25 +702,23 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
                 </CardDescription>
               )}
             </div>
-
-            <Select
+  
+            <FloatingLabelSelect
+              id="dealType"
+              label="Deal Type"
               value={selectedDealType}
               onValueChange={handleDealTypeChange}
               required
+              className="w-[200px]"
             >
-              <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="Select deal type" />
-              </SelectTrigger>
-              <SelectContent>
-                {dealTypes.map((dealType) => (
-                  <SelectItem key={dealType.id} value={dealType.id}>
-                    {dealType.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              {dealTypes.map((dealType) => (
+                <option key={dealType.id} value={dealType.id}>
+                  {dealType.name}
+                </option>
+              ))}
+            </FloatingLabelSelect>
           </CardHeader>
-
+  
           <CardContent className="p-4">
             {selectedDealType ? (
               selectedTemplate ? (
@@ -710,7 +732,7 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
                         .sort((a, b) => a.sequence - b.sequence)
                         .map((field) => renderMetadataField(field))}
                     </div>
-
+  
                     {/* Second column */}
                     <div className="space-y-4">
                       {selectedTemplate.schema.fields
@@ -718,32 +740,44 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
                         .sort((a, b) => a.sequence - b.sequence)
                         .map((field) => renderMetadataField(field))}
                     </div>
-                  </div>
-
-                  {/* Contact information row */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+  
+                    {/* Contact information row */}
                     <div className="space-y-4">
                       <div>
-                        <Label className="text-sm">
-                          Valid To<span className="text-red-500">*</span>
-                        </Label>
-                        <Input
+                        <FloatingLabelInput
+                          id="validTo"
                           type="date"
+                          label="Valid To"
                           value={dealFormData.validTo}
                           onChange={(e) =>
                             handleBasicInputChange("validTo", e.target.value)
                           }
                           required
-                          className="h-9"
                         />
                       </div>
-
+  
+                      <div>
+                        <FloatingLabelInput
+                          id="price"
+                          type="number"
+                          label="Price"
+                          value={dealFormData.price}
+                          onChange={(e) =>
+                            handleBasicInputChange("price", e.target.value)
+                          }
+                          placeholder="Enter price"
+                          required
+                        />
+                      </div>
+  
                       <div>
                         <Label className="text-sm">Contact Phones</Label>
-                        <div className="space-y-2">
+                        <div className="space-y-2 mt-1">
                           {dealFormData.contactPhones.map((phone, index) => (
                             <div key={index} className="flex gap-2">
-                              <Input
+                              <FloatingLabelInput
+                                id={`phone-${index}`}
+                                label={`Phone ${index + 1}`}
                                 value={phone}
                                 onChange={(e) =>
                                   handleBasicArrayItemChange(
@@ -753,7 +787,6 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
                                   )
                                 }
                                 placeholder="Phone number"
-                                className="h-9"
                               />
                               <Button
                                 type="button"
@@ -780,7 +813,7 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
                             onClick={() =>
                               handleAddBasicArrayItem("contactPhones")
                             }
-                            className="h-9 mt-1"
+                            className="mt-1"
                           >
                             <Plus className="h-4 w-4 mr-1" />
                             Add Phone
@@ -788,15 +821,17 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
                         </div>
                       </div>
                     </div>
-
+  
                     <div className="space-y-4">
                       <div>
                         <Label className="text-sm">Contact Emails</Label>
-                        <div className="space-y-2">
+                        <div className="space-y-2 mt-1">
                           {dealFormData.contactEmails.map((email, index) => (
                             <div key={index} className="flex gap-2">
-                              <Input
+                              <FloatingLabelInput
+                                id={`email-${index}`}
                                 type="email"
+                                label={`Email ${index + 1}`}
                                 value={email}
                                 onChange={(e) =>
                                   handleBasicArrayItemChange(
@@ -805,8 +840,7 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
                                     e.target.value
                                   )
                                 }
-                                placeholder="Email"
-                                className="h-9"
+                                placeholder="Email address"
                               />
                               <Button
                                 type="button"
@@ -833,7 +867,7 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
                             onClick={() =>
                               handleAddBasicArrayItem("contactEmails")
                             }
-                            className="h-9 mt-1"
+                            className="mt-1"
                           >
                             <Plus className="h-4 w-4 mr-1" />
                             Add Email
@@ -842,20 +876,27 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
                       </div>
                     </div>
                   </div>
-
+  
                   {/* Image Upload Section */}
                   <div className="space-y-4">
                     <Label className="text-sm">Images</Label>
                     <div className="space-y-2">
                       <Label className="text-sm">Cover Image</Label>
-                      <ImageCropper
-                        onImageCropped={(croppedImage) =>
-                          handleImageUpload(croppedImage, "cover")
-                        }
-                        type="cover"
-                      />
+                      {uploadingImage ? (
+                        <div className="flex items-center space-x-2 p-2 border rounded">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          <span className="text-sm">Uploading image...</span>
+                        </div>
+                      ) : (
+                        <ImageCropper
+                          onImageCropped={(croppedImage) =>
+                            handleImageUpload(croppedImage, "cover")
+                          }
+                          type="cover"
+                        />
+                      )}
                     </div>
-
+  
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                       {dealFormData.images && (
                         <div className="relative border rounded-md overflow-hidden">
@@ -894,291 +935,26 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
             )}
           </CardContent>
         </Card>
-
+  
         {/* Form Submission */}
         <div className="flex justify-end gap-3">
           <Button
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => router.push("/travel-agent/deals")}
+            onClick={() => onBack(false)}
           >
             Cancel
           </Button>
           <Button
             type="submit"
             size="sm"
-            disabled={submitting || !selectedDealType}
+            disabled={submitting || uploadingImage || !selectedDealType || pendingSubmit}
           >
-            {submitting ? "Creating..." : "Create Deal"}
+            {submitting || pendingSubmit ? "Creating..." : (uploadingImage ? "Uploading image..." : "Create Deal")}
           </Button>
         </div>
       </form>
     </div>
   );
-}
-
-{
-  /* Basic Information Section */
-}
-{
-  /* <Card className="mb-6">
-          <CardContent className="space-y-6"> */
-}
-{
-  /* Deal Title */
-}
-{
-  /* <div className="space-y-2">
-              <Label htmlFor="title">
-                Deal Title<span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="title"
-                value={dealFormData.title}
-                onChange={(e) =>
-                  handleBasicInputChange("title", e.target.value)
-                }
-                placeholder="Enter an attractive title for your deal"
-                required
-              />
-            </div> */
-}
-
-{
-  /* Travel Type */
-}
-{
-  /* <div className="space-y-2">
-              <Label htmlFor="travelType">
-                Travel Type<span className="text-red-500">*</span>
-              </Label>
-              <Select
-                value={dealFormData.travelType}
-                onValueChange={(value) =>
-                  handleBasicInputChange("travelType", value)
-                }
-                required
-              >
-                <SelectTrigger id="travelType">
-                  <SelectValue placeholder="Select travel type" />
-                </SelectTrigger>
-                <SelectContent>
-                  {TRAVEL_TYPES.map((type) => (
-                    <SelectItem key={type} value={type}>
-                      {type}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div> */
-}
-
-{
-  /* Description */
-}
-{
-  /* <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                value={dealFormData.description}
-                onChange={(e) =>
-                  handleBasicInputChange("description", e.target.value)
-                }
-                placeholder="Describe your deal in detail"
-                rows={4}
-              />
-            </div> */
-}
-
-{
-  /* Price and Discount */
-}
-{
-  /* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="price">Price</Label>
-                <Input
-                  id="price"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={dealFormData.price}
-                  onChange={(e) =>
-                    handleBasicInputChange("price", e.target.value)
-                  }
-                  placeholder="Enter price"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="discount">Discount (%)</Label>
-                <Input
-                  id="discount"
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={dealFormData.discount}
-                  onChange={(e) =>
-                    handleBasicInputChange("discount", e.target.value)
-                  }
-                  placeholder="Enter discount percentage"
-                />
-              </div>
-            </div> */
-}
-
-{
-  /* Location */
-}
-{
-  /* <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="country">Country</Label>
-                <Input
-                  id="country"
-                  value={dealFormData.country}
-                  onChange={(e) =>
-                    handleBasicInputChange("country", e.target.value)
-                  }
-                  placeholder="Enter country"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="state">State/Province</Label>
-                <Input
-                  id="state"
-                  value={dealFormData.state}
-                  onChange={(e) =>
-                    handleBasicInputChange("state", e.target.value)
-                  }
-                  placeholder="Enter state or province"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="city">City</Label>
-                <Input
-                  id="city"
-                  value={dealFormData.city}
-                  onChange={(e) =>
-                    handleBasicInputChange("city", e.target.value)
-                  }
-                  placeholder="Enter city"
-                />
-              </div>
-            </div> */
-}
-
-{
-  /* Validity Period */
-}
-{
-  /* <div className="grid grid-cols-1 md:grid-cols-2 gap-4"> */
-}
-{
-  /* <div className="space-y-2">
-                <Label htmlFor="validFrom">
-                  Valid From<span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="validFrom"
-                  type="date"
-                  value={dealFormData.validFrom}
-                  onChange={(e) =>
-                    handleBasicInputChange("validFrom", e.target.value)
-                  }
-                  required
-                />
-              </div> */
-}
-
-{
-  /* Status Options */
-}
-{
-  /* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="isActive"
-                  checked={dealFormData.isActive}
-                  onChange={(e) =>
-                    handleBasicInputChange("isActive", e.target.checked)
-                  }
-                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                />
-                <Label htmlFor="isActive">
-                  Active (visible to customers)
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="isPromoted"
-                  checked={dealFormData.isPromoted}
-                  onChange={(e) =>
-                    handleBasicInputChange("isPromoted", e.target.checked)
-                  }
-                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                />
-                <Label htmlFor="isPromoted">
-                  Featured (show in promotions)
-                </Label>
-              </div>
-            </div> */
-}
-{
-  /* </CardContent>
-        </Card> */
-}
-
-{
-  /* Media Section */
-}
-{
-  /* <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Media</CardTitle>
-            <CardDescription>Add images for your deal</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-6">
-              <div>
-                <label htmlFor="cover" className=" text-sm pl-2">
-                  Cover
-                </label>
-                <ImageCropper
-                  onImageCropped={(croppedImage) =>
-                    handleImageUpload(croppedImage, "cover")
-                  }
-                  type="cover"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {dealFormData.images.map((image, index) => (
-                  <div
-                    key={index}
-                    className="relative border rounded-md overflow-hidden"
-                  >
-                    <img
-                      src={image}
-                      alt={`Deal image ${index + 1}`}
-                      className="w-full h-40 object-cover"
-                    />
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="icon"
-                      className="absolute top-2 right-2 h-8 w-8 opacity-90"
-                      onClick={() => handleRemoveImage(index)}
-                    >
-                      <Trash className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </CardContent>
-        </Card> */
 }
