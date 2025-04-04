@@ -71,10 +71,28 @@ export const AdvertisementType = pgEnum("advertisement_type", [
 // Tables
 // =====================
 
+export const AdvertisementDefinitionTable = pgTable(
+  "advertise_type_definitions",
+  {
+    id: uuid("id").defaultRandom().primaryKey().notNull(),
+    name: text("name").notNull(), // e.g., "Popup", "slider", "sidebar"
+    description: text("description"),
+    image: text("image"),
+    createdBy: uuid("created_by").references(() => UserTable.id).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  // (table) => [
+  //   uniqueIndex("deal_type_definitions_name_key").on(table.name),
+  // ]
+);
 // Advertisement Table
 export const AdvertisementTable = pgTable("advertisements", {
   id: uuid("id").defaultRandom().primaryKey().notNull(),
   title: varchar("title", { length: 255 }).notNull(),
+  AdvertisementTypeId: uuid("advertisement_type_id")
+  .references(() => AdvertisementDefinitionTable.id, { onDelete: "cascade" })
+  .notNull(),
   type: AdvertisementType("type").notNull(),
   content: jsonb("content").notNull(), // Dynamic content based on advertisement type
   imageUrl: text("image_url"),
