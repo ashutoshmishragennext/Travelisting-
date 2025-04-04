@@ -67,8 +67,79 @@ export const AdvertisementType = pgEnum("advertisement_type", [
   "NOTIFICATION"
 ]);
 
+export const PaymentStatus = pgEnum("payment_status", [
+  "PENDING",
+  "COMPLETED",
+  "FAILED",
+  "REFUNDED",
+  "CANCELLED"
+]);
+
 // =====================
 // Tables
+// =====================
+
+export const PlanTable = pgTable("plans", {
+  id: uuid("id").defaultRandom().primaryKey().notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  currency: varchar("currency", { length: 3 }).default("INR").notNull(),
+  duration: integer("duration_days").notNull(), // Duration in days
+  adType: AdvertisementType("ad_type").notNull(),
+  features: jsonb("features"), // JSON array of features included in this plan
+  maxImpressions: integer("max_impressions"), // Optional limit on impressions
+  maxClicks: integer("max_clicks"), // Optional limit on clicks
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Vendor Payment Table to track payments for advertisements
+export const VendorPaymentTable = pgTable("vendor_payments", {
+  id: uuid("id").defaultRandom().primaryKey().notNull(),
+  vendorId: uuid("vendor_id")
+    .notNull()
+    .references(() => VendorProfileTable.id),
+  planId: uuid("plan_id")
+    .notNull()
+    .references(() => PlanTable.id),
+  orderId: varchar("order_id", { length: 255 }).notNull(),
+  paymentId: varchar("payment_id", { length: 255 }),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  currency: varchar("currency", { length: 3 }).default("INR").notNull(),
+  status: PaymentStatus("status").default("PENDING").notNull(),
+  paymentMethod: varchar("payment_method", { length: 50 }),
+  transactionDetails: jsonb("transaction_details"), // Store payment gateway response
+  isVerified: boolean("is_verified").default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Vendor Advertisement Purchases table to track which ads a vendor has purchased
+export const VendorAdvertisementPurchaseTable = pgTable("vendor_advertisement_purchases", {
+  id: uuid("id").defaultRandom().primaryKey().notNull(),
+  vendorId: uuid("vendor_id")
+    .notNull()
+    .references(() => VendorProfileTable.id),
+  advertisementTypeId: uuid("advertisement_type_id")
+    .notNull()
+    .references(() => AdvertisementDefinitionTable.id),
+  paymentId: uuid("payment_id")
+    .notNull()
+    .references(() => VendorPaymentTable.id),
+  startDate: timestamp("start_date").notNull(),
+  endDate: timestamp("end_date").notNull(),
+  status: varchar("status", { length: 50 }).default("ACTIVE").notNull(),
+  impressions: integer("impressions").default(0),
+  clicks: integer("clicks").default(0),
+  adContent: jsonb("ad_content"), // The actual content of the advertisement
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// =====================
+// Existing Tables
 // =====================
 
 export const AdvertisementDefinitionTable = pgTable(
@@ -79,13 +150,10 @@ export const AdvertisementDefinitionTable = pgTable(
     description: text("description"),
     image: text("image"),
     createdBy: uuid("created_by").references(() => UserTable.id).notNull(),
-    price : text("price").default("1000").notNull(),
+    price: text("price").default("1000").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
-  },
-  // (table) => [
-  //   uniqueIndex("deal_type_definitions_name_key").on(table.name),
-  // ]
+  }
 );
 // Advertisement Table
 export const AdvertisementTable = pgTable("advertisements", {
@@ -516,3 +584,40 @@ export const dealRelations = relations(
     }),
   })
 );
+
+export const planRelations = relations(PlanTable, ({ many }) => ({
+  payments: many(VendorPaymentTable),
+}));
+
+export const vendorPaymentRelations = relations(VendorPaymentTable, ({ one, many }) => ({
+  vendor: one(VendorProfileTable, {
+    fields: [VendorPaymentTable.vendorId],
+    references: [VendorProfileTable.id],
+  }),
+  plan: one(PlanTable, {
+    fields: [VendorPaymentTable.planId],
+    references: [PlanTable.id],
+  }),
+  purchases: many(VendorAdvertisementPurchaseTable),
+}));
+
+export const vendorAdvertisementPurchaseRelations = relations(VendorAdvertisementPurchaseTable, ({ one }) => ({
+  vendor: one(VendorProfileTable, {
+    fields: [VendorAdvertisementPurchaseTable.vendorId],
+    references: [VendorProfileTable.id],
+  }),
+  advertisementType: one(AdvertisementDefinitionTable, {
+    fields: [VendorAdvertisementPurchaseTable.advertisementTypeId],
+    references: [AdvertisementDefinitionTable.id],
+  }),
+  payment: one(VendorPaymentTable, {
+    fields: [VendorAdvertisementPurchaseTable.paymentId],
+    references: [VendorPaymentTable.id],
+  }),
+}));
+
+// Update existing vendor profile relations
+export const vendorProfileRelations = relations(VendorProfileTable, ({ many }) => ({
+  payments: many(VendorPaymentTable),
+  advertisementPurchases: many(VendorAdvertisementPurchaseTable),
+}));
