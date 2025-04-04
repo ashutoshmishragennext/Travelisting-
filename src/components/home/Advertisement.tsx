@@ -36,11 +36,11 @@ const AdvertisementSelector = () => {
   const [notificationBought, setNotificationBought] = useState(false);
   
   // State for custom ad content
-  const [customBannerAd, setCustomBannerAd] = useState<CustomAd>({ name: '', description: '', image: '/api/placeholder/400/300' });
-  const [customPopupAd, setCustomPopupAd] = useState<CustomAd>({ name: '', description: '', image: '/api/placeholder/400/300' });
-  const [customSidebarAd, setCustomSidebarAd] = useState<CustomAd>({ name: '', description: '', image: '/api/placeholder/400/300' });
-  const [customFeaturedAd, setCustomFeaturedAd] = useState<CustomAd>({ name: '', description: '', image: '/api/placeholder/400/300' });
-  const [customNotificationAd, setCustomNotificationAd] = useState<CustomAd>({ name: '', description: '', image: '/api/placeholder/400/300' });
+  const [customBannerAd, setCustomBannerAd] = useState<CustomAd>({ name: '', description: '', image: '' });
+  const [customPopupAd, setCustomPopupAd] = useState<CustomAd>({ name: '', description: '', image: '' });
+  const [customSidebarAd, setCustomSidebarAd] = useState<CustomAd>({ name: '', description: '', image: '' });
+  const [customFeaturedAd, setCustomFeaturedAd] = useState<CustomAd>({ name: '', description: '', image: '' });
+  const [customNotificationAd, setCustomNotificationAd] = useState<CustomAd>({ name: '', description: '', image: '' });
 
   const [advertisements, setAdvertisements] = useState<Advertisement[]>([]);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
@@ -49,37 +49,46 @@ const AdvertisementSelector = () => {
   const [activeBannerIndex, setActiveBannerIndex] = useState(0);
   const router = useRouter();
 
-  const handleCroppedImage = async (croppedImage: string) => {
-      // setLoading(true);
+  const handleImageUpload = async (croppedImage: string, type: string) => {
+    try {
+      // First convert the data URL to a blob
       const response = await fetch(croppedImage);
       const blob = await response.blob();
+
+      // Create form data for the upload
       const formData = new FormData();
-      formData.append("image", blob, "advertisement-image.jpg");
-  
-      try {
-        const response = await fetch("/api/media/upload", {
-          method: "POST",
-          body: formData,
-        });
-  
-        if (!response.ok) throw new Error("Image upload failed");
-  
-        const result = await response.json();
-        // form.setValue("imageUrl", result.url);
-        toast({
-          title: "Image uploaded successfully",
-          variant: "default",
-        });
-      } catch (error) {
-        console.error("Error uploading image:", error);
-        toast({
-          title: "Error uploading image",
-          variant: "destructive",
-        });
-      } finally {
-        // setLoading(false);
+      formData.append("image", blob, `${type}-image.jpg`);
+
+      // Send the image to the server
+      const uploadResponse = await fetch("/api/media/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error("Image upload failed: " + uploadResponse.statusText);
       }
-    };
+
+      // Parse the response to get the image URL
+      const result = await uploadResponse.json();
+      console.log("Upload result:", result); // Add this for debugging
+
+      // Add the uploaded image URL to the dealFormData.images
+      if (result && result.url) {
+        updateCustomAdContent(type, 'image', result.url)
+      } else {
+        throw new Error("No URL returned from upload");
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      setError(
+        `Image upload failed: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+    }
+  };
+
 
   // Fetch advertisements data
   useEffect(() => {
@@ -286,7 +295,7 @@ const AdvertisementSelector = () => {
           <label className="block text-sm font-medium mb-1">Title</label>
           <Input 
             value={customAd.name} 
-            onChange={(e) => updateCustomAdContent(type, 'name', e.target.value)}
+            onChange={(e) => updateCustomAdContent(type, 'name', e.target.value)} 
             placeholder={`Enter your ${type} title`}
           />
         </div>
@@ -302,8 +311,10 @@ const AdvertisementSelector = () => {
         <div>
           <label className="block text-sm font-medium mb-1">Image URL</label>
           <ImageCropper
-            onImageCropped={handleCroppedImage}
-            type="logo"
+            onImageCropped={(croppedImage) =>
+              handleImageUpload(croppedImage, type)
+            }
+            type="cover"
           />
         </div>
         <Button 
