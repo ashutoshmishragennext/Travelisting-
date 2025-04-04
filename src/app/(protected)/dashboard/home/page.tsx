@@ -7,7 +7,8 @@ import {
   ChevronLeft,
   ChevronRight,
   File,
-  FileText
+  FileText,
+  User
 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -16,6 +17,8 @@ import { useState } from 'react';
 
 
 import HotelChain from "@/components/home/HotelChain";
+import Profile from "@/components/home/Profile";
+import Advertisement from "@/components/home/Advertisement";
 
 export default function AdminDashboard() {
   const { status } = useSession();
@@ -40,6 +43,7 @@ export default function AdminDashboard() {
     { id: 'profile', label: 'Profile', icon: <FileText className="h-5 w-5" /> },
     { id: 'hotel', label: 'Bussiness', icon: <FileText className="h-5 w-5" /> },
     { id: 'deals', label: 'Deals', icon: <File className="h-5 w-5" /> },
+    { id: 'advertisement', label: 'Advertisement', icon: <User className="h-5 w-5" /> },
     // { id: 'second', label: 'Second', icon: <Users className="h-5 w-5" /> },
     // { id: 'third', label: 'Third', icon: <File className="h-5 w-5" /> },
   ];
@@ -48,13 +52,13 @@ export default function AdminDashboard() {
   const renderMainContent = () => {
     switch (activeComponent) {
       case 'profile':
-        return <p>profile</p>;
+        return <Profile/>;
       case 'hotel':
         return <HotelChain/>;
       case 'deals':
           return <Deals/>;
-      case 'second':
-        return <p>Second</p>;
+      case 'advertisement':
+        return <Advertisement/>;
       case 'third':
         return <p>Third</p>;
       default:
