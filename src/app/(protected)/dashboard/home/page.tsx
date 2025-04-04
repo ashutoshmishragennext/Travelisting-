@@ -19,6 +19,7 @@ import { useState } from 'react';
 import HotelChain from "@/components/home/HotelChain";
 import Profile from "@/components/home/Profile";
 import Advertisement from "@/components/home/Advertisement";
+import AddAdvertisementForm from "@/components/home/Addetail";
 
 export default function AdminDashboard() {
   const { status } = useSession();
@@ -44,6 +45,8 @@ export default function AdminDashboard() {
     { id: 'hotel', label: 'Bussiness', icon: <FileText className="h-5 w-5" /> },
     { id: 'deals', label: 'Deals', icon: <File className="h-5 w-5" /> },
     { id: 'advertisement', label: 'Advertisement', icon: <User className="h-5 w-5" /> },
+    { id: 'addetail', label: 'Add Detail', icon: <User className="h-5 w-5" /> },
+
     // { id: 'second', label: 'Second', icon: <Users className="h-5 w-5" /> },
     // { id: 'third', label: 'Third', icon: <File className="h-5 w-5" /> },
   ];
@@ -59,6 +62,8 @@ export default function AdminDashboard() {
           return <Deals/>;
       case 'advertisement':
         return <Advertisement/>;
+      case 'addetail':
+        return <AddAdvertisementForm/>;
       case 'third':
         return <p>Third</p>;
       default:
