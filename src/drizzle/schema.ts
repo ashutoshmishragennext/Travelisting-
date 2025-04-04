@@ -79,6 +79,7 @@ export const AdvertisementDefinitionTable = pgTable(
     description: text("description"),
     image: text("image"),
     createdBy: uuid("created_by").references(() => UserTable.id).notNull(),
+    price : text("price").default("1000").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
