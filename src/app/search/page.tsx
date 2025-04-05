@@ -112,7 +112,8 @@ const TravelDealSearch = () => {
           ...prev,
           metadata: initialMetadata,
         }));
-        handleSubmit2();
+        // handleSubmit2();
+        setSearchResults([])
         setError(null);
       } else {
         setError(data.error || "Failed to fetch schema");
@@ -209,33 +210,7 @@ const TravelDealSearch = () => {
     }
   };
 
-  const handleSubmit2 = async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetch("/api/search", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({}),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setSearchResults(data.deals);
-      } else {
-        setError(data.error || "Search failed");
-      }
-    } catch (err) {
-      setError("Error performing search");
-      console.error(err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+ 
 
   // Fetch deal types when component mounts
   useEffect(() => {
@@ -358,7 +333,7 @@ const TravelDealSearch = () => {
     if (!metadataSchema || !metadataSchema.schema?.fields) return null;
 
     return (
-      <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-0 bg-white">
+      <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-4 gap-0 bg-white">
         {metadataSchema.schema.fields.map((field) => {
           const value = formData.metadata?.[field.id] || "";
 
