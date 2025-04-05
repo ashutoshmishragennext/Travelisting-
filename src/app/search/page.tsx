@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, Search, MapPin } from "lucide-react";
 import imagetree from "@/components/assets/imagetree.jpg"
+import Image from "next/image";
 
 const TravelDealSearch = () => {
   const [dealTypes, setDealTypes] = useState<{ id: string; name: string }[]>(
@@ -594,15 +595,21 @@ const TravelDealSearch = () => {
                   {/* Image Section */}
                   {deal.images && (
                     <div className="h-52 overflow-hidden relative">
-                      <img
-                        src={deal.images}
-                        alt={deal.title || "Travel Deal"}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          const target = e.currentTarget as HTMLImageElement;
-                          target.src = "/api/placeholder/400/300"; // Fallback image
-                        }}
-                      />
+                      
+
+                      <div className="h-52 w-full object-cover relative">
+                                            <Image 
+                                              src={deal.images} 
+                                              alt={deal.title || "Travel Deal"}
+                                              layout="fill"
+                                              objectFit="fit"
+                                              priority
+                                              onError={(e) => {
+                                                const target = e.currentTarget as HTMLImageElement;
+                                                target.src = "/api/placeholder/400/300"; // Fallback image
+                                              }}
+                                            />
+                                          </div>
                       {/* Optional overlay gradient for better text visibility */}
                       <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black to-transparent opacity-30"></div>
                     </div>
@@ -634,21 +641,21 @@ const TravelDealSearch = () => {
                     )}
   
                     {/* Price */}
-                    {/* {deal.price && (
+                    {deal.price && (
                       <p className="text-2xl font-bold text-primary mb-3">
                         ₹{deal.price.toLocaleString()}
                       </p>
                     )}
-   */}
+  
                     {/* Travel Type */}
-                    {(deal.travelType ||
+                    {/* {(deal.travelType ||
                       (deal.metadata && deal.metadata.Type)) && (
                       <div className="mb-3">
                         <Badge className="bg-primary/10 text-primary hover:bg-primary/20">
                           {deal.travelType || deal.metadata?.Type || "Package"}
                         </Badge>
                       </div>
-                    )}
+                    )} */}
   
                     {/* Valid Dates */}
                     {deal.validFrom && deal.validTo && (
