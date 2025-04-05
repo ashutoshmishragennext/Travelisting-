@@ -408,7 +408,7 @@ export default function CombinedLayout() {
           </div>
         )}
       </>
-      <div className="w-full px-3 sm:px-5 py-6 sm:py-8 bg-gray-50">
+      <div className="w-full bg-gray-50">
         {/* <div className="flex  items-center mb-4">
           <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
             Featured {activeTab}
