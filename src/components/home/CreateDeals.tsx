@@ -758,14 +758,14 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
   
                       <div>
                         <FloatingLabelInput
-                          id="price"
-                          type="number"
-                          label="Price"
-                          value={dealFormData.price}
+                          id="description"
+                          type="textarea"
+                          label="Description"
+                          value={dealFormData.description}
                           onChange={(e) =>
-                            handleBasicInputChange("price", e.target.value)
+                            handleBasicInputChange("description", e.target.value)
                           }
-                          placeholder="Enter price"
+                          placeholder="Enter Description"
                           required
                         />
                       </div>

@@ -50,6 +50,7 @@ const TravelDealSearch = () => {
   interface Deal {
     id: string;
     title?: string;
+    description : string;
     images?: string;
     city?: string;
     state?: string;
@@ -333,7 +334,7 @@ const TravelDealSearch = () => {
     if (!metadataSchema || !metadataSchema.schema?.fields) return null;
 
     return (
-      <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-4 gap-0 bg-white">
+      <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-0 bg-white">
         {metadataSchema.schema.fields.map((field) => {
           const value = formData.metadata?.[field.id] || "";
 
@@ -643,13 +644,19 @@ const TravelDealSearch = () => {
                           ""}
                       </p>
                     )}
+
+{deal.description && (
+                      <p className="text-sm">
+                        {deal.description}
+                      </p>
+                    )}
   
                     {/* Price */}
-                    {deal.price && (
+                    {/* {deal.price && (
                       <p className="text-2xl font-bold text-primary mb-3">
                         ₹{deal.price.toLocaleString()}
                       </p>
-                    )}
+                    )} */}
   
                     {/* Travel Type */}
                     {/* {(deal.travelType ||
