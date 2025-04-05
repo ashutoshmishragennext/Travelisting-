@@ -141,6 +141,27 @@
       "when": 1743751887136,
       "tag": "0019_jittery_bushwacker",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1743832928005,
+      "tag": "0020_warm_mesmero",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1743833871604,
+      "tag": "0021_daily_garia",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1743834780490,
+      "tag": "0022_sparkling_chimera",
+      "breakpoints": true
     }
   ]
 }

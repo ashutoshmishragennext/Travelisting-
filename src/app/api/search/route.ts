@@ -8,7 +8,7 @@ import { DealTable, DealTypeDefinitionTable, DealTypeMetadataTable } from "@/dri
 interface SearchParams {
   dealTypeId?: string;
   title?: string;
-  travelType?: string;
+  travelType?: "DOMESTIC" | "INTERNATIONAL";
   country?: string;
   state?: string;
   city?: string;
@@ -116,12 +116,16 @@ export async function POST(request: NextRequest) {
     }
     
     // Apply all conditions with AND
-    if (whereConditions.length > 0) {
-      query = query.where(and(...whereConditions));
-    }
-    
+    // if (whereConditions.length > 0) {
+    //   query = query.where(and(...whereConditions));
+    // }
+    const queryBuilder = db.select().from(DealTable);
+const finalQuery = whereConditions.length > 0
+  ? queryBuilder.where(and(...whereConditions))
+  : queryBuilder;
+
     // Execute the query
-    const deals = await query.execute();
+    const deals = await finalQuery.execute();
     
     return NextResponse.json({ success: true, deals });
   } catch (error) {

@@ -8,6 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/components/ui/use-toast';
 import ImageCropper from '../shared/imagecrop/Imagecrop';
+import AdvertisementPayment from '../Advertisement';
+
 
 // Define types
 interface Advertisement {
@@ -144,9 +146,9 @@ const AdvertisementSelector = () => {
   // Calculate total price
   const [totalPrice, setTotalPrice] = useState<string | number>(0);
 
-  // Handle checkout
-  const handleCheckout = () => {
-    // Simulate purchase
+  // Handle payment success
+  const handlePaymentSuccess = () => {
+    // Simulate purchase by setting the bought status for each selected type
     selectedTypes.forEach(type => {
       buyAdvertisement(type);
     });
@@ -158,6 +160,15 @@ const AdvertisementSelector = () => {
     toast({
       title: "Purchase Successful",
       description: "Your advertisements have been purchased successfully.",
+    });
+  };
+
+  // Handle payment error
+  const handlePaymentError = (error: string) => {
+    toast({
+      title: "Payment Failed",
+      description: `There was an error processing your payment: ${error}`,
+      variant: "destructive",
     });
   };
 
@@ -640,13 +651,13 @@ const AdvertisementSelector = () => {
             </ul>
           </CardContent>
           <CardFooter className="flex flex-wrap justify-between gap-4">
-            <div className="text-lg font-semibold">
-              Total: ₹{Number(totalPrice).toLocaleString()}
-            </div>
-            <Button onClick={handleCheckout} className="flex items-center gap-2">
-              <ShoppingCart size={18} />
-              Pay (₹{Number(totalPrice).toLocaleString()})
-            </Button>
+            <AdvertisementPayment
+              selectedTypes={selectedTypes}
+              totalPrice={Number(totalPrice)}
+              getAdByType={getAdByType}
+              onPaymentSuccess={handlePaymentSuccess}
+              onPaymentError={handlePaymentError}
+            />
           </CardFooter>
         </Card>
       )}

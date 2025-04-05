@@ -1,0 +1,1 @@
+ALTER TABLE "advertisements" ALTER COLUMN "title" DROP NOT NULL;

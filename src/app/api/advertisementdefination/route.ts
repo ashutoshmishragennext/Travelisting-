@@ -17,10 +17,9 @@ export async function GET(req: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, description, image } = body;
+    const { name, description, image, createdBy } = body;
 
-    // Optional: Basic validation
-    if (!name || !description || !image) {
+    if (!name || !description || !image || !createdBy) {
       return NextResponse.json(
         { message: "All fields are required." },
         { status: 400 }
@@ -33,14 +32,16 @@ export async function POST(request: NextRequest) {
         name,
         description,
         image,
+        createdBy,
       })
       .returning();
 
     return NextResponse.json(newAdvertisement[0], { status: 201 });
   } catch (error) {
     return NextResponse.json(
-      { message: "Failed to create advertisement", error: error },
+      { message: "Failed to create advertisement", error },
       { status: 500 }
     );
   }
 }
+

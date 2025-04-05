@@ -155,10 +155,23 @@ export const AdvertisementDefinitionTable = pgTable(
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   }
 );
+
+export const AdvertisementPaymentTable = pgTable('advertisement_payments', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  orderId: varchar('order_id').notNull(),
+  amount: decimal('amount', { precision: 10, scale: 2 }).notNull(),
+  currency: varchar('currency').notNull().default('INR'),
+  status: varchar('status').notNull().default('PENDING'),
+  paymentId: varchar('payment_id'),
+  paymentSignature: varchar('payment_signature'),
+  adTypes: json('ad_types').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at')
+});
 // Advertisement Table
 export const AdvertisementTable = pgTable("advertisements", {
   id: uuid("id").defaultRandom().primaryKey().notNull(),
-  title: varchar("title", { length: 255 }).notNull(),
+  title: varchar("title", { length: 255 }),
   AdvertisementTypeId: uuid("advertisement_type_id")
   .references(() => AdvertisementDefinitionTable.id, { onDelete: "cascade" })
   .notNull(),
@@ -167,6 +180,8 @@ export const AdvertisementTable = pgTable("advertisements", {
   imageUrl: text("image_url"),
   redirectUrl: text("redirect_url"),
   startDate: timestamp("start_date").notNull(),
+  paymentId: uuid('payment_id').notNull(),
+
   endDate: timestamp("end_date").notNull(),
   isActive: boolean("is_active").default(true).notNull(),
   targetAudience: jsonb("target_audience"), // For audience targeting
