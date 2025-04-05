@@ -1,0 +1,1 @@
+ALTER TABLE "advertise_type_definitions" ADD COLUMN "price" text DEFAULT '1000' NOT NULL;

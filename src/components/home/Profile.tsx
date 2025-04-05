@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Input } from '../ui/input';
 import { useCurrentUser } from '@/hooks/auth';
+import { Checkbox } from '../ui/checkbox';
 
 // Define the VendorData type based on the actual API response
 interface VendorData {
@@ -35,7 +36,7 @@ interface VendorData {
   insuranceCoverage: string | null;
   businessOpeningDays: string[];
   anotherMobileNumbers: string | null;
-  bussinessType: string;
+  bussinessType: string | undefined;
   advertisment: string | null;
   anotheremails: string | null;
   businessTiming: string | null;
@@ -44,7 +45,7 @@ interface VendorData {
   updatedAt: string;
 }
 
-const Profile = () => {
+const Profile:any = () => {
   const [vendor, setVendor] = useState<VendorData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -288,22 +289,41 @@ const Profile = () => {
                     />
                   </div>
 
-                  <div>
-                    <label htmlFor="bussinessType" className="block text-sm font-medium text-gray-700 mb-1">
-                      Business Type
-                    </label>
-                    <select
-                      id="bussinessType"
-                      name="bussinessType"
-                      value={formData.bussinessType || ''}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                    >
-                      <option value="B2B" className='hover:bg-primary focus:bg-primary  active:bg-primary'>B2B</option>
-                      <option value="B2C">B2C</option>
-                      <option value="B2B B2C" >Both</option>
-                    </select>
-                  </div>
+                  <div className=' space-y-4'>
+              <label htmlFor="bussiness" className=''>Bussiness Type</label>
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="flight-domestic"
+                    checked={formData.bussinessType?.includes("B2B")}
+                    onCheckedChange={() => setFormData((prev) => ({
+                      ...prev, bussinessType : formData.bussinessType?.includes("B2B")  ? ( formData.bussinessType?.includes("B2C") ? "B2C" : "" ) : (formData.bussinessType?.includes("B2C")) ? "B2B B2C" : "B2B" } )) }
+                    className="h-4 w-4 border-amber-500 text-amber-500 rounded"
+                  />
+                  <label 
+                    htmlFor="flight-domestic" 
+                    className="text-sm text-gray-600 cursor-pointer"
+                  >
+                    B2B
+                  </label>
+                </div>
+                <div className="flex items-center space-x-2">
+                <Checkbox 
+                    id="flight-domestic"
+                    checked={formData.bussinessType?.includes("B2C")}
+                    onCheckedChange={() => setFormData((prev) => ({
+                      ...prev, bussinessType : formData.bussinessType?.includes("B2C")  ? ( formData.bussinessType?.includes("B2B") ? "B2B" : "" ) : (formData.bussinessType?.includes("B2B")) ? "B2B B2C" : "B2C" } )) }
+                    className="h-4 w-4 border-amber-500 text-amber-500 rounded"
+                  />
+                  <label 
+                    htmlFor="flight-international" 
+                    className="text-sm text-gray-600 cursor-pointer"
+                  >
+                    B2C
+                  </label>
+                </div>
+              </div>
+              </div>
 
                   <div>
                     <label htmlFor="primaryContactName" className="block text-sm font-medium text-gray-700 mb-1">
