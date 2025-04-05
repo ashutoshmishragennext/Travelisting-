@@ -1,230 +1,203 @@
+// app/api/deals/search/route.ts
 import { NextRequest, NextResponse } from "next/server";
+import { and, eq, ilike, inArray, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
-// import { DealTypeMetadataTable, DealTypeDefinitionTable } from "@/schemas";
-import { and, eq, ilike, sql } from "drizzle-orm";
-import { DealTypeDefinitionTable, DealTypeMetadataTable } from "@/drizzle/schema";
+import { DealTable, DealTypeDefinitionTable, DealTypeMetadataTable } from "@/drizzle/schema";
+
+// Define search query parameters interface
+interface SearchParams {
+  dealTypeId?: string;
+  title?: string;
+  travelType?: string;
+  country?: string;
+  state?: string;
+  city?: string;
+  validFrom?: string;
+  validTo?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  isActive?: boolean;
+  metadata?: Record<string, any>; // Dynamic metadata search parameters
+}
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { searchQuery, fieldPath, dealTypeId } = body;
-
-    if (!searchQuery || !fieldPath) {
-      return NextResponse.json(
-        { error: "Search query and field path are required" },
-        { status: 400 }
-      );
+    const searchParams: SearchParams = await request.json();
+    
+    // Start building the base query
+    let query = db.select().from(DealTable);
+    
+    // Build the where conditions
+    const whereConditions = [];
+    
+    // Add basic field filters
+    if (searchParams.dealTypeId) {
+      whereConditions.push(eq(DealTable.dealTypeDefinitionId, searchParams.dealTypeId));
     }
-
-    // Base query
-    let query = db.select({
-      id: DealTypeMetadataTable.id,
-      dealTypeId: DealTypeMetadataTable.dealTypeId,
-      schema: DealTypeMetadataTable.schema,
-      isActive: DealTypeMetadataTable.isActive,
-      createdAt: DealTypeMetadataTable.createdAt,
-      dealTypeName: DealTypeDefinitionTable.name,
-    })
-    .from(DealTypeMetadataTable)
-    .leftJoin(
-      DealTypeDefinitionTable,
-      eq(DealTypeMetadataTable.dealTypeId, DealTypeDefinitionTable.id)
-    );
-
-    // Add conditions
-    const conditions = [];
-
-    // If dealTypeId is provided, filter by it
-    if (dealTypeId) {
-      conditions.push(eq(DealTypeMetadataTable.dealTypeId, dealTypeId));
+    
+    if (searchParams.title) {
+      whereConditions.push(ilike(DealTable.title, `%${searchParams.title}%`));
     }
-
-    // Add JSONB search condition
-    // Format: schema->fieldPath->>key ILIKE %searchQuery%
-    // The field path should be in format 'key1.key2.key3' for nested objects
-    const pathParts = fieldPath.split('.');
-    let jsonPathExpression;
-
-    if (pathParts.length === 1) {
-      // Direct key in schema object
-      jsonPathExpression = sql`${DealTypeMetadataTable.schema}->>${fieldPath}`;
-    } else {
-      // Nested key, construct proper JSON path
-      const lastKey = pathParts.pop();
-      const jsonPath = pathParts.join('.');
-      jsonPathExpression = sql`${DealTypeMetadataTable.schema}->${jsonPath}->>${lastKey}`;
+    
+    if (searchParams.travelType) {
+      whereConditions.push(eq(DealTable.travelType, searchParams.travelType));
     }
-
-    conditions.push(sql`${jsonPathExpression} ILIKE ${`%${searchQuery}%`}`);
-
-    // Apply all conditions
-    if (conditions.length > 0) {
-      query = query.where(and(...conditions));
+    
+    if (searchParams.country) {
+      whereConditions.push(ilike(DealTable.country, `%${searchParams.country}%`));
     }
-
+    
+    if (searchParams.state) {
+      whereConditions.push(ilike(DealTable.state, `%${searchParams.state}%`));
+    }
+    
+    if (searchParams.city) {
+      whereConditions.push(ilike(DealTable.city, `%${searchParams.city}%`));
+    }
+    
+    if (searchParams.validFrom) {
+      whereConditions.push(sql`${DealTable.validFrom} >= ${searchParams.validFrom}`);
+    }
+    
+    if (searchParams.validTo) {
+      whereConditions.push(sql`${DealTable.validTo} <= ${searchParams.validTo}`);
+    }
+    
+    if (searchParams.minPrice !== undefined) {
+      whereConditions.push(sql`${DealTable.price} >= ${searchParams.minPrice}`);
+    }
+    
+    if (searchParams.maxPrice !== undefined) {
+      whereConditions.push(sql`${DealTable.price} <= ${searchParams.maxPrice}`);
+    }
+    
+    if (searchParams.isActive !== undefined) {
+      whereConditions.push(eq(DealTable.isActive, searchParams.isActive));
+    }
+    
+    // Handle dynamic metadata search
+    if (searchParams.metadata && Object.keys(searchParams.metadata).length > 0) {
+      // For each metadata field, create a JSON path condition
+      Object.entries(searchParams.metadata).forEach(([key, value]) => {
+        if (typeof value === 'string') {
+          // Text/string search with ilike for partial matches
+          whereConditions.push(
+            sql`${DealTable.metadata}->>${key} ILIKE ${`%${value}%`}`
+          );
+        } else if (typeof value === 'number') {
+          // Exact match for numbers
+          whereConditions.push(
+            sql`${DealTable.metadata}->>${key} = ${String(value)}`
+          );
+        } else if (typeof value === 'boolean') {
+          // Boolean comparison
+          whereConditions.push(
+            sql`${DealTable.metadata}->>${key} = ${String(value)}`
+          );
+        } else if (Array.isArray(value)) {
+          // Array contains any of the items
+          whereConditions.push(
+            sql`${DealTable.metadata}->${key} ?| ${JSON.stringify(value)}`
+          );
+        } else if (value !== null && typeof value === 'object') {
+          // Range search for objects with min/max properties
+          if ('min' in value && value.min !== undefined) {
+            whereConditions.push(
+              sql`(${DealTable.metadata}->>${key})::numeric >= ${value.min}`
+            );
+          }
+          if ('max' in value && value.max !== undefined) {
+            whereConditions.push(
+              sql`(${DealTable.metadata}->>${key})::numeric <= ${value.max}`
+            );
+          }
+        }
+      });
+    }
+    
+    // Apply all conditions with AND
+    if (whereConditions.length > 0) {
+      query = query.where(and(...whereConditions));
+    }
+    
     // Execute the query
-    const results = await query;
-
-    return NextResponse.json({ 
-      success: true, 
-      count: results.length,
-      data: results 
-    });
+    const deals = await query.execute();
+    
+    return NextResponse.json({ success: true, deals });
   } catch (error) {
-    console.error("Error searching deal type metadata:", error);
+    console.error("Search error:", error);
     return NextResponse.json(
-      { error: "Failed to search deal type metadata" },
+      { success: false, error: "Failed to search deals" },
       { status: 500 }
     );
   }
 }
 
-// Advanced version with more search capabilities
+// GET endpoint that retrieves the metadata schema for a specific deal type
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    const dealTypeId = searchParams.get("dealTypeId");
-    const isActive = searchParams.get("isActive");
+    const dealTypeId = searchParams.get('dealTypeId');
     
-    // JSON search params
-    const field = searchParams.get("field");
-    const value = searchParams.get("value");
-    const operator = searchParams.get("operator") || "contains"; // Default to contains
+    if (!dealTypeId) {
+      return NextResponse.json(
+        { success: false, error: "dealTypeId is required" },
+        { status: 400 }
+      );
+    }
     
-    // Pagination
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "10");
-    const offset = (page - 1) * limit;
-
-    // Base query
-    let query = db.select({
-      id: DealTypeMetadataTable.id,
-      dealTypeId: DealTypeMetadataTable.dealTypeId,
-      schema: DealTypeMetadataTable.schema,
-      isActive: DealTypeMetadataTable.isActive,
-      createdAt: DealTypeMetadataTable.createdAt,
-      updatedAt: DealTypeMetadataTable.updatedAt,
-      dealTypeName: DealTypeDefinitionTable.name,
-    })
-    .from(DealTypeMetadataTable)
-    .leftJoin(
-      DealTypeDefinitionTable,
-      eq(DealTypeMetadataTable.dealTypeId, DealTypeDefinitionTable.id)
-    );
-
-    // Add conditions
-    const conditions = [];
-
-    // Filter by dealTypeId if provided
-    if (dealTypeId) {
-      conditions.push(eq(DealTypeMetadataTable.dealTypeId, dealTypeId));
-    }
-
-    // Filter by isActive if provided
-    if (isActive !== null && isActive !== undefined) {
-      conditions.push(eq(DealTypeMetadataTable.isActive, isActive === "true"));
-    }
-
-    // Add JSON field search if both field and value are provided
-    if (field && value) {
-      const pathParts = field.split('.');
-      let jsonCondition;
-
-      if (pathParts.length === 1) {
-        // Direct key in schema object
-        const jsonField = sql`${DealTypeMetadataTable.schema}->>${field}`;
-        
-        switch (operator) {
-          case "equals":
-            jsonCondition = sql`${jsonField} = ${value}`;
-            break;
-          case "contains":
-            jsonCondition = sql`${jsonField} ILIKE ${`%${value}%`}`;
-            break;
-          case "startsWith":
-            jsonCondition = sql`${jsonField} ILIKE ${`${value}%`}`;
-            break;
-          case "endsWith":
-            jsonCondition = sql`${jsonField} ILIKE ${`%${value}`}`;
-            break;
-          case "greaterThan":
-            jsonCondition = sql`CAST(${jsonField} AS NUMERIC) > ${parseFloat(value)}`;
-            break;
-          case "lessThan":
-            jsonCondition = sql`CAST(${jsonField} AS NUMERIC) < ${parseFloat(value)}`;
-            break;
-          default:
-            jsonCondition = sql`${jsonField} ILIKE ${`%${value}%`}`;
-        }
-      } else {
-        // Nested key, construct proper JSON path
-        const lastKey = pathParts.pop();
-        const jsonPath = pathParts.join('.');
-        const jsonField = sql`${DealTypeMetadataTable.schema}->${jsonPath}->>${lastKey}`;
-        
-        switch (operator) {
-          case "equals":
-            jsonCondition = sql`${jsonField} = ${value}`;
-            break;
-          case "contains":
-            jsonCondition = sql`${jsonField} ILIKE ${`%${value}%`}`;
-            break;
-          case "startsWith":
-            jsonCondition = sql`${jsonField} ILIKE ${`${value}%`}`;
-            break;
-          case "endsWith":
-            jsonCondition = sql`${jsonField} ILIKE ${`%${value}`}`;
-            break;
-          case "greaterThan":
-            jsonCondition = sql`CAST(${jsonField} AS NUMERIC) > ${parseFloat(value)}`;
-            break;
-          case "lessThan":
-            jsonCondition = sql`CAST(${jsonField} AS NUMERIC) < ${parseFloat(value)}`;
-            break;
-          default:
-            jsonCondition = sql`${jsonField} ILIKE ${`%${value}%`}`;
-        }
-      }
+    // Get the deal type and its metadata schema
+    const dealType = await db.select()
+      .from(DealTypeDefinitionTable)
+      .where(eq(DealTypeDefinitionTable.id, dealTypeId))
+      .execute();
       
-      conditions.push(jsonCondition);
-    }
-
-    // Apply all conditions
-    if (conditions.length > 0) {
-      query = query.where(and(...conditions));
-    }
-
-    // Add pagination
-    query = query.limit(limit).offset(offset);
-
-    // Execute the query
-    const results = await query;
-
-    // Get total count for pagination
-    const countQuery = db.select({ count: sql`COUNT(*)` })
-      .from(DealTypeMetadataTable);
-    
-    if (conditions.length > 0) {
-      countQuery.where(and(...conditions));
+    if (dealType.length === 0) {
+      return NextResponse.json(
+        { success: false, error: "Deal type not found" },
+        { status: 404 }
+      );
     }
     
-    const [countResult] = await countQuery;
-    const totalCount = Number(countResult?.count || 0);
-
+    const metadataSchema = await db.select()
+      .from(DealTypeMetadataTable)
+      .where(and(
+        eq(DealTypeMetadataTable.dealTypeId, dealTypeId),
+        eq(DealTypeMetadataTable.isActive, true)
+      ))
+      .execute();
+      
+    if (metadataSchema.length === 0) {
+      return NextResponse.json(
+        { success: false, error: "Metadata schema not found" },
+        { status: 404 }
+      );
+    }
+    
+    // Get example deals for this deal type (limit to 5)
+    const exampleDeals = await db.select({
+      id: DealTable.id,
+      title: DealTable.title,
+      metadata: DealTable.metadata
+    })
+      .from(DealTable)
+      .where(eq(DealTable.dealTypeDefinitionId, dealTypeId))
+      .limit(5)
+      .execute();
+      
     return NextResponse.json({
       success: true,
-      data: results,
-      pagination: {
-        page,
-        limit, 
-        totalCount,
-        totalPages: Math.ceil(totalCount / limit)
-      }
+      schema: {
+        ...metadataSchema[0],
+        dealTypeName: dealType[0].name,
+        dealTypeDescription: dealType[0].description
+      },
+      exampleDeals
     });
   } catch (error) {
-    console.error("Error searching deal type metadata:", error);
+    console.error("Error getting schema:", error);
     return NextResponse.json(
-      { error: "Failed to search deal type metadata" },
+      { success: false, error: "Failed to get schema" },
       { status: 500 }
     );
   }

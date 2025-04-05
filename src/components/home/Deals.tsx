@@ -11,10 +11,12 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, AlertCircle, Calendar, MapPin, Tag, Clock } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Plus, AlertCircle, Calendar, MapPin, Tag, Clock, Info } from "lucide-react";
 import { format } from "date-fns";
 import Image from "next/image";
 import CreateDealPage from "./CreateDeals";
+import DealDetailsSidebar from "./DealDetailsSidebar";
 
 // Type definition for a Deal
 interface Deal {
@@ -33,6 +35,11 @@ interface Deal {
   isActive: boolean;
   isPromoted: boolean;
   createdAt: string;
+  contactEmails?: string[];
+  contactPhones?: string[];
+  flightDetails?: any;
+  hotelDetails?: any;
+  metadata?: Record<string, string>;
 }
 
 export default function Deals() {
@@ -41,8 +48,10 @@ export default function Deals() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [showCreateForm, setShowCreateForm] = useState<boolean>(false);
+  const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
+  const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
 
-  // Fetch deals on component mount
+  // Fetch deals on component mount and when refreshTrigger changes
   useEffect(() => {
     const fetchDeals = async () => {
       try {
@@ -67,21 +76,30 @@ export default function Deals() {
     };
 
     fetchDeals();
-  }, []);
+  }, [refreshTrigger]); // Added refreshTrigger as a dependency
 
   // Toggle create deal form
   const handleCreateDeal = () => {
     setShowCreateForm(true);
   };
 
-  // Handle back to deals list
-  const handleBackToDealsList = () => {
+  // Handle back to deals list and refresh data
+  const handleBackToDealsList = (dealCreated = false) => {
     setShowCreateForm(false);
+    if (dealCreated) {
+      // Increment the refresh trigger to cause a re-fetch
+      setRefreshTrigger(prev => prev + 1);
+    }
   };
 
-  // View deal details
-  const handleViewDeal = (dealId: string) => {
-    router.push(`/travel-agent/deals/${dealId}`);
+  // Handle view deal details
+  const handleViewDeal = (deal: Deal) => {
+    setSelectedDeal(deal);
+  };
+
+  // Close sidebar
+  const handleCloseSidebar = () => {
+    setSelectedDeal(null);
   };
 
   // Loading state
@@ -108,7 +126,7 @@ export default function Deals() {
     return <CreateDealPage onBack={handleBackToDealsList} />;
   }
 
-  // Otherwise, show the deals list
+  // Otherwise, show the deals list with the sidebar if a deal is selected
   return (
     <div className="container mx-auto py-6 px-4">
       <div className="flex justify-between items-center mb-6">
@@ -145,14 +163,14 @@ export default function Deals() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {deals.map((deal) => (
-            <Card key={deal.id} className="overflow-hidden">
-              <div className="relative h-48 bg-muted">
+            <Card key={deal.id} className="overflow-hidden hover:shadow-md transition-shadow">
+              <div className="relative h-96 bg-muted">
                 {deal.images ? (
                   <Image
-                    src={deal.images} // Use deal.images directly
-                    alt={deal.title}
+                    src={deal.images}
+                    alt={deal.title || "Travel deal"}
                     fill
-                    className="object-cover"
+                    className="object-fit"
                   />
                 ) : (
                   <div className="flex items-center justify-center h-full bg-muted">
@@ -160,76 +178,87 @@ export default function Deals() {
                   </div>
                 )}
                 {deal.isPromoted && (
-                  <div className="absolute top-2 right-2 bg-yellow-500 text-white text-xs font-medium px-2 py-1 rounded">
+                  <Badge className="absolute top-2 right-2 bg-yellow-500">
                     Featured
-                  </div>
+                  </Badge>
+                )}
+                {deal.travelType && (
+                  <Badge variant="outline" className="absolute top-2 left-2 bg-background">
+                    {deal.travelType}
+                  </Badge>
                 )}
               </div>
 
-              <CardHeader>
+              <CardHeader className="pb-2">
                 <div className="flex justify-between items-start">
-                  <CardTitle className="text-lg">{deal.title}</CardTitle>
-                  <div
+                  {/* <CardTitle className="text-lg">
+                    {deal.title || (deal.metadata?.Description || "")}
+                  </CardTitle> */}
+                  {/* <div
                     className={`h-3 w-3 rounded-full ${
                       deal.isActive ? "bg-green-500" : "bg-gray-400"
                     }`}
-                  ></div>
+                    title={deal.isActive ? "Active" : "Inactive"}
+                  ></div> */}
                 </div>
-                <CardDescription className="flex items-center">
-                  <Calendar className="h-4 w-4 mr-1" />
-                  <span>
-                    Valid: {format(new Date(deal.validFrom), "MMM d")} -{" "}
-                    {format(new Date(deal.validTo), "MMM d, yyyy")}
-                  </span>
-                </CardDescription>
+                
+                {(deal.validFrom && deal.validTo) && (
+                  <CardDescription className="flex items-center mt-1">
+                    <Calendar className="h-4 w-4 mr-1" />
+                    <span>
+                      {format(new Date(deal.validFrom), "MMM d")} -{" "}
+                      {format(new Date(deal.validTo), "MMM d, yyyy")}
+                    </span>
+                  </CardDescription>
+                )}
               </CardHeader>
 
-              <CardContent>
-                <div className="flex items-center text-sm mb-2">
-                  <MapPin className="h-4 w-4 mr-1" />
-                  <span>
-                    {[deal.city, deal.state, deal.country]
-                      .filter(Boolean)
-                      .join(", ") || "Location not specified"}
-                  </span>
-                </div>
+              <CardContent className="space-y-2">
 
-                {deal.price && (
-                  <div className="flex items-center mb-3">
-                    <span className="text-xl font-bold">
+                {deal.price ? (
+                  <div className="flex items-center">
+                    <span className="text-lg font-bold">
                       ${deal.price.toLocaleString()}
                     </span>
-                    {deal.discount && deal.discount > 0 && (
-                      <span className="ml-2 text-sm bg-red-100 text-red-800 px-2 py-0.5 rounded">
+                    {/* {deal.discount && deal.discount > 0 && (
+                      <Badge className="ml-2 bg-red-100 text-red-800 hover:bg-red-100">
                         {deal.discount}% OFF
-                      </span>
-                    )}
+                      </Badge>
+                    )} */}
                   </div>
-                )}
+                ) : null}
 
-                <p className="text-sm text-muted-foreground line-clamp-2">
-                  {deal.description || "No description provided."}
-                </p>
+                {/* Show description or metadata description if available */}
+                {/* {(deal.description || deal.metadata?.Description) && (
+                  <p className="text-sm text-muted-foreground line-clamp-2">
+                    {deal.description || deal.metadata?.Description}
+                  </p>
+                )} */}
               </CardContent>
 
-              <CardFooter className="flex justify-between items-center pt-0">
-                <div className="flex items-center text-sm text-muted-foreground">
-                  <Clock className="h-4 w-4 mr-1" />
+              <CardFooter className="flex justify-between items-center ">
+                <div className="flex items-center text-xs text-muted-foreground">
+                  <Clock className="h-3 w-3 mr-1" />
                   <span>
-                    Added {format(new Date(deal.createdAt), "MMM d, yyyy")}
+                    {format(new Date(deal.createdAt), "MMM d, yyyy")}
                   </span>
                 </div>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => handleViewDeal(deal.id)}
+                  onClick={() => handleViewDeal(deal)}
                 >
-                  View
+                  View Details
                 </Button>
               </CardFooter>
             </Card>
           ))}
         </div>
+      )}
+
+      {/* Render the Details Sidebar when a deal is selected */}
+      {selectedDeal && (
+        <DealDetailsSidebar deal={selectedDeal} onClose={handleCloseSidebar} />
       )}
     </div>
   );

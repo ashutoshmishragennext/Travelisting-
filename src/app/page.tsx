@@ -3,6 +3,7 @@
 import Hero1 from "@/components/Hero";
 import Navigation from "@/components/Navigation";
 import PlanManagement from "@/components/Plans";
+import Homebar from "@/components/search/Homebar";
 
 import FoodCarousel from "@/components/shared/Banner";
 import Footer from "@/components/shared/Gennextfooter";
@@ -24,6 +25,8 @@ export default function Home() {
       
       {/* <Hero1/> */}
       <div className="font-bold text-[50px] text-yellow-500 align-middle h-screen text-center">Travelisting</div>
+
+      <Homebar/>
       
 
       {/* <div className=" mt-6 w-full  bg-red-500 h-32"></div> */}
