@@ -112,6 +112,7 @@ const TravelDealSearch = () => {
           ...prev,
           metadata: initialMetadata,
         }));
+        handleSubmit2();
         setError(null);
       } else {
         setError(data.error || "Failed to fetch schema");
@@ -191,6 +192,34 @@ const TravelDealSearch = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setSearchResults(data.deals);
+      } else {
+        setError(data.error || "Search failed");
+      }
+    } catch (err) {
+      setError("Error performing search");
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSubmit2 = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/search", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({}),
       });
 
       const data = await response.json();
