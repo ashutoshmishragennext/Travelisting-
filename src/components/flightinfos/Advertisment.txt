@@ -306,3 +306,247 @@ const AddAdvertisementForm = () => {
 };
 
 export default AddAdvertisementForm;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{/* Main content with search form and ad space */}
+        
+
+
+          {/* Search form container */}
+          
+
+
+            {metadataSchema && (
+              
+                
+                  Find Your Perfect Travel Deal
+                
+                
+                  
+
+
+                    {renderMetadataFields()}
+                    
+                    
+
+
+                      
+                        {isLoading ? (
+                          
+                            
+                            Searching...
+                          
+                        ) : (
+                          
+                            
+                            Find Amazing Deals
+                          
+                        )}
+                      
+                    
+
+
+                  
+
+
+                
+              
+            )}
+
+            {/* Error display */}
+            {error && (
+              
+                {error}
+              
+            )}
+          
+
+
+
+          {/* Advertisement space */}
+          
+
+
+            
+
+
+              
+
+Advertisement
+
+
+              
+
+
+                
+
+Ad Space
+
+
+              
+
+
+            
+
+
+          
+
+
+        
+
+
+
+
+i want that you render this main content data here
+
+ {/* Search Form based on tab */}
+            
+
+
+              {selectedTab === 'Flights' && }
+              {selectedTab !== 'Flights' && (
+                
+
+
+                  
+
+
+                    
+
+
+                      
+
+{selectedTab}
+
+
+                      
+
+
+                        Find the best {selectedTab.toLowerCase()} deals
+                      
+
+
+                    
+
+
+                    
+                    {/* Dynamic Form Content - Placeholder for now */}
+                    
+
+
+                      
+
+
+                        {selectedTab} search form will appear here based on deal type
+                      
+
+
+                    
+
+
+                    
+                    {/* Search Button */}
+                    
+
+
+                      
+                        Search
+                      
+                    
+
+
+                  
+
+
+                
+
+
+              )}
+            
+
+
+
+and these tabs should be replaced by **{/* Deal Types Navigation */}
+        
+
+
+          
+
+
+            {isLoadingDealTypes ? (
+              
+
+
+                
+                Loading deal types...
+              
+
+
+            ) : (
+              dealTypes.map(dealType => (
+                 handleDealTypeSelect(dealType.id)}
+                  variant={selectedDealType === dealType.id ? "default" : "outline"}
+                  className="px-6 py-2 rounded-full transition-all"
+                >
+                  {dealType.name}
+                
+              ))
+            )}
+          
+
+
+        
+
+**
+
+this 
+
+
+
+
+                 handleTabChange('Flights')}
+                  className={`${selectedTab === 'Flights' ? 'bg-black bg-opacity-80' : 'bg-black bg-opacity-60 hover:bg-opacity-70'} text-white px-8 py-4 flex items-center justify-center`}
+                >
+                  ✈️ Flights
+                
+                 handleTabChange('Hotels')}
+                  className={`${selectedTab === 'Hotels' ? 'bg-black bg-opacity-80' : 'bg-black bg-opacity-60 hover:bg-opacity-70'} text-white px-8 py-4 flex items-center justify-center`}
+                >
+                  🏨 Hotels
+                
+                 handleTabChange('Tours')}
+                  className={`${selectedTab === 'Tours' ? 'bg-black bg-opacity-80' : 'bg-black bg-opacity-60 hover:bg-opacity-70'} text-white px-8 py-4 flex items-center justify-center`}
+                >
+                  🗺️ Tours
+                
+                 handleTabChange('Flight Deals')}
+                  className={`${selectedTab === 'Flight Deals' ? 'bg-black bg-opacity-80' : 'bg-black bg-opacity-60 hover:bg-opacity-70'} text-white px-8 py-4 flex items-center justify-center`}
+                >
+                  💰 Flight Deals
+                
+              
+
+
+
+this can be done by search for dealtype.includes("Flight") then render the flight icon

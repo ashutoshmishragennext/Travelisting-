@@ -1,23 +1,45 @@
-'use client';
-import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Search, MapPin } from 'lucide-react';
+"use client";
+import React, { useEffect, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Loader2, Search, MapPin } from "lucide-react";
+import imagetree from "@/components/assets/imagetree.jpg"
 
 const TravelDealSearch = () => {
-  const [dealTypes, setDealTypes] = useState<{ id: string; name: string }[]>([]);
-  const [selectedDealType, setSelectedDealType] = useState('');
-  const [metadataSchema, setMetadataSchema] = useState<{ schema: { fields: { id: string; type: string; label: string; options : string[]; required?: boolean; placeholder?: string }[] }; dealTypeName?: string; dealTypeDescription?: string } | null>(null);
+  const [dealTypes, setDealTypes] = useState<{ id: string; name: string }[]>(
+    []
+  );
+  const [selectedDealType, setSelectedDealType] = useState("");
+  const [metadataSchema, setMetadataSchema] = useState<{
+    schema: {
+      fields: {
+        id: string;
+        type: string;
+        label: string;
+        options: string[];
+        required?: boolean;
+        placeholder?: string;
+      }[];
+    };
+    dealTypeName?: string;
+    dealTypeDescription?: string;
+  } | null>(null);
   const [formData, setFormData] = useState<{
     dealTypeId: string;
     isActive: boolean;
     metadata: Record<string, any>;
   }>({
-    dealTypeId: '',
+    dealTypeId: "",
     isActive: true,
     metadata: {},
   });
@@ -39,6 +61,7 @@ const TravelDealSearch = () => {
   }
 
   const [searchResults, setSearchResults] = useState<Deal[]>([]);
+  const [selectedTab, setSelectedTab] = useState("Flights");
 
   // Fetch all available deal types
   const fetchDealTypes = async () => {
@@ -68,7 +91,7 @@ const TravelDealSearch = () => {
   const fetchMetadataSchema = async (dealTypeId: any) => {
     if (!dealTypeId) {
       setMetadataSchema(null);
-      setFormData(prev => ({ ...prev, metadata: {} }));
+      setFormData((prev) => ({ ...prev, metadata: {} }));
       return;
     }
 
@@ -84,10 +107,11 @@ const TravelDealSearch = () => {
         data.schema.schema.fields.forEach((field: { id: string }) => {
           initialMetadata[field.id] = "";
         });
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
           metadata: initialMetadata,
         }));
+        setError(null);
       } else {
         setError(data.error || "Failed to fetch schema");
       }
@@ -100,30 +124,44 @@ const TravelDealSearch = () => {
   };
 
   // Handle form field changes
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
     const { name, value, type } = e.target as HTMLInputElement;
     const checked = (e.target as HTMLInputElement).checked;
 
     if (name.startsWith("metadata.")) {
       const metadataField = name.split(".")[1];
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         metadata: {
           ...prev.metadata,
-          [metadataField]: type === "checkbox" ? checked : type === "number" ? Number(value) : value,
+          [metadataField]:
+            type === "checkbox"
+              ? checked
+              : type === "number"
+              ? Number(value)
+              : value,
         },
       }));
     } else {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        [name]: type === "checkbox" ? checked : type === "number" ? Number(value) : value,
+        [name]:
+          type === "checkbox"
+            ? checked
+            : type === "number"
+            ? Number(value)
+            : value,
       }));
     }
   };
 
   // Handle select change for shadcn/ui Select component
   const handleSelectChange = (value: string, fieldId: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       metadata: {
         ...prev.metadata,
@@ -135,7 +173,7 @@ const TravelDealSearch = () => {
   // Handle deal type selection
   const handleDealTypeSelect = (dealTypeId: string) => {
     setSelectedDealType(dealTypeId);
-    setFormData(prev => ({ ...prev, dealTypeId }));
+    setFormData((prev) => ({ ...prev, dealTypeId }));
     fetchMetadataSchema(dealTypeId);
   };
 
@@ -174,25 +212,142 @@ const TravelDealSearch = () => {
     fetchDealTypes();
   }, []);
 
+  // const renderMetadataFields = () => {
+  //   if (!metadataSchema || !metadataSchema.schema?.fields) return null;
+
+  //   return (
+  //     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+  //       {metadataSchema.schema.fields.map((field) => {
+  //         const value = formData.metadata?.[field.id] || "";
+
+  //         // Skip rendering Description here
+  //         if (field.id === "Description") return null;
+
+  //         switch (field.type) {
+  //           case "text":
+  //           case "textarea":
+  //             return (
+  //               <div key={field.id} className="mb-4">
+  //                 <label className="block text-sm font-medium text-gray-700 mb-1">
+  //                   {field.label}
+  //                   {field.required && (
+  //                     <span className="text-red-500 ml-1">*</span>
+  //                   )}
+  //                 </label>
+  //                 <Input
+  //                   type="text"
+  //                   name={`metadata.${field.id}`}
+  //                   value={value}
+  //                   onChange={handleInputChange}
+  //                   required={field.required}
+  //                   className="w-full"
+  //                   placeholder={field.placeholder || ""}
+  //                 />
+  //               </div>
+  //             );
+
+  //           case "number":
+  //             return (
+  //               <div key={field.id} className="mb-4">
+  //                 <label className="block text-sm font-medium text-gray-700 mb-1">
+  //                   {field.label}
+  //                   {field.required && (
+  //                     <span className="text-red-500 ml-1">*</span>
+  //                   )}
+  //                 </label>
+  //                 <Input
+  //                   type="number"
+  //                   name={`metadata.${field.id}`}
+  //                   value={value}
+  //                   onChange={handleInputChange}
+  //                   required={field.required}
+  //                   className="w-full"
+  //                   placeholder={field.placeholder || ""}
+  //                 />
+  //               </div>
+  //             );
+
+  //           case "date":
+  //             return (
+  //               <div key={field.id} className="mb-4">
+  //                 <label className="block text-sm font-medium text-gray-700 mb-1">
+  //                   {field.label}
+  //                   {field.required && (
+  //                     <span className="text-red-500 ml-1">*</span>
+  //                   )}
+  //                 </label>
+  //                 <Input
+  //                   type="date"
+  //                   name={`metadata.${field.id}`}
+  //                   value={value}
+  //                   onChange={handleInputChange}
+  //                   required={field.required}
+  //                   className="w-full"
+  //                 />
+  //               </div>
+  //             );
+
+  //           case "select":
+  //             return (
+  //               <div key={field.id} className="mb-4">
+  //                 <label className="block text-sm font-medium text-gray-700 mb-1">
+  //                   {field.label}
+  //                   {field.required && (
+  //                     <span className="text-red-500 ml-1">*</span>
+  //                   )}
+  //                 </label>
+  //                 <Select
+  //                   value={value}
+  //                   onValueChange={(newValue) =>
+  //                     handleSelectChange(newValue, field.id)
+  //                   }
+  //                 >
+  //                   <SelectTrigger className="w-full">
+  //                     <SelectValue placeholder={`Select ${field.label}`} />
+  //                   </SelectTrigger>
+  //                   <SelectContent>
+  //                     {field.options?.map((option) => (
+  //                       <SelectItem key={option} value={option}>
+  //                         {option}
+  //                       </SelectItem>
+  //                     ))}
+  //                   </SelectContent>
+  //                 </Select>
+  //               </div>
+  //             );
+
+  //           default:
+  //             return null;
+  //         }
+  //       })}
+  //     </div>
+  //   );
+  // };
+
   const renderMetadataFields = () => {
     if (!metadataSchema || !metadataSchema.schema?.fields) return null;
-  
+
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {metadataSchema.schema.fields.map(field => {
+      <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-0 bg-white">
+        {metadataSchema.schema.fields.map((field) => {
           const value = formData.metadata?.[field.id] || "";
-  
+
           // Skip rendering Description here
           if (field.id === "Description") return null;
-  
+
           switch (field.type) {
             case "text":
             case "textarea":
               return (
-                <div key={field.id} className="mb-4">
+                <div
+                  key={field.id}
+                  className="mb-4 bg-white bg-opacity-90 rounded p-3 border"
+                >
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     {field.label}
-                    {field.required && <span className="text-red-500 ml-1">*</span>}
+                    {field.required && (
+                      <span className="text-red-500 ml-1">*</span>
+                    )}
                   </label>
                   <Input
                     type="text"
@@ -200,18 +355,23 @@ const TravelDealSearch = () => {
                     value={value}
                     onChange={handleInputChange}
                     required={field.required}
-                    className="w-full"
-                    placeholder={field.placeholder || ''}
+                    className="w-full bg-transparent border-gray-300"
+                    placeholder={field.label || ""}
                   />
                 </div>
               );
-  
+
             case "number":
               return (
-                <div key={field.id} className="mb-4">
+                <div
+                  key={field.id}
+                  className="mb-4 bg-white bg-opacity-90 rounded p-3 border"
+                >
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     {field.label}
-                    {field.required && <span className="text-red-500 ml-1">*</span>}
+                    {field.required && (
+                      <span className="text-red-500 ml-1">*</span>
+                    )}
                   </label>
                   <Input
                     type="number"
@@ -219,18 +379,23 @@ const TravelDealSearch = () => {
                     value={value}
                     onChange={handleInputChange}
                     required={field.required}
-                    className="w-full"
-                    placeholder={field.placeholder || ''}
+                    className="w-full bg-transparent border-gray-300"
+                    placeholder={field.label || ""}
                   />
                 </div>
               );
-  
+
             case "date":
               return (
-                <div key={field.id} className="mb-4">
+                <div
+                  key={field.id}
+                  className="mb-4 bg-white bg-opacity-90 rounded p-3 border"
+                >
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     {field.label}
-                    {field.required && <span className="text-red-500 ml-1">*</span>}
+                    {field.required && (
+                      <span className="text-red-500 ml-1">*</span>
+                    )}
                   </label>
                   <Input
                     type="date"
@@ -238,27 +403,34 @@ const TravelDealSearch = () => {
                     value={value}
                     onChange={handleInputChange}
                     required={field.required}
-                    className="w-full"
+                    className="w-full bg-transparent border-gray-300"
                   />
                 </div>
               );
-  
+
             case "select":
               return (
-                <div key={field.id} className="mb-4">
+                <div
+                  key={field.id}
+                  className="mb-4 bg-white bg-opacity-90 rounded p-3 border"
+                >
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     {field.label}
-                    {field.required && <span className="text-red-500 ml-1">*</span>}
+                    {field.required && (
+                      <span className="text-red-500 ml-1">*</span>
+                    )}
                   </label>
-                  <Select 
-                    value={value} 
-                    onValueChange={(newValue) => handleSelectChange(newValue, field.id)}
+                  <Select
+                    value={value}
+                    onValueChange={(newValue) =>
+                      handleSelectChange(newValue, field.id)
+                    }
                   >
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger className="w-full bg-transparent border-gray-300">
                       <SelectValue placeholder={`Select ${field.label}`} />
                     </SelectTrigger>
                     <SelectContent>
-                      {field.options?.map(option => (
+                      {field.options?.map((option) => (
                         <SelectItem key={option} value={option}>
                           {option}
                         </SelectItem>
@@ -267,7 +439,7 @@ const TravelDealSearch = () => {
                   </Select>
                 </div>
               );
-  
+
             default:
               return null;
           }
@@ -275,139 +447,218 @@ const TravelDealSearch = () => {
       </div>
     );
   };
-  
+
+  const handleTabChange = (tab: string) => {
+    setSelectedTab(tab);
+    // Find the deal type that matches the selected tab
+    const matchingDealType = dealTypes.find(
+      (dealType) =>
+        dealType.name.toLowerCase() === tab.toLowerCase() ||
+        (tab === "Flight Deals" && dealType.name.toLowerCase().includes("deal"))
+    );
+
+    if (matchingDealType) {
+      handleDealTypeSelect(matchingDealType.id);
+    }
+  };
+
+  const icons = ["✈️", "🏨", "💰" , "📦"];
+
   return (
-    <div className="w-full bg-gradient-to-b from-blue-50 to-indigo-100 min-h-screen">
-      {/* Navigation tabs for deal types */}
-      <div className="w-full bg-white py-4 sticky top-0 shadow-sm border-b border-gray-200 z-10">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="flex items-center justify-center overflow-x-auto py-2 gap-2">
-            {isLoadingDealTypes ? (
-              <div className="p-4 text-gray-600 flex items-center">
-                <Loader2 className="h-5 w-5 mr-3 animate-spin" />
-                Loading deal types...
-              </div>
-            ) : (
-              dealTypes.map(dealType => (
-                <Button
-                  key={dealType.id}
-                  onClick={() => handleDealTypeSelect(dealType.id)}
-                  variant={selectedDealType === dealType.id ? "default" : "outline"}
-                  className={`px-6 py-2 rounded-full transition-all`}
-                >
-                  {dealType.name}
-                </Button>
-              ))
-            )}
+    <div className="w-full min-h-screen inset-0 bg-slate-200 bg-opacity-40 py-1">
+      {/* Hero Section with Background Image Slider */}
+      <div
+        className="relative w-full bg-cover bg-center bg-black bg-opacity-0"
+        style={{
+          backgroundImage: `url(${imagetree})`,
+          backgroundPosition: "center",
+          backgroundSize : "cover"
+        }}
+      >
+        <div className=" inset-0 h-full mt-12 bg-black bg-opacity-0 "
+        style={{
+          backgroundImage: `url(${imagetree})`,
+          backgroundPosition: "center",
+          backgroundSize : "cover"
+        }}>
+          <div className="max-w-6xl mx-auto px-4 pt-0 text-center">
+            {/* Navigation Tabs */}
+            <div className="flex justify-center max-w-3xl mx-auto mt-12 z-50">
+              {isLoadingDealTypes ? (
+                <div className="p-4 text-white flex items-center">
+                  <Loader2 className="h-5 w-5 mr-3 animate-spin" />
+                  Loading deal types...
+                </div>
+              ) : (
+                <div className="flex border border-primary rounded-lg overflow-hidden shadow-lg">
+                  {dealTypes.map((dealType) => (
+                    <button
+                      key={dealType.id}
+                      onClick={() => handleDealTypeSelect(dealType.id)}
+                      className={`${
+                        selectedDealType === dealType.id
+                          ? "bg-primary text-white"
+                          : "bg-white bg-opacity-90 text-primary hover:bg-opacity-100"
+                      } px-8 py-4 flex items-center justify-center transition-colors duration-200`}
+                    >
+                      <span className="mr-2">
+                        {dealType.name.toLowerCase().includes("flight")
+                          ? icons[0]
+                          : ""}{" "}
+                        {dealType.name.toLowerCase().includes("hotel")
+                          ? icons[1]
+                          : ""}{" "}
+                        {dealType.name.toLowerCase().includes("deal")
+                          ? icons[2]
+                          : ""}
+                        {dealType.name.toLowerCase().includes("package")
+                          ? icons[3]
+                          : ""}
+                      </span>{" "}
+                      {dealType.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+  
+            {/* Search Form based on tab */}
+            <div className="max-w-6xl mx-auto mt-3">
+              {true && (
+                <div>
+                  <div className="bg-white bg-opacity-90 p-6 pb-3 rounded-lg backdrop-blur-sm shadow-xl">
+                    {metadataSchema && (
+                      <div className="mb-8">
+                        <div className="text-center mb-6">
+                          <h2 className="text-2xl font-bold text-primary">
+                            Find Your Perfect Travel Deals
+                          </h2>
+                          <p className="text-gray-600 text-sm mt-1">
+                            Search through our exclusive collection of travel
+                            offers
+                          </p>
+                        </div>
+                        <div className=" bg-white p-6 pb-0 rounded-lg text-gray-800">
+                          <form onSubmit={handleSubmit}>
+                            {renderMetadataFields()}
+  
+                            <div className="mt-8 flex justify-center">
+                              <Button
+                                type="submit"
+                                disabled={isLoading || !formData.dealTypeId}
+                                className="px-8 py-6 rounded-full bg-primary hover:bg-primary/90 text-white shadow-lg transition-all duration-300"
+                              >
+                                {isLoading ? (
+                                  <span className="flex items-center">
+                                    <Loader2 className="animate-spin mr-2 h-5 w-5" />
+                                    Searching...
+                                  </span>
+                                ) : (
+                                  <span className="flex items-center">
+                                    <Search className="mr-2 h-5 w-5" />
+                                    Search
+                                  </span>
+                                )}
+                              </Button>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    )}
+                    {error && (
+                      <Alert variant="destructive" className="mb-6">
+                        <AlertDescription>{error}</AlertDescription>
+                      </Alert>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
-
-      {/* Search form container */}
-      <div className="max-w-6xl mx-auto px-4 py-6">
-        {metadataSchema && (
-          <Card className="mb-8 shadow-md">
-            <CardHeader>
-              <CardTitle className="text-gray-800">Find Your Perfect Travel Deal</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit}>
-                {renderMetadataFields()}
-                
-                <div className="mt-8 flex justify-center">
-                  <Button
-                    type="submit"
-                    disabled={isLoading || !formData.dealTypeId}
-                    className="px-8 py-6 rounded-full"
-                  >
-                    {isLoading ? (
-                      <span className="flex items-center">
-                        <Loader2 className="animate-spin mr-2 h-5 w-5" />
-                        Searching...
-                      </span>
-                    ) : (
-                      <span className="flex items-center">
-                        <Search className="mr-2 h-5 w-5" />
-                        Find Amazing Deals
-                      </span>
-                    )}
-                  </Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Error display */}
-        {error && (
-          <Alert variant="destructive" className="mb-6">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-
+  {/* Search results */}
+      <div className="max-w-6xl mx-auto px-4 pb-12 ">
         {/* Results Section */}
         {searchResults.length > 0 ? (
           <div className="mt-12">
-            <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">
+            <h2 className="text-3xl font-bold text-primary mb-8 text-center">
               {searchResults.length} Amazing Deals Found
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {searchResults.map(deal => (
-                <Card key={deal.id} className="overflow-hidden transition-all hover:shadow-lg">
+              {searchResults.map((deal) => (
+                <Card
+                  key={deal.id}
+                  className="overflow-hidden transition-all hover:shadow-lg border-gray-100"
+                >
                   {/* Image Section */}
                   {deal.images && (
-                    <div className="h-52 overflow-hidden">
+                    <div className="h-52 overflow-hidden relative">
                       <img
                         src={deal.images}
                         alt={deal.title || "Travel Deal"}
                         className="w-full h-full object-cover"
                         onError={(e) => {
-                          e.currentTarget.src = "/api/placeholder/400/300"; // Fallback image
+                          const target = e.currentTarget as HTMLImageElement;
+                          target.src = "/api/placeholder/400/300"; // Fallback image
                         }}
                       />
+                      {/* Optional overlay gradient for better text visibility */}
+                      <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black to-transparent opacity-30"></div>
                     </div>
                   )}
-
+  
                   <CardContent className="p-6">
                     {/* Title */}
-                    <h3 className="text-xl font-bold mb-2 text-gray-800">{deal.title}</h3>
-                    
+                    <h3 className="text-xl font-bold mb-2 text-gray-800">
+                      {deal.title}
+                    </h3>
+  
                     {/* Location Info */}
-                    {(deal.city || deal.state || deal.country || (deal.metadata && deal.metadata.Location)) && (
+                    {(deal.city ||
+                      deal.state ||
+                      deal.country ||
+                      (deal.metadata && deal.metadata.Location)) && (
                       <p className="text-gray-600 text-sm mb-3 flex items-center">
-                        <MapPin className="h-4 w-4 mr-1 text-blue-500" />
+                        <MapPin className="h-4 w-4 mr-1 text-primary" />
                         {[
                           deal.city || (deal.metadata && deal.metadata.City),
                           deal.state || (deal.metadata && deal.metadata.State),
-                          deal.country
-                        ].filter(Boolean).join(", ") || deal.metadata?.Location || ""}
+                          deal.country,
+                        ]
+                          .filter(Boolean)
+                          .join(", ") ||
+                          deal.metadata?.Location ||
+                          ""}
                       </p>
                     )}
-
+  
                     {/* Price */}
-                    {deal.price && (
-                      <p className="text-2xl font-bold text-blue-600 mb-3">
+                    {/* {deal.price && (
+                      <p className="text-2xl font-bold text-primary mb-3">
                         ₹{deal.price.toLocaleString()}
                       </p>
                     )}
-
+   */}
                     {/* Travel Type */}
-                    {(deal.travelType || (deal.metadata && deal.metadata.Type)) && (
+                    {(deal.travelType ||
+                      (deal.metadata && deal.metadata.Type)) && (
                       <div className="mb-3">
-                        <Badge variant="secondary">
+                        <Badge className="bg-primary/10 text-primary hover:bg-primary/20">
                           {deal.travelType || deal.metadata?.Type || "Package"}
                         </Badge>
                       </div>
                     )}
-
+  
                     {/* Valid Dates */}
                     {deal.validFrom && deal.validTo && (
                       <div className="text-xs text-gray-500 mt-3">
-                        Valid: {new Date(deal.validFrom).toLocaleDateString()} - {new Date(deal.validTo).toLocaleDateString()}
+                        Valid: {new Date(deal.validFrom).toLocaleDateString()} -{" "}
+                        {new Date(deal.validTo).toLocaleDateString()}
                       </div>
                     )}
-
-                    <Button className="mt-4 w-full">
+  
+                    <Button className="mt-4 w-full bg-primary hover:bg-primary/90 transition-colors duration-300">
                       View Deal Details
                     </Button>
                   </CardContent>
@@ -415,16 +666,30 @@ const TravelDealSearch = () => {
               ))}
             </div>
           </div>
-        ) : searchResults.length === 0 && !isLoading && !error && selectedDealType ? (
-          <Card className="p-8 text-center mt-8 bg-gray-50">
+        ) : searchResults.length === 0 &&
+          !isLoading &&
+          !error &&
+          selectedDealType ? (
+          <Card className="p-8 text-center mt-8 bg-gray-50 border-gray-100">
             <CardContent className="pt-6 flex flex-col items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-16 w-16 text-primary/50 mb-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
               </svg>
-              <p className="text-gray-700 text-lg">
+              <p className="text-gray-800 text-lg">
                 No deals found matching your search criteria.
               </p>
-              <p className="text-gray-500 mt-2">
+              <p className="text-primary mt-2">
                 Try adjusting your search parameters or check back later.
               </p>
             </CardContent>
