@@ -15,31 +15,31 @@ import { eq, and } from 'drizzle-orm';
 // } from '../schema';
 
 
-export async function getVendorProfile(vendorId: string) {
-    console.log("vendor from ts file",vendorId);
-  try {
-    const vendor = await db.query.VendorProfileTable.findFirst({
-      where: eq(VendorProfileTable.id, vendorId),
-      with: {
-        vendoruser: true,
-        products: {
-          with: {
-            product: true
-          }
-        },
-        services: {
-          with: {
-            service: true
-          }
-        },
-        certifications: true,
-        references: true
-      }
-    });
+// export async function getVendorProfile(vendorId: string) {
+//     console.log("vendor from ts file",vendorId);
+//   try {
+//     const vendor = await db.query.VendorProfileTable.findFirst({
+//       where: eq(VendorProfileTable.id, vendorId),
+//       with: {
+//         vendoruser: true,
+//         products: {
+//           with: {
+//             product: true
+//           }
+//         },
+//         services: {
+//           with: {
+//             service: true
+//           }
+//         },
+//         certifications: true,
+//         references: true
+//       }
+//     });
 
-    return vendor;
-  } catch (error) {
-    console.error('Error fetching vendor profile:', error);
-    throw new Error('Failed to fetch vendor profile');
-  }
-}
+//     return vendor;
+//   } catch (error) {
+//     console.error('Error fetching vendor profile:', error);
+//     throw new Error('Failed to fetch vendor profile');
+//   }
+// }
