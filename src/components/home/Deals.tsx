@@ -17,6 +17,7 @@ import { format } from "date-fns";
 import Image from "next/image";
 import CreateDealPage from "./CreateDeals";
 import DealDetailsSidebar from "./DealDetailsSidebar";
+import { useCurrentUser } from "@/hooks/auth";
 
 // Type definition for a Deal
 interface Deal {
@@ -50,14 +51,14 @@ export default function Deals() {
   const [showCreateForm, setShowCreateForm] = useState<boolean>(false);
   const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
-
+  const user = useCurrentUser();
   // Fetch deals on component mount and when refreshTrigger changes
   useEffect(() => {
     const fetchDeals = async () => {
       try {
         setLoading(true);
         // In a real application, you would filter by the logged-in travel agent's ID
-        const response = await fetch("/api/deals");
+        const response = await fetch(`/api/deals?id=${user?.id}`);
 
         if (!response.ok) {
           throw new Error("Failed to fetch deals");

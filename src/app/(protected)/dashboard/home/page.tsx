@@ -42,7 +42,7 @@ export default function AdminDashboard() {
   // Enhanced navigation items for sidebar
   const navItems = [
     { id: 'profile', label: 'Profile', icon: <FileText className="h-5 w-5" /> },
-    { id: 'hotel', label: 'Bussiness', icon: <FileText className="h-5 w-5" /> },
+    // { id: 'hotel', label: 'Bussiness', icon: <FileText className="h-5 w-5" /> },
     { id: 'deals', label: 'Deals', icon: <File className="h-5 w-5" /> },
     { id: 'advertisement', label: 'Advertisement', icon: <User className="h-5 w-5" /> },
 
