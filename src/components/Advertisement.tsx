@@ -32,6 +32,7 @@ const AdvertisementPayment = ({
   onPaymentSuccess,
   onPaymentError
 }: AdvertisementPaymentProps) => {
+
   const [isProcessing, setIsProcessing] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState<'idle' | 'verifying' | 'success'>('idle');
   const [userData, setUserData] = useState<{
@@ -75,15 +76,19 @@ const AdvertisementPayment = ({
 
     try {
       // Construct the payload with selected advertisement types
+
+      // const data2 = [];
       const payload = {
 
         adTypes: selectedTypes.map(type => ({
           type,
-          name: getAdByType(type)?.name || type,
+          id: getAdByType(type)?.id || type,
           price: getAdByType(type)?.price || 0
         })),
         totalAmount: totalPrice
       };
+
+      console.log('Payload for Razorpay:', payload);
 
       // Create order for Razorpay
       const response = await fetch('/api/advertisements/create-payment', {
@@ -98,6 +103,8 @@ const AdvertisementPayment = ({
         const errorData = await response.json();
         throw new Error(errorData.message || 'Failed to create payment order');
       }
+
+
 
       const { orderId, id } = await response.json();
 

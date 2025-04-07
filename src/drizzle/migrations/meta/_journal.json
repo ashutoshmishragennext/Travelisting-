@@ -162,6 +162,13 @@
       "when": 1743834780490,
       "tag": "0022_sparkling_chimera",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1744005187312,
+      "tag": "0023_graceful_grandmaster",
+      "breakpoints": true
     }
   ]
 }

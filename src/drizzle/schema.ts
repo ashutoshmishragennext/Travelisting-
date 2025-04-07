@@ -151,6 +151,8 @@ export const AdvertisementDefinitionTable = pgTable(
     image: text("image"),
     createdBy: uuid("created_by").references(() => UserTable.id).notNull(),
     price: text("price").default("1000").notNull(),
+    height: text("height"),
+    width: text("width"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   }
