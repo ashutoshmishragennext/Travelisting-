@@ -1,15 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ShoppingCart, X, Bell, ChevronLeft, ChevronRight, Lock, Unlock, Save } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { toast } from '@/components/ui/use-toast';
-import ImageCropper from '../shared/imagecrop/Imagecrop';
-import AdvertisementPayment from '../Advertisement';
-
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/components/ui/use-toast";
+import {
+  Bell,
+  ChevronLeft,
+  ChevronRight,
+  Lock,
+  Save,
+  Unlock,
+  X
+} from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import AdvertisementPayment from "../Advertisement";
+import ImageCropper from "../shared/imagecrop/Imagecrop";
 
 // Define types
 interface Advertisement {
@@ -652,7 +666,10 @@ const AdvertisementSelector = () => {
           </CardContent>
           <CardFooter className="flex flex-wrap justify-between gap-4">
             <AdvertisementPayment
-              selectedTypes={selectedTypes}
+                selectedTypes={selectedTypes.map(type => {
+                  const ad = advertisements.find(item => item.name.trim().toUpperCase() === type);
+                  return ad?.id || ""; // Return the ID of the found advertisement or empty string if not found
+                })}
               totalPrice={Number(totalPrice)}
               getAdByType={getAdByType}
               onPaymentSuccess={handlePaymentSuccess}
