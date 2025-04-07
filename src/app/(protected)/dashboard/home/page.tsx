@@ -55,8 +55,8 @@ export default function AdminDashboard() {
     switch (activeComponent) {
       case 'profile':
         return <Profile/>;
-      case 'hotel':
-        return <HotelChain/>;
+      // case 'hotel':
+      //   return <HotelChain/>;
       case 'deals':
           return <Deals/>;
       case 'advertisement':
