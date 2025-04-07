@@ -1139,7 +1139,6 @@ const AdvertisementSelector = () => {
 
   // Get advertisement by type
   const getAdByType = (type: string) => {
-    console
     return advertisements.find((item) =>
       item.name.trim().toUpperCase() === type
     );
