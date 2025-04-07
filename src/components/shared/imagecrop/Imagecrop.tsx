@@ -108,7 +108,7 @@ const ImageCropper = ({ onImageCropped, type }: ImageCropperProps) => {
       />
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="w-screen h-screen">
+        <DialogContent className="w-screen ">
           <DialogHeader>
             <DialogTitle>Crop {type === "logo" ? "Logo" : "Cover"} Image</DialogTitle>
           </DialogHeader>
