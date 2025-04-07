@@ -505,15 +505,15 @@ const TravelDealSearch = () => {
         }}>
           <div className="max-w-6xl mx-auto px-4 pt-0 text-center">
             {/* Navigation Tabs */}
-            <div className="flex justify-center max-w-3xl mx-auto mt-12 z-50">
+            <div className="flex justify-center max-w-3xl border-primary mx-auto mt-12 z-50">
               {isLoadingDealTypes ? (
                 <div className="p-4 text-white flex items-center">
                   <Loader2 className="h-5 w-5 mr-3 animate-spin" />
                   Loading deal types...
                 </div>
               ) : (
-                <div className="flex border border-primary rounded-lg shadow-lg">
-                  {dealTypes.map((dealType) => (
+                <div className="flex border border-primary rounded-lg shadow-lg ">
+                  {dealTypes.map((dealType , index) => (
                     <button
                       key={dealType.id}
                       onClick={() => handleDealTypeSelect(dealType.id)}
@@ -521,7 +521,7 @@ const TravelDealSearch = () => {
                         selectedDealType === dealType.id
                           ? "bg-primary text-white"
                           : "bg-white bg-opacity-90 text-primary hover:bg-opacity-100"
-                      } px-2 md:px-8 py-4 flex items-center justify-center transition-colors duration-200`}
+                      } px-2 md:px-8 py-4 flex items-center justify-center transition-colors duration-200 rounded-lg `}
                     >
                       <span className="mr-2">
                         {dealType.name.toLowerCase().includes("flight")
