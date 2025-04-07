@@ -15,6 +15,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, Search, MapPin } from "lucide-react";
 import imagetree from "@/components/assets/imagetree.jpg"
 import Image from "next/image";
+import PopupAd from "@/components/advertisements/adshow/Popup";
 
 const TravelDealSearch = () => {
   const [dealTypes, setDealTypes] = useState<{ id: string; name: string }[]>(
@@ -470,6 +471,13 @@ const TravelDealSearch = () => {
 
   const icons = ["✈️", "🏨", "💰" , "📦"];
 
+  const handleAdClick = (ad: any) => {
+    console.log('Ad clicked:', ad);
+    // You can add analytics tracking or other logic here
+  };
+
+
+
   return (
     <div className="w-full min-h-screen inset-0 bg-slate-200 bg-opacity-40 py-1">
       {/* Hero Section with Background Image Slider */}
@@ -591,6 +599,11 @@ const TravelDealSearch = () => {
             <h2 className="text-3xl font-bold text-primary mb-8 text-center">
               {searchResults.length} Amazing Deals Found
             </h2>
+            <PopupAd 
+                className="w-64 md:w-80" 
+                intervalTime={5000} 
+                onAdClick={handleAdClick}
+              />
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {searchResults.map((deal) => (
                 <Card
