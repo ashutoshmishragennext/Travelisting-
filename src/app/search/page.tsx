@@ -16,6 +16,7 @@ import { Loader2, Search, MapPin } from "lucide-react";
 import imagetree from "@/components/assets/imagetree.jpg"
 import Image from "next/image";
 import PopupAd from "@/components/advertisements/adshow/Popup";
+import BannerAd from "@/components/advertisements/adshow/Banner";
 
 const TravelDealSearch = () => {
   const [dealTypes, setDealTypes] = useState<{ id: string; name: string }[]>(
@@ -603,6 +604,12 @@ const TravelDealSearch = () => {
                 className="w-64 md:w-80" 
                 intervalTime={5000} 
                 onAdClick={handleAdClick}
+              />
+              <BannerAd 
+                className="h-64 mb-8" // Custom styling using className prop
+                autoRotateInterval={3000} // 3 seconds rotation
+                onAdClick={handleAdClick}
+                maxBannersToShow={3} // Show maximum 4 banners
               />
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {searchResults.map((deal) => (
