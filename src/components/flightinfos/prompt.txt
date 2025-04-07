@@ -1,0 +1,49 @@
+In this everything is fine but now we want that when we first render it should make this get api call
+
+http://localhost:3000/api/advertisements?vendorId=469e3632-356d-4528-b4b3-10f432d75467
+
+that will data like this that will show the ads bought by the user and from this show the imageUrl and datas for brought advertisement 
+
+{
+  "success": true,
+  "data": [
+    {
+      "id": "f6b94d9c-ac2a-407c-ba48-22e6f7035fb5",
+      "title": null,
+      "AdvertisementTypeId": "26d2da88-6980-41bd-b1e8-c608950d2b4e",
+      "type": "BANNER",
+      "content": "",
+      "imageUrl": null,
+      "redirectUrl": null,
+      "startDate": "2025-04-07T09:03:51.319Z",
+      "paymentId": "8d57ebfa-70ed-4c31-84b9-9e1a534d4d0f",
+      "endDate": "2025-05-07T09:03:51.319Z",
+      "isActive": true,
+      "targetAudience": null,
+      "metrics": null,
+      "createdBy": "469e3632-356d-4528-b4b3-10f432d75467",
+      "createdAt": "2025-04-07T09:03:53.047Z",
+      "updatedAt": "2025-04-07T09:03:53.047Z"
+    },
+    {
+      "id": "fb516cdf-035a-43cd-8993-7dc7a2948c38",
+      "title": null,
+      "AdvertisementTypeId": "2e304c76-bc75-41a7-86f4-552dcf69427f",
+      "type": "SIDEBAR",
+      "content": "",
+      "imageUrl": null,
+      "redirectUrl": null,
+      "startDate": "2025-04-07T09:03:51.319Z",
+      "paymentId": "8d57ebfa-70ed-4c31-84b9-9e1a534d4d0f",
+      "endDate": "2025-05-07T09:03:51.319Z",
+      "isActive": true,
+      "targetAudience": null,
+      "metrics": null,
+      "createdBy": "469e3632-356d-4528-b4b3-10f432d75467",
+      "createdAt": "2025-04-07T09:03:53.047Z",
+      "updatedAt": "2025-04-07T09:03:53.047Z"
+    }
+  ]
+}
+
+write the put request also in which he can change the existing data of their ads 
