@@ -512,7 +512,7 @@ const TravelDealSearch = () => {
                   Loading deal types...
                 </div>
               ) : (
-                <div className="flex border border-primary rounded-lg overflow-hidden shadow-lg">
+                <div className="flex border border-primary rounded-lg shadow-lg">
                   {dealTypes.map((dealType) => (
                     <button
                       key={dealType.id}
@@ -521,7 +521,7 @@ const TravelDealSearch = () => {
                         selectedDealType === dealType.id
                           ? "bg-primary text-white"
                           : "bg-white bg-opacity-90 text-primary hover:bg-opacity-100"
-                      } px-8 py-4 flex items-center justify-center transition-colors duration-200`}
+                      } px-2 md:px-8 py-4 flex items-center justify-center transition-colors duration-200`}
                     >
                       <span className="mr-2">
                         {dealType.name.toLowerCase().includes("flight")
