@@ -22,6 +22,7 @@ import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import AdminTemplateCreator from "@/components/admin/Template-creator";
 import DealTemplates from "@/components/admin/DisplayTemplate";
+import AdvertisementDefinitionPage from "@/components/admin/Adveristment";
 
 
 export default function AdminDashboard() {
@@ -43,8 +44,8 @@ export default function AdminDashboard() {
   // Enhanced navigation items for sidebar
   const navItems = [
     { id: 'templates', label: 'Templates', icon: <FileText className="h-5 w-5" /> },
-    { id: 'first', label: 'First', icon: <File className="h-5 w-5" /> },
-    { id: 'second', label: 'Second', icon: <Users className="h-5 w-5" /> },
+    { id: 'Deals', label: 'Deals', icon: <File className="h-5 w-5" /> },
+    { id: 'Advertisment', label: 'Advertisment', icon: <Users className="h-5 w-5" /> },
     { id: 'third', label: 'Third', icon: <File className="h-5 w-5" /> },
   ];
 
@@ -53,10 +54,10 @@ export default function AdminDashboard() {
     switch (activeComponent) {
       case 'templates':
         return <AdminTemplateCreator/>;
-      case 'first':
+      case 'Deals':
         return <DealTemplates/>;
-      case 'second':
-        return <p>Second</p>;
+      case 'Advertisment':
+        return <AdvertisementDefinitionPage/>;
       case 'third':
         return <p>Third</p>;
       default:

@@ -78,7 +78,7 @@ const AdvertisementPayment = ({
       const payload = {
         adTypes: selectedTypes.map(type => ({
           type,
-          name: getAdByType(type)?.name || type,
+          name: getAdByType(type)?.id || type,
           price: getAdByType(type)?.price || 0
         })),
         totalAmount: totalPrice

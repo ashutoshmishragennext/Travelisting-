@@ -1,3 +1,4 @@
+//app/api/advertisementdefination/route.ts
 import { AdvertisementDefinitionTable } from "@/drizzle/schema";
 import { db } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
@@ -17,9 +18,9 @@ export async function GET(req: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, description, image, createdBy } = body;
+    const { name, description, createdBy ,price,height, width } = body;
 
-    if (!name || !description || !image || !createdBy) {
+    if (!name || !description  || !createdBy || !price || !height || !width) {
       return NextResponse.json(
         { message: "All fields are required." },
         { status: 400 }
@@ -31,8 +32,10 @@ export async function POST(request: NextRequest) {
       .values({
         name,
         description,
-        image,
         createdBy,
+        price,
+        height,
+        width,
       })
       .returning();
 
