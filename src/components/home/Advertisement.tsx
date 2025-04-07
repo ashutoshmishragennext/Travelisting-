@@ -666,40 +666,6 @@ const AdvertisementSelector = () => {
           </div>
         );
 
-      case "EMAIL":
-        return (
-          <div className="w-full bg-gray-50 p-4 rounded-lg">
-            {/* Show lock/unlock icon */}
-            <div className="absolute top-2 right-2 z-10 bg-white/80 rounded-full p-2">
-              {isAdBought(type) ? (
-                <Unlock size={16} className="text-green-600" />
-              ) : (
-                <Lock size={16} className="text-gray-600" />
-              )}
-            </div>
-            
-            <div className="bg-white shadow-lg rounded-lg overflow-hidden max-w-md mx-auto">
-              <div className="bg-blue-600 p-3 text-white">
-                <h3 className="font-bold">Email Newsletter</h3>
-              </div>
-              <div className="p-4">
-                <div className="h-32 w-full object-cover relative mb-4">
-                  <Image
-                    src={image}
-                    alt={title}
-                    layout="fill"
-                    objectFit="contain"
-                    priority
-                  />
-                </div>
-                <h4 className="font-bold text-lg">{title}</h4>
-                <p className="text-gray-600 mt-2">{description}</p>
-                <Button className="w-full mt-4">Read More</Button>
-              </div>
-            </div>
-          </div>
-        );
-
       default:
         return (
           <Card className="overflow-hidden">
