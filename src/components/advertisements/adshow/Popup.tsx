@@ -58,6 +58,14 @@ const PopupAd: React.FC<PopupAdProps> = ({
     setIsVisible(true);
   };
 
+  const [showTime , setShowTime] = useState<boolean>(false);
+
+  useEffect( () => {
+    setTimeout(() => {
+      setShowTime(true);
+    }, 5000);
+  }, [])
+
   // Handle close button click
   const handleClose = () => {
     setIsVisible(false);
@@ -84,7 +92,7 @@ const PopupAd: React.FC<PopupAdProps> = ({
   const currentAd = ads[currentAdIndex];
 
   return isVisible ? (
-    <div className={`fixed bottom-4 right-4  bg-white rounded-lg shadow-lg p-4 z-50 max-w-sm ${className}`}>
+    <div className={`fixed bottom-4 right-4 ${showTime ? "" : "hidden"}  bg-white rounded-lg shadow-lg p-4 z-50 max-w-sm ${className}`}>
       <button 
         onClick={handleClose}
         className="absolute top-2 right-2 rounded-xl bg-white p-1 text-red-500 z-10 hover:text-red-700"

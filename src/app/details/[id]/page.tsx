@@ -3,6 +3,9 @@ import { useEffect, useState } from 'react';
 import Navigation from '@/components/pages/Navbar';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
+import PopupAd from '@/components/advertisements/adshow/Popup';
+import BannerAd from '@/components/advertisements/adshow/Banner';
+import Navbar from '@/components/shared/Gennextfooter';
 
 // TypeScript interfaces
 interface DealMetadata {
@@ -107,31 +110,31 @@ interface PopupAdProps {
   onClose: () => void;
 }
 
-const PopupAd: React.FC<PopupAdProps> = ({ isOpen, onClose }) => {
-  if (!isOpen) return null;
+// const PopupAd: React.FC<PopupAdProps> = ({ isOpen, onClose }) => {
+//   if (!isOpen) return null;
   
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl p-6 max-w-md mx-4">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-bold">Limited Time Offer!</h3>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-        <p className="mb-4">Subscribe to our newsletter and get exclusive deals on your next trip!</p>
-        <div className="mb-4">
-          <input type="email" placeholder="Enter your email" className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600" />
-        </div>
-        <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-          Subscribe Now
-        </button>
-      </div>
-    </div>
-  );
-};
+//   return (
+//     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+//       <div className="bg-white rounded-lg shadow-xl p-6 max-w-md mx-4">
+//         <div className="flex justify-between items-center mb-4">
+//           <h3 className="text-xl font-bold">Limited Time Offer!</h3>
+//           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+//             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+//             </svg>
+//           </button>
+//         </div>
+//         <p className="mb-4">Subscribe to our newsletter and get exclusive deals on your next trip!</p>
+//         <div className="mb-4">
+//           <input type="email" placeholder="Enter your email" className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600" />
+//         </div>
+//         <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+//           Subscribe Now
+//         </button>
+//       </div>
+//     </div>
+//   );
+// };
 
 const DealDetails: React.FC = () => {
   const [deal, setDeal] = useState<DealData | null>(null);
@@ -220,6 +223,10 @@ const DealDetails: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
+
+      <BannerAd 
+      className=' h-52'
+      />
       
       <div className="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         {/* Deal Header */}
@@ -300,20 +307,20 @@ const DealDetails: React.FC = () => {
             </div>
 
             {/* Amenities Section (if available) */}
-            {metadata?.amenities && (
+            {/* {metadata?.amenities && (
               <div className="bg-white rounded-lg shadow-md p-6 mb-8">
                 <h2 className="text-xl font-bold mb-4">Amenities</h2>
                 <p className="text-gray-700">{metadata.amenities}</p>
               </div>
-            )}
+            )} */}
 
             {/* Room Types Section (if available) */}
-            {metadata?.roomTypes && (
+            {/* {metadata?.roomTypes && (
               <div className="bg-white rounded-lg shadow-md p-6 mb-8">
                 <h2 className="text-xl font-bold mb-4">Room Types</h2>
                 <p className="text-gray-700">{metadata.roomTypes}</p>
               </div>
-            )}
+            )} */}
             
             {/* Carousel Advertisement */}
             <ImageCarousel images={images} />
@@ -384,7 +391,14 @@ const DealDetails: React.FC = () => {
       </div>
       
       {/* Popup Advertisement */}
-      <PopupAd isOpen={showPopup} onClose={() => setShowPopup(false)} />
+      {/* <PopupAd isOpen={showPopup} onClose={() => setShowPopup(false)} /> */}
+      <PopupAd
+        className=' w-52 sm:w-64 md:w-80'
+        intervalTime={30000} 
+        onAdClick={()=> {}}
+      />
+
+      <Navbar/>
     </div>
   );
 };

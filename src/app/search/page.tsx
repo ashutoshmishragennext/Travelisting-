@@ -609,7 +609,7 @@ const TravelDealSearch = () => {
             </h2>
             <PopupAd 
                 className="w-64 md:w-80" 
-                intervalTime={5000} 
+                intervalTime={30000} 
                 onAdClick={handleAdClick}
               />
               <BannerAd 
