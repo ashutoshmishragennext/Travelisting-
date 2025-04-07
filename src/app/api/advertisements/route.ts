@@ -11,18 +11,21 @@ export async function GET(request: NextRequest) {
   try {
     const vendorId = request.nextUrl.searchParams.get('vendorId');
     
-    if (!vendorId) {
-      return NextResponse.json(
-        { success: false, error: 'Vendor ID is required' },
-        { status: 400 }
-      );
-    }
+    // if (!vendorId) {
+    //   return NextResponse.json(
+    //     { success: false, error: 'Vendor ID is required' },
+    //     { status: 400 }
+    //   );
+    // }
     
+    let advertisements = await db.select().from(AdvertisementTable)
     // Get all active advertisements for the vendor
-    const advertisements = await db
+    if(vendorId){
+     advertisements = await db
       .select()
       .from(AdvertisementTable)
       .where(eq(AdvertisementTable.createdBy, vendorId));
+    }
       // .orderBy(AdvertisementTable.createdAt);
     
     return NextResponse.json({
