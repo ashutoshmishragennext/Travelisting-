@@ -13,6 +13,8 @@ interface AdvertisementPaymentProps {
   onPaymentError: (error: string) => void;
 }
 
+
+
 interface RazorpayResponse {
   razorpay_order_id: string;
   razorpay_payment_id: string;
@@ -32,7 +34,7 @@ const AdvertisementPayment = ({
   onPaymentSuccess,
   onPaymentError
 }: AdvertisementPaymentProps) => {
-
+  console.log("selected type",selectedTypes);
   const [isProcessing, setIsProcessing] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState<'idle' | 'verifying' | 'success'>('idle');
   const [userData, setUserData] = useState<{
