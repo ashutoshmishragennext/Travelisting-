@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
-import { AdvertisementTable ,AdvertisementDefinitionTable } from '@/drizzle/schema';
+import { AdvertisementTable  } from '@/drizzle/schema';
 
 export async function GET(request: NextRequest) {
   try {
@@ -82,10 +82,10 @@ export async function PUT(request: NextRequest) {
       );
     }
     
-    // Extract the data for updating both tables
+    // Extract the data for updating
     const { title, content, imageUrl, type } = updateData;
     
-    // 1. Update the advertisement table
+    // Update only the advertisement table
     const updatedAd = await db
       .update(AdvertisementTable)
       .set({
@@ -105,33 +105,17 @@ export async function PUT(request: NextRequest) {
       );
     }
     
-    // 2. Update the advertisement definition
-    // First get the advertisement definition ID
-    const adTypeId = existingAd[0].AdvertisementTypeId;
-    
-    const updatedDefinition = await db
-      .update(AdvertisementDefinitionTable)
-      .set({
-        name: title,  // Using title from updateData as name
-        description: typeof content === 'string' ? content : JSON.stringify(content),  // Handle content based on its type
-        image: imageUrl,
-        updatedAt: new Date()
-      })
-      .where(eq(AdvertisementDefinitionTable.id, adTypeId))
-      .returning();
-    
     return NextResponse.json({
       success: true,
       data: {
-        advertisement: updatedAd[0],
-        definition: updatedDefinition[0]
+        advertisement: updatedAd[0]
       }
     }, { status: 200 });
     
   } catch (error) {
     console.error('Error updating advertisement:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to update advertisement and definition' },
+      { success: false, error: 'Failed to update advertisement' },
       { status: 500 }
     );
   }
