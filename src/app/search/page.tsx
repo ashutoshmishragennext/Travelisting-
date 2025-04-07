@@ -17,6 +17,8 @@ import imagetree from "@/components/assets/imagetree.jpg"
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 // import { Router, useRouter } from "next/router";
+import PopupAd from "@/components/advertisements/adshow/Popup";
+import BannerAd from "@/components/advertisements/adshow/Banner";
 
 const TravelDealSearch = () => {
   const [dealTypes, setDealTypes] = useState<{ id: string; name: string }[]>(
@@ -477,6 +479,13 @@ const TravelDealSearch = () => {
 
   const icons = ["✈️", "🏨", "💰" , "📦"];
 
+  const handleAdClick = (ad: any) => {
+    console.log('Ad clicked:', ad);
+    // You can add analytics tracking or other logic here
+  };
+
+
+
   return (
     <div className="w-full min-h-screen inset-0 bg-slate-200 bg-opacity-40 py-1">
       {/* Hero Section with Background Image Slider */}
@@ -496,15 +505,15 @@ const TravelDealSearch = () => {
         }}>
           <div className="max-w-6xl mx-auto px-4 pt-0 text-center">
             {/* Navigation Tabs */}
-            <div className="flex justify-center max-w-3xl mx-auto mt-12 z-50">
+            <div className="flex justify-center max-w-3xl border-primary mx-auto mt-12 z-50">
               {isLoadingDealTypes ? (
                 <div className="p-4 text-white flex items-center">
                   <Loader2 className="h-5 w-5 mr-3 animate-spin" />
                   Loading deal types...
                 </div>
               ) : (
-                <div className="flex border border-primary rounded-lg overflow-hidden shadow-lg">
-                  {dealTypes.map((dealType) => (
+                <div className="flex border border-primary rounded-lg shadow-lg ">
+                  {dealTypes.map((dealType , index) => (
                     <button
                       key={dealType.id}
                       onClick={() => handleDealTypeSelect(dealType.id)}
@@ -512,7 +521,7 @@ const TravelDealSearch = () => {
                         selectedDealType === dealType.id
                           ? "bg-primary text-white"
                           : "bg-white bg-opacity-90 text-primary hover:bg-opacity-100"
-                      } px-8 py-4 flex items-center justify-center transition-colors duration-200`}
+                      } px-2 md:px-8 py-4 flex items-center justify-center transition-colors duration-200 rounded-lg `}
                     >
                       <span className="mr-2">
                         {dealType.name.toLowerCase().includes("flight")
@@ -598,6 +607,17 @@ const TravelDealSearch = () => {
             <h2 className="text-3xl font-bold text-primary mb-8 text-center">
               {searchResults.length} Amazing Deals Found
             </h2>
+            <PopupAd 
+                className="w-64 md:w-80" 
+                intervalTime={30000} 
+                onAdClick={handleAdClick}
+              />
+              <BannerAd 
+                className="h-64 mb-8" // Custom styling using className prop
+                autoRotateInterval={3000} // 3 seconds rotation
+                onAdClick={handleAdClick}
+                maxBannersToShow={3} // Show maximum 4 banners
+              />
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {searchResults.map((deal) => (
                 <Card

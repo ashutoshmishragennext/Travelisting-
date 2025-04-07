@@ -388,7 +388,7 @@ export default function CombinedLayout() {
 
               {/* Buttons */}
               <div className="flex justify-center gap-4">
-                <Button
+                {/* <Button
                   onClick={() => {
                     setIsOpen(false);
                     setProfile(false);
@@ -396,7 +396,7 @@ export default function CombinedLayout() {
                   className="bg-gray-400 text-white"
                 >
                   Cancel
-                </Button>
+                </Button> */}
                 <Button
                   onClick={() => (window.location.href = "/dashboard/admin")}
                   className="bg-primary hover:bg-primary text-white"

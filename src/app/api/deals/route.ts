@@ -12,11 +12,12 @@ export async function GET(request: NextRequest) {
     const id = searchParams.get('id');
 
     // If id is provided, fetch specific deal
-    if (id) {
-      const deal = await db.query.DealTable.findFirst({
-        where: eq(DealTable.id, id),
-      });
-
+    // if (id) {
+    //   const deal = await db.query.DealTable.findFirst({
+    //     where: eq(DealTable.id, id),
+    //   });
+       if (id) {
+      const deal = await db.select().from(DealTable).where(eq(DealTable.travelAgentId,id))
       if (!deal) {
         return NextResponse.json({ error: 'Deal not found' }, { status: 404 });
       }
