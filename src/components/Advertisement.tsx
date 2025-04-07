@@ -76,6 +76,7 @@ const AdvertisementPayment = ({
     try {
       // Construct the payload with selected advertisement types
       const payload = {
+
         adTypes: selectedTypes.map(type => ({
           type,
           name: getAdByType(type)?.name || type,
@@ -126,6 +127,7 @@ const AdvertisementPayment = ({
                   id: id,
                   adTypes: selectedTypes,
                   amount: totalPrice,
+                  userId: user?.id,
                 }),
               }
             );

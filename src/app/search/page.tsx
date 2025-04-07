@@ -15,6 +15,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, Search, MapPin } from "lucide-react";
 import imagetree from "@/components/assets/imagetree.jpg"
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+// import { Router, useRouter } from "next/router";
 import PopupAd from "@/components/advertisements/adshow/Popup";
 import BannerAd from "@/components/advertisements/adshow/Banner";
 
@@ -22,6 +24,7 @@ const TravelDealSearch = () => {
   const [dealTypes, setDealTypes] = useState<{ id: string; name: string }[]>(
     []
   );
+  const router= useRouter()
   const [selectedDealType, setSelectedDealType] = useState("");
   const [metadataSchema, setMetadataSchema] = useState<{
     schema: {
@@ -182,6 +185,10 @@ const TravelDealSearch = () => {
     setFormData((prev) => ({ ...prev, dealTypeId }));
     fetchMetadataSchema(dealTypeId);
   };
+
+   function Deal(id:string) {
+    router.push(`/details/${id}`)
+  }
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -615,6 +622,7 @@ const TravelDealSearch = () => {
               {searchResults.map((deal) => (
                 <Card
                   key={deal.id}
+                  onClick={()=>Deal(deal.id)}
                   className="overflow-hidden transition-all hover:shadow-lg border-gray-100"
                 >
                   {/* Image Section */}
@@ -696,7 +704,7 @@ const TravelDealSearch = () => {
                       </div>
                     )}
   
-                    <Button className="mt-4 w-full bg-primary hover:bg-primary/90 transition-colors duration-300">
+                    <Button className="mt-4 w-full bg-primary hover:bg-primary/90 transition-colors duration-300"  onClick={()=>Deal(deal.id)}>
                       View Deal Details
                     </Button>
                   </CardContent>
