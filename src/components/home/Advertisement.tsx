@@ -654,7 +654,7 @@ const AdvertisementSelector = () => {
             <AdvertisementPayment
               selectedTypes={selectedTypes}
               totalPrice={Number(totalPrice)}
-              getAdByType={getAdByType}
+              getAdByType={getAdByType}                                       
               onPaymentSuccess={handlePaymentSuccess}
               onPaymentError={handlePaymentError}
             />

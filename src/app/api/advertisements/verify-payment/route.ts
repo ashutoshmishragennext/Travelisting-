@@ -18,7 +18,8 @@ type AdTypeLiteral = typeof allowedTypes[number];
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-
+    console.log("bodyyyyyyyyyyyyyyyyyyyyyyy",body);
+    
     const { userId, adTypes, id } = body;
 
     if (!userId || !adTypes || !id) {
