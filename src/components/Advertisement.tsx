@@ -11,6 +11,7 @@ interface AdvertisementPaymentProps {
   getAdByType: (type: string) => any;
   onPaymentSuccess: () => void;
   onPaymentError: (error: string) => void;
+  isTotalHide ?: boolean;
 }
 
 interface RazorpayResponse {
@@ -30,7 +31,8 @@ const AdvertisementPayment = ({
   totalPrice,
   getAdByType,
   onPaymentSuccess,
-  onPaymentError
+  onPaymentError,
+  isTotalHide
 }: AdvertisementPaymentProps) => {
 
   const [isProcessing, setIsProcessing] = useState(false);
@@ -159,6 +161,8 @@ const AdvertisementPayment = ({
             }
           } catch (error) {
             setVerificationStatus('idle');
+            console.log(verificationStatus);
+            
             console.error('Verification error:', error);
             toast({
               title: "Verification Failed",
@@ -223,7 +227,7 @@ const AdvertisementPayment = ({
         strategy="lazyOnload"
       />
       <div className="flex flex-wrap justify-between gap-4 w-full">
-        <div className="text-lg font-semibold">
+        <div className={`text-lg font-semibold ${isTotalHide ? "hidden" : ""}`}>
           Total: ₹{Number(totalPrice).toLocaleString()}
         </div>
         <Button 
