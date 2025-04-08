@@ -78,36 +78,36 @@ const AdvertisementSelector = () => {
 
   // State for custom ad content
   const [customBannerAd, setCustomBannerAd] = useState<CustomAd>({
-    name: "",
-    description: "",
+    name: " ",
+    description: " ",
     image: "",
     redirectUrl: "", // Add this line
 
   });
   const [customPopupAd, setCustomPopupAd] = useState<CustomAd>({
-    name: "",
-    description: "",
+    name: " ",
+    description: " ",
     image: "",
     redirectUrl: "", // Add this line
 
   });
   const [customSidebarAd, setCustomSidebarAd] = useState<CustomAd>({
-    name: "",
-    description: "",
+    name: " ",
+    description: " ",
     image: "",
     redirectUrl: "", // Add this line
 
   });
   const [customFeaturedAd, setCustomFeaturedAd] = useState<CustomAd>({
-    name: "",
-    description: "",
+    name: " ",
+    description: " ",
     image: "",
     redirectUrl: "", // Add this line
 
   });
   const [customNotificationAd, setCustomNotificationAd] = useState<CustomAd>({
-    name: "",
-    description: "",
+    name: " ",
+    description: " ",
     image: "",
     redirectUrl: "", // Add this line
 
@@ -210,36 +210,36 @@ const AdvertisementSelector = () => {
           userAdsData.data.map((item:any) => {
             if(item.type.toUpperCase().includes("BANNER"))
               setCustomBannerAd({
-                name: item.title,
-                description: item.content,
+                name: " ",
+                description: " ",
                 image: item.imageUrl,
                 redirectUrl: item.redirectUrl,
               })
               if(item.type.toUpperCase().includes("POPUP"))
                 setCustomPopupAd({
-                  name: item.title,
-                  description: item.content,
+                  name: " ",
+                  description: " ",
                   image: item.imageUrl,
                   redirectUrl: item.redirectUrl,
                 })
                 if(item.type.toUpperCase().includes("SIDEBAR"))
                   setCustomSidebarAd({
-                    name: item.title,
-                    description: item.content,
+                    name: " ",
+                    description: " ",
                     image: item.imageUrl,
                     redirectUrl: item.redirectUrl,
                   })
                   if(item.type.toUpperCase().includes("NOTIFICATION"))
                     setCustomNotificationAd({
-                      name: item.title,
-                      description: item.content,
+                      name: " ",
+                      description: " ",
                       image: item.imageUrl,
                       redirectUrl: item.redirectUrl,
                     })
                     if(item.type.toUpperCase().includes("FEATURE"))
                       setCustomFeaturedAd({
-                        name: item.title,
-                        description: item.content,
+                        name: " ",
+                        description: " ",
                         image: item.imageUrl,
                         redirectUrl: item.redirectUrl,
                       })
@@ -556,7 +556,7 @@ const AdvertisementSelector = () => {
 
     return (
       <div className="space-y-4 mb-6">
-        <div>
+        {/* <div>
           <label className="block text-sm font-medium mb-1">Title</label>
           <Input
             value={customAd.name}
@@ -565,8 +565,8 @@ const AdvertisementSelector = () => {
             }
             placeholder={`Enter your ${formatAdTypeName(type)} title`}
           />
-        </div>
-        <div>
+        </div> */}
+        {/* <div>
           <label className="block text-sm font-medium mb-1">Description</label>
           <Textarea
             value={customAd.description}
@@ -576,7 +576,7 @@ const AdvertisementSelector = () => {
             placeholder={`Enter your ${formatAdTypeName(type)} description`}
             rows={3}
           />
-        </div>
+        </div> */}
         <div>
           <label className="block text-sm font-medium mb-1">Redirect URL</label>
           <Input
@@ -782,12 +782,12 @@ const AdvertisementSelector = () => {
                     <X size={16} />
                   </button>
                   <div className="flex flex-col items-center">
-                    <div className="h-32 w-full object-cover relative">
+                    <div className="h-40 w-full object-cover relative">
                       <Image
                         src={image}
                         alt={title}
                         layout="fill"
-                        objectFit="fit"
+                        objectFit="contain"
                         priority
                       />
                     </div>
