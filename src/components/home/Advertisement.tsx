@@ -778,7 +778,7 @@ const AdvertisementSelector = () => {
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                 <div className="bg-white shadow-lg rounded-lg w-4/5 max-w-md p-4 relative">
                   {/* Enhanced cross/close button */}
-                  <button className="absolute top-2 right-2 text-gray-700 z-10 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 rounded-full p-1 transition-colors">
+                  <button className="absolute top-2 right-2 text-red-700 z-10 hover:text-red-800 bg-gray-100 hover:bg-gray-200 rounded-full p-1 transition-colors">
                     <X size={16} />
                   </button>
                   <div className="flex flex-col items-center">
