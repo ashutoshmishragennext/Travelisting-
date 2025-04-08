@@ -73,13 +73,13 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
         {imageArray.map((img : any, index : any) => (
           <div 
             key={index} 
-            className={`absolute w-full h-full transition-opacity duration-500 ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}
+            className={`absolute w-96 h-full m-auto transition-opacity duration-500 ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}
           >
             <Image 
               src={img} 
               alt={`Featured destination ${index + 1}`} 
               fill
-              className="object-cover"
+              className="object-fit"
             />
             {/* <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-4">
               <h4 className="font-bold">Featured Destination {index + 1}</h4>
@@ -139,6 +139,7 @@ const DealDetails: React.FC = () => {
   const [showPopup, setShowPopup] = useState<boolean>(false);
   const params = useParams();
   const id = params.id as string;
+  const [imagePush , setImagePush] = useState<string[]>([]);
   const imageArray2:any = [];
 
 
@@ -149,6 +150,7 @@ const DealDetails: React.FC = () => {
       data.map((item : any) => {
           imageArray2.push(item.images);
       })
+      setImagePush(imageArray2);
     }
     fetchDeals();
 }, [])
@@ -350,7 +352,7 @@ const DealDetails: React.FC = () => {
             )} */}
             
             {/* Carousel Advertisement */}
-            <ImageCarousel images={imageArray2} />
+            <ImageCarousel images={imagePush} />
           </div>
 
           {/* Sidebar */}
