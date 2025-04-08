@@ -185,7 +185,7 @@ const BannerAd: React.FC<BannerAdProps> = ({
 
   return (
     <div className={`w-full overflow-hidden ${className}`}>
-      <div className="relative h-[120px] w-full bg-white shadow-md rounded overflow-hidden">
+      <div className="relative h-[120px]  w-full bg-white shadow-md rounded overflow-hidden">
         {/* Banner with dots navigation */}
         <div className="relative h-full w-full">
           {displayAds.map((ad, i) => (
