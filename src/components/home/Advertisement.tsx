@@ -708,7 +708,7 @@ const AdvertisementSelector = () => {
                         src={image}
                         alt={title}
                         layout="fill"
-                        objectFit="fit"
+                        objectFit="contain"
                         priority
                       />
                     </div>
