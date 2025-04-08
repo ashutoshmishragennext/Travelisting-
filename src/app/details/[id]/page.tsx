@@ -6,6 +6,7 @@ import { useParams } from 'next/navigation';
 import PopupAd from '@/components/advertisements/adshow/Popup';
 import BannerAd from '@/components/advertisements/adshow/Banner';
 import Navbar from '@/components/shared/Gennextfooter';
+import StickyFeaturedDeal from '@/components/advertisements/adshow/FeaturedDeal';
 
 // TypeScript interfaces
 interface DealMetadata {
@@ -227,6 +228,9 @@ const DealDetails: React.FC = () => {
       <BannerAd 
       className=' h-52'
       />
+
+      <StickyFeaturedDeal />
+
       
       <div className="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         {/* Deal Header */}

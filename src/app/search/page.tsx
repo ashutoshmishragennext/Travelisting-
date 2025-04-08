@@ -19,6 +19,7 @@ import { useRouter } from "next/navigation";
 // import { Router, useRouter } from "next/router";
 import PopupAd from "@/components/advertisements/adshow/Popup";
 import BannerAd from "@/components/advertisements/adshow/Banner";
+import StickyFeaturedDeal from "@/components/advertisements/adshow/FeaturedDeal";
 
 const TravelDealSearch = () => {
   const [dealTypes, setDealTypes] = useState<{ id: string; name: string }[]>(
@@ -497,6 +498,8 @@ const TravelDealSearch = () => {
           backgroundSize : "cover"
         }}
       >
+            <StickyFeaturedDeal />
+
         <div className=" inset-0 h-full mt-12 bg-black bg-opacity-0 "
         style={{
           backgroundImage: `url(${imagetree})`,
@@ -613,8 +616,8 @@ const TravelDealSearch = () => {
                 onAdClick={handleAdClick}
               />
               <BannerAd 
-                className="h-64 mb-8" // Custom styling using className prop
-                autoRotateInterval={3000} // 3 seconds rotation
+                className="h-40 mb-8" // Custom styling using className prop
+                autoRotateInterval={4000} // 3 seconds rotation
                 onAdClick={handleAdClick}
                 maxBannersToShow={3} // Show maximum 4 banners
               />
