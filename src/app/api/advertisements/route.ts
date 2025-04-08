@@ -86,7 +86,7 @@ export async function PUT(request: NextRequest) {
     }
     
     // Extract the data for updating
-    const { title, content, imageUrl, type } = updateData;
+    const { title, content, imageUrl, type , redirectUrl } = updateData;
     
     // Update only the advertisement table
     const updatedAd = await db
@@ -96,6 +96,7 @@ export async function PUT(request: NextRequest) {
         content,
         imageUrl,
         type,
+        redirectUrl,
         updatedAt: new Date()
       })
       .where(eq(AdvertisementTable.id, advertisementId))

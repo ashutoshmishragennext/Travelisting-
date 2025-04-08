@@ -23,8 +23,8 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import AdvertisementPayment from "../Advertisement";
-import ImageCropper from "../shared/imagecrop/Imagecrop";
 import { useCurrentUser } from "@/hooks/auth";
+import ImageCropperWithSize from "../shared/imagecrop/ImageCropWithSize";
 
 // Define types
 interface Advertisement {
@@ -40,18 +40,18 @@ interface Advertisement {
 
 interface UserAd {
   id: string;
-  title: string | null;
+  title: string;
   AdvertisementTypeId: string;
   type: string;
   content: string;
-  imageUrl: string | null;
-  redirectUrl: string | null;
+  imageUrl: string;
+  redirectUrl: string;
   startDate: string;
   paymentId: string;
   endDate: string;
   isActive: boolean;
-  targetAudience: string | null;
-  metrics: string | null;
+  targetAudience: string;
+  metrics: string;
   createdBy: string;
   createdAt: string;
   updatedAt: string;
@@ -207,6 +207,44 @@ const AdvertisementSelector = () => {
         if (userAdsData.success && userAdsData.data) {
           setUserAds(userAdsData.data);
 
+          userAdsData.data.map((item:any) => {
+            if(item.type.toUpperCase().includes("BANNER"))
+              setCustomBannerAd({
+                name: item.title,
+                description: item.content,
+                image: item.imageUrl,
+                redirectUrl: item.redirectUrl,
+              })
+              if(item.type.toUpperCase().includes("POPUP"))
+                setCustomPopupAd({
+                  name: item.title,
+                  description: item.content,
+                  image: item.imageUrl,
+                  redirectUrl: item.redirectUrl,
+                })
+                if(item.type.toUpperCase().includes("SIDEBAR"))
+                  setCustomSidebarAd({
+                    name: item.title,
+                    description: item.content,
+                    image: item.imageUrl,
+                    redirectUrl: item.redirectUrl,
+                  })
+                  if(item.type.toUpperCase().includes("NOTIFICATION"))
+                    setCustomNotificationAd({
+                      name: item.title,
+                      description: item.content,
+                      image: item.imageUrl,
+                      redirectUrl: item.redirectUrl,
+                    })
+                    if(item.type.toUpperCase().includes("FEATURE"))
+                      setCustomFeaturedAd({
+                        name: item.title,
+                        description: item.content,
+                        image: item.imageUrl,
+                        redirectUrl: item.redirectUrl,
+                      })
+          })
+
           // Create a map for quick access
           const adMap: any = {};
           userAdsData.data.forEach((ad: any) => {
@@ -222,13 +260,12 @@ const AdvertisementSelector = () => {
             const adType = adIdToTypeMap[ad.AdvertisementTypeId] || ad.type;
             setAdBoughtStatus(adType, true);
 
-            // Inside the useEffect where you set custom ad content based on user's existing ads
-            if (ad.title || ad.content || ad.imageUrl || ad.redirectUrl) {
-              updateCustomAdContent(adType, "name", ad.title || "");
-              updateCustomAdContent(adType, "description", ad.content || "");
-              updateCustomAdContent(adType, "image", ad.imageUrl || "");
-              updateCustomAdContent(adType, "redirectUrl", ad.redirectUrl || ""); // Add this line
-            }
+            // if (ad.title || ad.content || ad.imageUrl || ad.redirectUrl) {
+            //   updateCustomAdContent(adType, "name", ad.title || "");
+            //   updateCustomAdContent(adType, "description", ad.content || "");
+            //   updateCustomAdContent(adType, "image", ad.imageUrl || "");
+            //   updateCustomAdContent(adType, "redirectUrl", ad.redirectUrl || ""); // Add this line
+            // }
           });
         }
 
@@ -360,7 +397,7 @@ const AdvertisementSelector = () => {
   };
 
   // Get custom ad content by type
-  const getCustomAdContent = (type: string): CustomAd => {
+  const getCustomAdContent : any = (type: string): CustomAd => {
     switch (type) {
       case "BANNER":
         return customBannerAd;
@@ -369,6 +406,7 @@ const AdvertisementSelector = () => {
         return customPopupAd;
       case "SIDEBAR":
         return customSidebarAd;
+      case "FEATURED_DEAL":
       case "FEATURED DEAL":
       case "FEATURED":
         return customFeaturedAd;
@@ -407,8 +445,10 @@ const AdvertisementSelector = () => {
   };
 
   // Save custom ad with PUT request to update existing ad
-  const saveCustomAd = async (type: string) => {
+  const saveCustomAd = async (type2: string) => {
     try {
+      let type = type2.toUpperCase()
+      
       const adId = userAdMap[type]?.id;
 
       if (!adId) {
@@ -423,6 +463,8 @@ const AdvertisementSelector = () => {
       const customAd = getCustomAdContent(type);
 
       // Prepare data for update
+      if(type.includes("FEATURE"))
+        type = "FEATURED_DEAL"
       const advertisementId = adId;
       // Inside saveCustomAd function, update the updateData object
       const updateData = {
@@ -470,6 +512,12 @@ const AdvertisementSelector = () => {
     );
   };
 
+  const getAdByTypeOfUser = (type: string) => {
+    return userAds.find(
+      (item) => item.type.trim().toUpperCase() === type
+    );
+  };
+
   // For banner navigation
   const handleBannerPrev = () => {
     setActiveBannerIndex((prev) => (prev === 0 ? 2 : prev - 1));
@@ -501,7 +549,8 @@ const AdvertisementSelector = () => {
   }
 
   // Render ad configuration form
-  const renderAdConfigForm = (type: string) => {
+  const renderAdConfigForm = (type2: string) => {
+    const type = type2.toUpperCase();
     const customAd = getCustomAdContent(type);
     const userAd = userAdMap[type];
 
@@ -538,35 +587,54 @@ const AdvertisementSelector = () => {
             placeholder="Enter the URL users will be sent to when clicking"
           />
         </div>
+{ type.includes("POPUP") &&(
         <div>
-          <label className="block text-sm font-medium mb-1">Image</label>
-          {customAd.image ? (
-            <div className="mb-2">
-              <div className="relative h-32 w-full mb-2 border rounded overflow-hidden">
-                <Image
-                  src={customAd.image}
-                  alt="Current Image"
-                  layout="fill"
-                  objectFit="contain"
-                />
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => updateCustomAdContent(type, "image", "")}
-                className="mb-2"
-              >
-                Remove Image
-              </Button>
-            </div>
-          ) : null}
-          <ImageCropper
+          <ImageCropperWithSize
             onImageCropped={(croppedImage) =>
               handleImageUpload(croppedImage, type)
             }
             type="cover"
+            fixedWidth={600} 
+            fixedHeight={400} 
           />
         </div>
+)} 
+{ type.includes("BANNER") &&(
+        <div>
+          <ImageCropperWithSize
+            onImageCropped={(croppedImage) =>
+              handleImageUpload(croppedImage, type)
+            }
+            type="cover"
+            fixedWidth={970} 
+            fixedHeight={250} 
+          />
+        </div>
+)}
+{ type.includes("FEATURE") &&(
+        <div>
+          <ImageCropperWithSize
+            onImageCropped={(croppedImage) =>
+              handleImageUpload(croppedImage, type)
+            }
+            type="cover"
+            fixedWidth={970} 
+            fixedHeight={120} 
+          />
+        </div>
+)}
+{ type.includes("SIDEBAR") &&(
+        <div>
+          <ImageCropperWithSize
+            onImageCropped={(croppedImage) =>
+              handleImageUpload(croppedImage, type)
+            }
+            type="cover"
+            fixedWidth={600} 
+            fixedHeight={400} 
+          />
+        </div>
+)}
         <Button
           onClick={() => saveCustomAd(type)}
           className="w-full"
@@ -585,20 +653,25 @@ const AdvertisementSelector = () => {
   };
 
   // Render different ad type previews
-  const renderAdPreview = (type: string) => {
-    const ad = isAdBought(type) ? getCustomAdContent(type) : getAdByType(type);
+  const renderAdPreview = (type2: string) => {
+    const type = type2.toUpperCase();
+    const ad = isAdBought(type)  ? getCustomAdContent(type) : getAdByType(type);
     if (!ad) return null;
 
     // Get default image from ad definition when no custom image is available
-    const defaultAdImage = getAdByType(type)?.image || "/placeholder-image.jpg";
+    let defaultAdImage = "";
+    if(!isAdBought(type))
+      defaultAdImage = getAdByType(type)?.image || "/placeholder-image.jpg";
+    else
+      defaultAdImage = getAdByTypeOfUser(type)?.imageUrl || "/placeholder-image.jpg";
 
     // Get title and description based on whether it's a bought ad or not
     const title = isAdBought(type)
-      ? ad.name || getAdByType(type)?.name || ""
-      : ad.name;
+      ? ad.name || getAdByTypeOfUser(type)?.title  || ""
+      :   ad.name || getAdByType(type)?.name ;
     const description = isAdBought(type)
-      ? ad.description || getAdByType(type)?.description || ""
-      : ad.description;
+      ? ad.description || getAdByTypeOfUser(type)?.content ||  ""
+      : ad.description || getAdByType(type)?.description;
     const image = isAdBought(type) ? ad.image || defaultAdImage : ad.image;
 
     switch (type) {
@@ -640,11 +713,11 @@ const AdvertisementSelector = () => {
                       />
                     </div>
                     <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent flex flex-col justify-top space-y-8 items-center pt-4">
-                      <p className="text-white font-bold text-lg">{title}</p>
-                      <p className="mt-2 text-sm text-white px-10 text-center">
-                        {description}
-                      </p>
-                    </div>
+                <p className="text-white font-bold text-lg">{title || 'Advertisement'}</p>
+                <div className='relative top-12'>
+                  <p className="mt-2 text-sm text-white px-10 text-center">{description || 'Click to learn more'}</p>
+                </div>
+              </div>
                   </div>
                 ))}
 
@@ -788,7 +861,7 @@ const AdvertisementSelector = () => {
           <div
             className={` ${
               isAdBought(type) ? "hover:opacity-90 transition-opacity" : ""
-            } `}
+            }  w-[970px] ` }
           >
             <div className="w-full h-64 relative bg-gray-50 rounded-lg overflow-hidden">
               {/* Show lock/unlock icon */}
@@ -800,12 +873,12 @@ const AdvertisementSelector = () => {
                 )}
               </div>
 
-              <div className="h-full w-full object-cover relative">
+              <div className="h-[120px] w-[970px] object-cover relative">
                 <Image
                   src={image}
                   alt={title}
                   layout="fill"
-                  objectFit="fit"
+                  objectFit="contain"
                   priority
                 />
               </div>

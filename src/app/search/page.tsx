@@ -19,6 +19,7 @@ import { useRouter } from "next/navigation";
 // import { Router, useRouter } from "next/router";
 import PopupAd from "@/components/advertisements/adshow/Popup";
 import BannerAd from "@/components/advertisements/adshow/Banner";
+import StickyFeaturedDeal from "@/components/advertisements/adshow/FeaturedDeal";
 
 const TravelDealSearch = () => {
   const [dealTypes, setDealTypes] = useState<{ id: string; name: string }[]>(
@@ -497,6 +498,8 @@ const TravelDealSearch = () => {
           backgroundSize : "cover"
         }}
       >
+            <StickyFeaturedDeal />
+
         <div className=" inset-0 h-full mt-12 bg-black bg-opacity-0 "
         style={{
           backgroundImage: `url(${imagetree})`,
