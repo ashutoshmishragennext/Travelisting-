@@ -32,7 +32,7 @@ interface StickyFeaturedDealProps {
 
 const StickyFeaturedDeal: React.FC<StickyFeaturedDealProps> = ({
   className = '',
-  reappearDelay = 30000,
+  reappearDelay = 45000,
   onClose,
   onAdClick
 }) => {
