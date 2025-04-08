@@ -616,8 +616,8 @@ const TravelDealSearch = () => {
                 onAdClick={handleAdClick}
               />
               <BannerAd 
-                className="h-64 mb-8" // Custom styling using className prop
-                autoRotateInterval={3000} // 3 seconds rotation
+                className="h-40 mb-8" // Custom styling using className prop
+                autoRotateInterval={4000} // 3 seconds rotation
                 onAdClick={handleAdClick}
                 maxBannersToShow={3} // Show maximum 4 banners
               />

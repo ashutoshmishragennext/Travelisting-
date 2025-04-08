@@ -100,10 +100,6 @@ const StickyFeaturedDeal: React.FC<StickyFeaturedDealProps> = ({
       }
       window.open(url, '_blank');
     }
-    
-    if (onAdClick && currentAd) {
-      onAdClick(currentAd);
-    }
   };
 
   // If still loading, there's no ad, or there's an error, don't render anything
@@ -113,7 +109,7 @@ const StickyFeaturedDeal: React.FC<StickyFeaturedDealProps> = ({
 
   return (
     <div className={`fixed bottom-2 bg-transparent left-0 right-0 flex justify-center z-50 ${className}`}>
-      <div className="max-w-[970px] w-full h-30 bg-white shadow-lg rounded-t-lg overflow-hidden relative">
+      <div className="max-w-[700px] w-full h-30 bg-white shadow-lg rounded-t-lg overflow-hidden relative">
         <button 
           onClick={handleClose}
           className="absolute top-2 right-2 rounded-xl bg-white p-1 text-red-500 z-10 hover:text-red-700"
@@ -132,7 +128,7 @@ const StickyFeaturedDeal: React.FC<StickyFeaturedDealProps> = ({
                 src={currentAd.imageUrl} 
                 alt={currentAd.title || 'Featured Deal'} 
                 layout="fill"
-                objectFit="fit"
+                objectFit="contain"
                 priority
               />
             </div>

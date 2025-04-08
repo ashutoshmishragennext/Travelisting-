@@ -607,7 +607,7 @@ const AdvertisementSelector = () => {
             }
             type="cover"
             fixedWidth={970} 
-            fixedHeight={250} 
+            fixedHeight={120} 
           />
         </div>
 )}
@@ -618,7 +618,7 @@ const AdvertisementSelector = () => {
               handleImageUpload(croppedImage, type)
             }
             type="cover"
-            fixedWidth={970} 
+            fixedWidth={700} 
             fixedHeight={120} 
           />
         </div>
