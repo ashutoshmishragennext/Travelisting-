@@ -61,8 +61,8 @@ interface CustomAd {
   name: string;
   description: string;
   image: string;
+  redirectUrl: string; // Add this line
 }
-
 const AdvertisementSelector = () => {
   // Add state for tracking ad purchase status
   const [bannerBought, setBannerBought] = useState(false);
@@ -81,26 +81,36 @@ const AdvertisementSelector = () => {
     name: "",
     description: "",
     image: "",
+    redirectUrl: "", // Add this line
+
   });
   const [customPopupAd, setCustomPopupAd] = useState<CustomAd>({
     name: "",
     description: "",
     image: "",
+    redirectUrl: "", // Add this line
+
   });
   const [customSidebarAd, setCustomSidebarAd] = useState<CustomAd>({
     name: "",
     description: "",
     image: "",
+    redirectUrl: "", // Add this line
+
   });
   const [customFeaturedAd, setCustomFeaturedAd] = useState<CustomAd>({
     name: "",
     description: "",
     image: "",
+    redirectUrl: "", // Add this line
+
   });
   const [customNotificationAd, setCustomNotificationAd] = useState<CustomAd>({
     name: "",
     description: "",
     image: "",
+    redirectUrl: "", // Add this line
+
   });
 
   const [openForms, setOpenForms] = useState<Record<string, boolean>>({});
@@ -212,11 +222,12 @@ const AdvertisementSelector = () => {
             const adType = adIdToTypeMap[ad.AdvertisementTypeId] || ad.type;
             setAdBoughtStatus(adType, true);
 
-            // Set custom ad content based on user's existing ads
-            if (ad.title || ad.content || ad.imageUrl) {
+            // Inside the useEffect where you set custom ad content based on user's existing ads
+            if (ad.title || ad.content || ad.imageUrl || ad.redirectUrl) {
               updateCustomAdContent(adType, "name", ad.title || "");
               updateCustomAdContent(adType, "description", ad.content || "");
               updateCustomAdContent(adType, "image", ad.imageUrl || "");
+              updateCustomAdContent(adType, "redirectUrl", ad.redirectUrl || ""); // Add this line
             }
           });
         }
@@ -364,7 +375,7 @@ const AdvertisementSelector = () => {
       case "NOTIFICATION":
         return customNotificationAd;
       default:
-        return { name: "", description: "", image: "" };
+        return { name: "", description: "", image: "" , redirectUrl : "" };
     }
   };
 
@@ -413,14 +424,14 @@ const AdvertisementSelector = () => {
 
       // Prepare data for update
       const advertisementId = adId;
+      // Inside saveCustomAd function, update the updateData object
       const updateData = {
         title: customAd.name,
         content: customAd.description,
         imageUrl: customAd.image,
-        // Keep other fields from existing ad
-        type: type === "POPUP ADVERTISEMENT" ? "POPUP" : "POPUP",
+        redirectUrl: customAd.redirectUrl, // Add this line
+        type: type === "POPUP ADVERTISEMENT" ? "POPUP" : type,
       };
-
       // Send PUT request to update ad
       const response = await fetch(`/api/advertisements?vendorId=${user?.id}`, {
         method: "PUT",
@@ -515,6 +526,16 @@ const AdvertisementSelector = () => {
             }
             placeholder={`Enter your ${formatAdTypeName(type)} description`}
             rows={3}
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Redirect URL</label>
+          <Input
+            value={customAd.redirectUrl}
+            onChange={(e) =>
+              updateCustomAdContent(type, "redirectUrl", e.target.value)
+            }
+            placeholder="Enter the URL users will be sent to when clicking"
           />
         </div>
         <div>

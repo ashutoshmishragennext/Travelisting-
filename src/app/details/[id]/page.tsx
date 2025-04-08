@@ -148,12 +148,12 @@ const DealDetails: React.FC = () => {
       if (!id) return;
       
       try {
-        const response = await fetch(`/api/deals?id=${id}`);
+        const response = await fetch(`/api/deals?DealId=${id}`);
         if (!response.ok) {
           throw new Error('Failed to fetch deal data');
         }
-        const data: DealData = await response.json();
-        setDeal(data);
+        const data: any = await response.json();
+        setDeal(data[0]);
       } catch (error) {
         console.error('Error fetching deal details:', error);
       } finally {

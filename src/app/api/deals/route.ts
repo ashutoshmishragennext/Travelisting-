@@ -9,18 +9,24 @@ export async function GET(request: NextRequest) {
   try {
     // Get query parameters
     const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id');
+    const UserID = searchParams.get('id');
+    const DealId = searchParams.get('DealId');
 
     // If id is provided, fetch specific deal
     // if (id) {
     //   const deal = await db.query.DealTable.findFirst({
     //     where: eq(DealTable.id, id),
     //   });
-       if (id) {
-      const deal = await db.select().from(DealTable).where(eq(DealTable.travelAgentId,id))
-      if (!deal) {
-        return NextResponse.json({ error: 'Deal not found' }, { status: 404 });
-      }
+    if(DealId){
+      const deal = await db.select().from(DealTable).where(eq(DealTable.id,DealId))
+      return NextResponse.json(deal);
+    }
+       if (UserID) {
+      const deal = await db.select().from(DealTable).where(eq(DealTable.travelAgentId,UserID))
+       
+      // if (!deal) {
+      //   return NextResponse.json({ error: 'Deal not found' }, { status: 404 });
+      // }
 
       return NextResponse.json(deal);
     } 
