@@ -263,8 +263,6 @@ const DealDetails: React.FC = () => {
               </div>
             )}
             <div className="absolute top-4 right-4 space-y-4 ">
-              
-            
             <div className=' hidden lg:block space-y-2'>
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">VALID FROM</h3>
