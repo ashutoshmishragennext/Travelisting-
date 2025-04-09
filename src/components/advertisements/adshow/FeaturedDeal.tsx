@@ -108,7 +108,7 @@ const StickyFeaturedDeal: React.FC<StickyFeaturedDealProps> = ({
   }
 
   return (
-    <div className={`fixed bottom-2 bg-transparent left-0 right-0 flex justify-center z-50 ${className}`}>
+    <div className={`fixed bottom-16 sm:bottom-2 bg-transparent left-0 right-0 flex justify-center z-50 ${className}`}>
       <div className="max-w-[700px] w-full h-30 bg-white shadow-lg rounded-t-lg overflow-hidden relative">
         <button 
           onClick={handleClose}

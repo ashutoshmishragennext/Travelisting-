@@ -261,7 +261,7 @@ const Profile:any = () => {
                       onClick={() => setIsEditing(true)}
                       className="bg-primary text-white px-4 py-2 rounded-md hover:bg-opacity-90 transition font-medium"
                     >
-                      Edit Profile
+                      Edit <span className='hidden lg:inline-block '>Profile</span>
                     </button>
                   )}
                 </div>
@@ -504,7 +504,7 @@ const Profile:any = () => {
                     type="submit"
                     className="px-6 py-2 bg-primary text-white font-medium rounded-md hover:bg-opacity-90 transition flex-1"
                   >
-                    Save Changes
+                    Save <span className=' hidden md:inline-block'> Changes</span>
                   </button>
                   <button
                     type="button"

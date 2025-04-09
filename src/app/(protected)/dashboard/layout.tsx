@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 
-import Navigation from "@/components/pages/Navbar";
 import Navbar from "@/components/shared/Gennextfooter";
+// import Navigation from "@/components/pages/Navbar";
+import CombinedLayout from "@/components/Navigation";
 // import Footer from "@/components/shared/Footer";
 
 // const inter = Inter({ subsets: ["latin"] });
@@ -21,7 +22,7 @@ export default function RootLayout({
       <body>
         
     
-          <Navigation />
+          <CombinedLayout />
           {children}
           <Navbar />
         

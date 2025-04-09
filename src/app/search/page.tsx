@@ -13,13 +13,15 @@ import {
 } from "@/components/ui/select";
 import { Loader2, MapPin, Search } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter , usePathname  } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import BannerAd from "@/components/advertisements/adshow/Banner";
 import StickyFeaturedDeal from "@/components/advertisements/adshow/FeaturedDeal";
 import FullPopupAd from "@/components/advertisements/adshow/FullPopUp";
+import { LuPackageSearch } from "react-icons/lu";
 
 const TravelDealSearch = () => {
+  const pathname = usePathname();
   const [dealTypes, setDealTypes] = useState<{ id: string; name: string }[]>(
     []
   );
@@ -69,6 +71,24 @@ const TravelDealSearch = () => {
   const [searchResults, setSearchResults] = useState<Deal[]>([]);
   const [selectedTab, setSelectedTab] = useState("Flights");
 
+  // Add this with your other useState declarations
+const [isMobile, setIsMobile] = useState(false);
+
+// Add this useEffect to detect mobile screens
+useEffect(() => {
+  const checkIfMobile = () => {
+    setIsMobile(window.innerWidth < 640); // 640px is the 'sm' breakpoint in Tailwind
+  };
+  
+  // Set initial value
+  checkIfMobile();
+  
+  // Add event listener for window resize
+  window.addEventListener('resize', checkIfMobile);
+  
+  // Cleanup
+  return () => window.removeEventListener('resize', checkIfMobile);
+}, []);
   // Fetch all available deal types
   const fetchDealTypes = async () => {
     try {
@@ -647,6 +667,38 @@ const TravelDealSearch = () => {
           </Card>
         ) : null}
       </div>
+
+      {/* Mobile Bottom Navigation Bar - Only visible on small screens */}
+      {isMobile && (
+  <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-50">
+    <div className="flex justify-around items-center h-16">
+      <button
+        onClick={() => {router.push("/")}}
+        className={`flex flex-col items-center justify-center p-2 flex-1 ${
+          pathname === "/" 
+            ? 'text-primary font-medium'
+            : 'text-gray-500 hover:text-gray-700'
+        }`}
+      >
+        <Search className="h-5 w-5 mb-1" />
+        <span className="text-xs">Search</span>
+      </button>
+      
+      <button
+        onClick={() => {router.push("/dashboard")}}
+        className={`flex flex-col items-center justify-center p-2 flex-1 ${
+          pathname?.includes("/dashboard")
+            ? 'text-primary font-medium'
+            : 'text-gray-500 hover:text-gray-700'
+        }`}
+      >
+        <LuPackageSearch className="h-5 w-5 mb-1" />
+        <span className="text-xs">List Deal</span>
+      </button>
+    </div>
+  </div>
+)}
+
     </div>
   );
 };

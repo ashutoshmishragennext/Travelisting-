@@ -25,7 +25,7 @@ interface PopupAdProps {
 
 const CardPopupAd: React.FC<PopupAdProps> = ({
   onClose,
-  initialDelay = 2000
+  initialDelay = 30000
 }) => {
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const [ad, setAd] = useState<AdItem | null>(null);
