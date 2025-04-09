@@ -97,9 +97,9 @@ export default function DealDetailsSidebar({ deal, onClose }: DealDetailsSidebar
                   <Info className="h-4 w-4 mr-2" />
                   Description
                 </h3>
-                <p className="text-muted-foreground">
-                  {deal.metadata?.Description || deal.description}
-                </p>
+                {deal.description && (
+                <div   className=" "  dangerouslySetInnerHTML={{ __html: deal.description }} />
+              )}
               </div>
             )}
 
