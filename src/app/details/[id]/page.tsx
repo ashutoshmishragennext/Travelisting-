@@ -77,14 +77,14 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
   };
 
   // Auto-rotate images every 4 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentSlide((prevSlide) => (prevSlide + 1) % imageArray.length);
-    }, 4000);
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     setCurrentSlide((prevSlide) => (prevSlide + 1) % imageArray.length);
+  //   }, 4000);
     
-    // Clean up interval on component unmount
-    return () => clearInterval(interval);
-  }, [imageArray.length]);
+  //   // Clean up interval on component unmount
+  //   return () => clearInterval(interval);
+  // }, []);
 
   return (
     // Container with background that spans the full width
