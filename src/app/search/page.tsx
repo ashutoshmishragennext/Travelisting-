@@ -1,7 +1,8 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import imagetree from "@/components/assets/imagetree.jpg";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -10,22 +11,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, Search, MapPin } from "lucide-react";
-import imagetree from "@/components/assets/imagetree.jpg"
+import { Loader2, MapPin, Search } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-// import { Router, useRouter } from "next/router";
-import PopupAd from "@/components/advertisements/adshow/Popup";
+import React, { useEffect, useState } from "react";
 import BannerAd from "@/components/advertisements/adshow/Banner";
 import StickyFeaturedDeal from "@/components/advertisements/adshow/FeaturedDeal";
+import FullPopupAd from "@/components/advertisements/adshow/FullPopUp";
 
 const TravelDealSearch = () => {
   const [dealTypes, setDealTypes] = useState<{ id: string; name: string }[]>(
     []
   );
-  const router= useRouter()
+  const router = useRouter();
   const [selectedDealType, setSelectedDealType] = useState("");
   const [metadataSchema, setMetadataSchema] = useState<{
     schema: {
@@ -56,7 +54,7 @@ const TravelDealSearch = () => {
   interface Deal {
     id: string;
     title?: string;
-    description : string;
+    description: string;
     images?: string;
     city?: string;
     state?: string;
@@ -120,7 +118,7 @@ const TravelDealSearch = () => {
           metadata: initialMetadata,
         }));
         // handleSubmit2();
-        setSearchResults([])
+        setSearchResults([]);
         setError(null);
       } else {
         setError(data.error || "Failed to fetch schema");
@@ -187,8 +185,8 @@ const TravelDealSearch = () => {
     fetchMetadataSchema(dealTypeId);
   };
 
-   function Deal(id:string) {
-    router.push(`/details/${id}`)
+  function Deal(id: string) {
+    router.push(`/details/${id}`);
   }
 
   // Handle form submission
@@ -210,6 +208,9 @@ const TravelDealSearch = () => {
 
       if (data.success) {
         setSearchResults(data.deals);
+          setTimeout(() => {
+          document.getElementById("Cards")?.scrollIntoView({ behavior: "smooth" });
+        }, 100);
       } else {
         setError(data.error || "Search failed");
       }
@@ -221,130 +222,17 @@ const TravelDealSearch = () => {
     }
   };
 
- 
-
   // Fetch deal types when component mounts
   useEffect(() => {
     fetchDealTypes();
   }, []);
 
-  // const renderMetadataFields = () => {
-  //   if (!metadataSchema || !metadataSchema.schema?.fields) return null;
-
-  //   return (
-  //     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-  //       {metadataSchema.schema.fields.map((field) => {
-  //         const value = formData.metadata?.[field.id] || "";
-
-  //         // Skip rendering Description here
-  //         if (field.id === "Description") return null;
-
-  //         switch (field.type) {
-  //           case "text":
-  //           case "textarea":
-  //             return (
-  //               <div key={field.id} className="mb-4">
-  //                 <label className="block text-sm font-medium text-gray-700 mb-1">
-  //                   {field.label}
-  //                   {field.required && (
-  //                     <span className="text-red-500 ml-1">*</span>
-  //                   )}
-  //                 </label>
-  //                 <Input
-  //                   type="text"
-  //                   name={`metadata.${field.id}`}
-  //                   value={value}
-  //                   onChange={handleInputChange}
-  //                   required={field.required}
-  //                   className="w-full"
-  //                   placeholder={field.placeholder || ""}
-  //                 />
-  //               </div>
-  //             );
-
-  //           case "number":
-  //             return (
-  //               <div key={field.id} className="mb-4">
-  //                 <label className="block text-sm font-medium text-gray-700 mb-1">
-  //                   {field.label}
-  //                   {field.required && (
-  //                     <span className="text-red-500 ml-1">*</span>
-  //                   )}
-  //                 </label>
-  //                 <Input
-  //                   type="number"
-  //                   name={`metadata.${field.id}`}
-  //                   value={value}
-  //                   onChange={handleInputChange}
-  //                   required={field.required}
-  //                   className="w-full"
-  //                   placeholder={field.placeholder || ""}
-  //                 />
-  //               </div>
-  //             );
-
-  //           case "date":
-  //             return (
-  //               <div key={field.id} className="mb-4">
-  //                 <label className="block text-sm font-medium text-gray-700 mb-1">
-  //                   {field.label}
-  //                   {field.required && (
-  //                     <span className="text-red-500 ml-1">*</span>
-  //                   )}
-  //                 </label>
-  //                 <Input
-  //                   type="date"
-  //                   name={`metadata.${field.id}`}
-  //                   value={value}
-  //                   onChange={handleInputChange}
-  //                   required={field.required}
-  //                   className="w-full"
-  //                 />
-  //               </div>
-  //             );
-
-  //           case "select":
-  //             return (
-  //               <div key={field.id} className="mb-4">
-  //                 <label className="block text-sm font-medium text-gray-700 mb-1">
-  //                   {field.label}
-  //                   {field.required && (
-  //                     <span className="text-red-500 ml-1">*</span>
-  //                   )}
-  //                 </label>
-  //                 <Select
-  //                   value={value}
-  //                   onValueChange={(newValue) =>
-  //                     handleSelectChange(newValue, field.id)
-  //                   }
-  //                 >
-  //                   <SelectTrigger className="w-full">
-  //                     <SelectValue placeholder={`Select ${field.label}`} />
-  //                   </SelectTrigger>
-  //                   <SelectContent>
-  //                     {field.options?.map((option) => (
-  //                       <SelectItem key={option} value={option}>
-  //                         {option}
-  //                       </SelectItem>
-  //                     ))}
-  //                   </SelectContent>
-  //                 </Select>
-  //               </div>
-  //             );
-
-  //           default:
-  //             return null;
-  //         }
-  //       })}
-  //     </div>
-  //   );
-  // };
 
   const renderMetadataFields = () => {
     if (!metadataSchema || !metadataSchema.schema?.fields) return null;
 
     return (
-      <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-0 bg-white">
+      <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-0 bg-white">
         {metadataSchema.schema.fields.map((field) => {
           const value = formData.metadata?.[field.id] || "";
 
@@ -357,9 +245,9 @@ const TravelDealSearch = () => {
               return (
                 <div
                   key={field.id}
-                  className="mb-4 bg-white bg-opacity-90 rounded p-3 border"
+                  className="mb-4 bg-white bg-opacity-90 rounded xs:p-3 xs:border"
                 >
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="  xs:block hidden text-sm font-medium text-gray-700 mb-1">
                     {field.label}
                     {field.required && (
                       <span className="text-red-500 ml-1">*</span>
@@ -428,9 +316,9 @@ const TravelDealSearch = () => {
               return (
                 <div
                   key={field.id}
-                  className="mb-4 bg-white bg-opacity-90 rounded p-3 border"
+                  className="mb-4 bg-white bg-opacity-90 rounded xs:p-3 xs:border"
                 >
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="xs:block hidden text-sm font-medium text-gray-700 mb-1">
                     {field.label}
                     {field.required && (
                       <span className="text-red-500 ml-1">*</span>
@@ -478,14 +366,12 @@ const TravelDealSearch = () => {
     }
   };
 
-  const icons = ["✈️", "🏨", "💰" , "📦"];
+  const icons = ["✈️", "🏨", "💰", "📦"];
 
   const handleAdClick = (ad: any) => {
-    console.log('Ad clicked:', ad);
+    console.log("Ad clicked:", ad);
     // You can add analytics tracking or other logic here
   };
-
-
 
   return (
     <div className="w-full min-h-screen inset-0 bg-slate-200 bg-opacity-40 py-1">
@@ -495,17 +381,21 @@ const TravelDealSearch = () => {
         style={{
           backgroundImage: `url(${imagetree})`,
           backgroundPosition: "center",
-          backgroundSize : "cover"
+          backgroundSize: "cover",
         }}
       >
-            <StickyFeaturedDeal />
+        <StickyFeaturedDeal />
 
-        <div className=" inset-0 h-full mt-12 bg-black bg-opacity-0 "
-        style={{
-          backgroundImage: `url(${imagetree})`,
-          backgroundPosition: "center",
-          backgroundSize : "cover"
-        }}>
+        <FullPopupAd />
+
+        <div
+          className=" inset-0 h-full mt-12 bg-black bg-opacity-0 "
+          style={{
+            backgroundImage: `url(${imagetree})`,
+            backgroundPosition: "center",
+            backgroundSize: "cover",
+          }}
+        >
           <div className="max-w-6xl mx-auto px-4 pt-0 text-center">
             {/* Navigation Tabs */}
             <div className="flex justify-center max-w-3xl border-primary mx-auto mt-12 z-50">
@@ -515,38 +405,19 @@ const TravelDealSearch = () => {
                   Loading deal types...
                 </div>
               ) : (
-                <div className="flex border border-primary rounded-lg shadow-lg ">
-                  {dealTypes.map((dealType , index) => (
-                    <button
-                      key={dealType.id}
-                      onClick={() => handleDealTypeSelect(dealType.id)}
-                      className={`${
-                        selectedDealType === dealType.id
-                          ? "bg-primary text-white"
-                          : "bg-white bg-opacity-90 text-primary hover:bg-opacity-100"
-                      } px-2 md:px-8 py-4 flex items-center justify-center transition-colors duration-200 rounded-lg `}
-                    >
-                      <span className="mr-2">
-                        {dealType.name.toLowerCase().includes("flight")
-                          ? icons[0]
-                          : ""}{" "}
-                        {dealType.name.toLowerCase().includes("hotel")
-                          ? icons[1]
-                          : ""}{" "}
-                        {dealType.name.toLowerCase().includes("deal")
-                          ? icons[2]
-                          : ""}
-                        {dealType.name.toLowerCase().includes("package")
-                          ? icons[3]
-                          : ""}
-                      </span>{" "}
-                      {dealType.name}
-                    </button>
-                  ))}
+                <div>
+                  <div className="text-center mb-6">
+                    <h2 className="text-2xl font-bold text-primary">
+                      Find Your Perfect Travel Deals
+                    </h2>
+                    <p className="text-gray-600 text-sm mt-1">
+                      Search through our exclusive collection of travel offers
+                    </p>
+                  </div>
                 </div>
               )}
             </div>
-  
+
             {/* Search Form based on tab */}
             <div className="max-w-6xl mx-auto mt-3">
               {true && (
@@ -554,34 +425,65 @@ const TravelDealSearch = () => {
                   <div className="bg-white bg-opacity-90 p-6 pb-3 rounded-lg backdrop-blur-sm shadow-xl">
                     {metadataSchema && (
                       <div className="mb-8">
-                        <div className="text-center mb-6">
-                          <h2 className="text-2xl font-bold text-primary">
-                            Find Your Perfect Travel Deals
-                          </h2>
-                          <p className="text-gray-600 text-sm mt-1">
-                            Search through our exclusive collection of travel
-                            offers
-                          </p>
+                        <div className=" flex justify-around">
+                          <div className="flex border w-fit m-auto border-primary rounded-lg shadow-lg ">
+                            {dealTypes.map((dealType, index) => (
+                              <button
+                                key={dealType.id}
+                                onClick={() =>
+                                  handleDealTypeSelect(dealType.id)
+                                }
+                                className={`${
+                                  selectedDealType === dealType.id
+                                    ? "bg-primary text-white"
+                                    : "bg-white bg-opacity-90 text-primary hover:bg-opacity-100"
+                                } px-2 xs:px-4 md:px-8 py-4 flex items-center justify-center transition-colors duration-200 rounded-lg `}
+                              >
+                                <span className="mr-2">
+                                  {dealType.name
+                                    .toLowerCase()
+                                    .includes("flight")
+                                    ? icons[0]
+                                    : ""}{" "}
+                                  {dealType.name.toLowerCase().includes("hotel")
+                                    ? icons[1]
+                                    : ""}{" "}
+                                  {dealType.name.toLowerCase().includes("deal")
+                                    ? icons[2]
+                                    : ""}
+                                  {dealType.name
+                                    .toLowerCase()
+                                    .includes("package")
+                                    ? icons[3]
+                                    : ""}
+                                </span>{" "}
+                                {dealType.name}
+                              </button>
+                            ))}
+                          </div>
                         </div>
                         <div className=" bg-white p-6 pb-0 rounded-lg text-gray-800">
-                          <form onSubmit={handleSubmit}>
+                          <form
+                            onSubmit={handleSubmit}
+                            className=" xs:flex space-x-4 items-start mb-4"
+                          >
                             {renderMetadataFields()}
-  
-                            <div className="mt-8 flex justify-center">
+
+                            <div className=" mt-2 flex justify-center">
                               <Button
                                 type="submit"
                                 disabled={isLoading || !formData.dealTypeId}
-                                className="px-8 py-6 rounded-full bg-primary hover:bg-primary/90 text-white shadow-lg transition-all duration-300"
+                                className="px-4 py-6 rounded-full bg-primary hover:bg-primary/90 text-white shadow-lg transition-all duration-300"
                               >
                                 {isLoading ? (
                                   <span className="flex items-center">
-                                    <Loader2 className="animate-spin mr-2 h-5 w-5" />
-                                    Searching...
+                                    <Loader2 className="animate-spin  h-5 w-5" />
+                                    <p className="pl-2 xs:hidden">Searching...</p>
                                   </span>
                                 ) : (
                                   <span className="flex items-center">
-                                    <Search className="mr-2 h-5 w-5" />
-                                    Search
+                                    <Search className=" h-5 w-5" />
+                                    <p className=" pl-2 xs:hidden">Search</p>
                                   </span>
                                 )}
                               </Button>
@@ -602,61 +504,59 @@ const TravelDealSearch = () => {
           </div>
         </div>
       </div>
-  {/* Search results */}
+      {/* Search results */}
       <div className="max-w-6xl mx-auto px-4 pb-12 ">
         {/* Results Section */}
         {searchResults.length > 0 ? (
-          <div className="mt-12">
+          <div className="mt-12" id="Cards">
             <h2 className="text-3xl font-bold text-primary mb-8 text-center">
               {searchResults.length} Amazing Deals Found
             </h2>
-            <PopupAd 
+            {/* <PopupAd 
                 className="w-64 md:w-80" 
                 intervalTime={30000} 
                 onAdClick={handleAdClick}
-              />
-              <BannerAd 
-                className="h-40 mb-8" // Custom styling using className prop
-                autoRotateInterval={4000} // 3 seconds rotation
-                onAdClick={handleAdClick}
-                maxBannersToShow={3} // Show maximum 4 banners
-              />
+              /> */}
+            <BannerAd
+              className="h-40 mb-8" // Custom styling using className prop
+              autoRotateInterval={4000} // 3 seconds rotation
+              onAdClick={handleAdClick}
+              maxBannersToShow={3} // Show maximum 4 banners
+            />
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {searchResults.map((deal) => (
                 <Card
                   key={deal.id}
-                  onClick={()=>Deal(deal.id)}
+                  onClick={() => Deal(deal.id)}
                   className="overflow-hidden transition-all hover:shadow-lg border-gray-100"
                 >
                   {/* Image Section */}
                   {deal.images && (
                     <div className="h-52 overflow-hidden relative">
-                      
-
                       <div className="h-52 w-full object-cover relative">
-                                            <Image 
-                                              src={deal.images} 
-                                              alt={deal.title || "Travel Deal"}
-                                              layout="fill"
-                                              objectFit="fit"
-                                              priority
-                                              onError={(e) => {
-                                                const target = e.currentTarget as HTMLImageElement;
-                                                target.src = "/api/placeholder/400/300"; // Fallback image
-                                              }}
-                                            />
-                                          </div>
+                        <Image
+                          src={deal.images}
+                          alt={deal.title || "Travel Deal"}
+                          layout="fill"
+                          objectFit="fit"
+                          priority
+                          onError={(e) => {
+                            const target = e.currentTarget as HTMLImageElement;
+                            target.src = "/api/placeholder/400/300"; // Fallback image
+                          }}
+                        />
+                      </div>
                       {/* Optional overlay gradient for better text visibility */}
                       <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black to-transparent opacity-30"></div>
                     </div>
                   )}
-  
+
                   <CardContent className="p-6">
                     {/* Title */}
                     <h3 className="text-xl font-bold mb-2 text-gray-800">
                       {deal.title}
                     </h3>
-  
+
                     {/* Location Info */}
                     {(deal.city ||
                       deal.state ||
@@ -676,19 +576,18 @@ const TravelDealSearch = () => {
                       </p>
                     )}
 
-{deal.description && (
-                      <p className="text-sm">
-                        {deal.description}
-                      </p>
+                    {deal.description && (
+                        <div   className="line-clamp-1 text-ellipsis overflow-hidden"  
+                        dangerouslySetInnerHTML={{ __html: deal.description }} />
                     )}
-  
+
                     {/* Price */}
                     {/* {deal.price && (
                       <p className="text-2xl font-bold text-primary mb-3">
                         ₹{deal.price.toLocaleString()}
                       </p>
                     )} */}
-  
+
                     {/* Travel Type */}
                     {/* {(deal.travelType ||
                       (deal.metadata && deal.metadata.Type)) && (
@@ -698,7 +597,7 @@ const TravelDealSearch = () => {
                         </Badge>
                       </div>
                     )} */}
-  
+
                     {/* Valid Dates */}
                     {deal.validFrom && deal.validTo && (
                       <div className="text-xs text-gray-500 mt-3">
@@ -706,8 +605,11 @@ const TravelDealSearch = () => {
                         {new Date(deal.validTo).toLocaleDateString()}
                       </div>
                     )}
-  
-                    <Button className="mt-4 w-full bg-primary hover:bg-primary/90 transition-colors duration-300"  onClick={()=>Deal(deal.id)}>
+
+                    <Button
+                      className="mt-4 w-full bg-primary hover:bg-primary/90 transition-colors duration-300"
+                      onClick={() => Deal(deal.id)}
+                    >
                       View Deal Details
                     </Button>
                   </CardContent>
