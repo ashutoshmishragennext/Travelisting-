@@ -35,6 +35,11 @@ import ImageCropper from "../shared/imagecrop/Imagecrop";
 import { useCurrentUser } from "@/hooks/auth";
 import Image from "next/image";
 import { FloatingLabelInput, FloatingLabelSelect, FloatingLabelTextarea } from "../FloatingInput";
+import dynamic from "next/dynamic";
+import "react-quill/dist/quill.snow.css";
+
+// Dynamically import ReactQuill to avoid SSR issues
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
 // Type definitions
 interface Field {
@@ -755,19 +760,22 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
                           required
                         />
                       </div>
-  
+                      
+                      {/* Replace the description textarea with ReactQuill Rich Text Editor */}
                       <div>
-                        <FloatingLabelInput
-                          id="description"
-                          type="textarea"
-                          label="Description"
-                          value={dealFormData.description}
-                          onChange={(e) =>
-                            handleBasicInputChange("description", e.target.value)
-                          }
-                          placeholder="Enter Description"
-                          required
-                        />
+                        <Label className="text-sm mb-1 block">Description</Label>
+                        <div className="min-h-[200px]">
+                          {typeof window !== 'undefined' && (
+                            <ReactQuill
+                              theme="snow"
+                              value={dealFormData.description}
+                              onChange={(content) =>
+                                handleBasicInputChange("description", content)
+                              }
+                              placeholder="Enter detailed description..."
+                            />
+                          )}
+                        </div>
                       </div>
   
                       <div>
@@ -876,6 +884,15 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
                       </div>
                     </div>
                   </div>
+  
+                  {/* Preview of HTML content */}
+                  {/* <div className="mt-4">
+                    <Label className="text-sm mb-1 block">Description Preview</Label>
+                    <div 
+                      className="border p-4 rounded-md bg-white min-h-[100px]" 
+                      dangerouslySetInnerHTML={{ __html: dealFormData.description }}
+                    />
+                  </div> */}
   
                   {/* Image Upload Section */}
                   <div className="space-y-4">
