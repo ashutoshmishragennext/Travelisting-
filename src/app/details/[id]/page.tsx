@@ -226,6 +226,7 @@ const DealDetails: React.FC = () => {
     const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
+  
 
   const displayLocation = (): string => {
     const locations = [city, state, country].filter(Boolean);
@@ -244,8 +245,10 @@ const DealDetails: React.FC = () => {
       <div className="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         {/* Deal Header */}
         <div className="bg-white rounded-lg shadow-md overflow-hidden mb-8">
-          
-          
+
+
+
+
           <div className="relative h-64 md:h-80 mt-4">
             {images ? (
               <Image 
