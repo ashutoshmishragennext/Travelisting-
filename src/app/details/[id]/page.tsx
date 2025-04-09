@@ -383,23 +383,6 @@ const DealDetails: React.FC = () => {
             {/* Carousel Advertisement */}
             <ImageCarousel images={imagePush} />
           </div>
-
-          {/* Sidebar */}
-          <div className="md:col-span-1">
-            {/* Property Details */}
-            {metadata?.starRating && (
-              <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-                <h2 className="text-xl font-bold mb-4">Property Details</h2>
-                {metadata.starRating && (
-                  <div className="mb-2">
-                    <h3 className="text-sm font-medium text-gray-500 mb-1">LOCATION</h3>
-                    <p className="text-gray-700">{metadata.starRating}</p>
-                  </div>
-                )}
-              </div>
-            )}
-
-          </div>
         </div>
       </div>
       
