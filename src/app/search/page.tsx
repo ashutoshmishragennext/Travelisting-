@@ -404,7 +404,7 @@ useEffect(() => {
           backgroundSize: "cover",
         }}
       >
-        <StickyFeaturedDeal />
+        <StickyFeaturedDeal isShowAbove={true} />
 
         <FullPopupAd />
 

@@ -28,13 +28,15 @@ interface StickyFeaturedDealProps {
   reappearDelay?: number; // Time before showing the ad again after closing, default 30000ms (30 seconds)
   onClose?: () => void;
   onAdClick?: (ad: AdItem) => void;
+  isShowAbove ?: boolean;
 }
 
 const StickyFeaturedDeal: React.FC<StickyFeaturedDealProps> = ({
   className = '',
   reappearDelay = 45000,
   onClose,
-  onAdClick
+  onAdClick,
+  isShowAbove = false
 }) => {
   const [isVisible, setIsVisible] = useState<boolean>(true);
   const [currentAd, setCurrentAd] = useState<AdItem | null>(null);
@@ -108,7 +110,7 @@ const StickyFeaturedDeal: React.FC<StickyFeaturedDealProps> = ({
   }
 
   return (
-    <div className={`fixed bottom-16 sm:bottom-2 bg-transparent left-0 right-0 flex justify-center z-50 ${className}`}>
+    <div className={`fixed ${isShowAbove ? "bottom-16" : "bottom-2"}  bg-transparent left-0 right-0 flex justify-center z-50 ${className}`}>
       <div className="max-w-[700px] w-full h-30 bg-white shadow-lg rounded-t-lg overflow-hidden relative">
         <button 
           onClick={handleClose}
