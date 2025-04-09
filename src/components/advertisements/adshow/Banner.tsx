@@ -146,11 +146,13 @@ const BannerAd: React.FC<BannerAdProps> = ({
 
   // Handle ad click
   const handleAdClick = (ad: BannerAdItem) => {
-    if (onAdClick && !ad.isLocked) {
-      onAdClick(ad);
-    } else if (ad.redirectUrl) {
-      // If no onAdClick handler but we have a redirectUrl, navigate to it
-      window.open(ad.redirectUrl, '_blank');
+     if (ad.redirectUrl) {
+      let url=ad.redirectUrl
+      if (!/^https?:\/\//i.test(ad.redirectUrl)) {
+        url = 'https://' + ad.redirectUrl;
+      }
+      
+      window.open(url, '_blank');
     }
   };
 
@@ -183,7 +185,7 @@ const BannerAd: React.FC<BannerAdProps> = ({
 
   return (
     <div className={`w-full overflow-hidden ${className}`}>
-      <div className="relative h-52 w-full bg-white shadow-md rounded overflow-hidden">
+      <div className="relative h-[120px]  w-full bg-white shadow-md rounded overflow-hidden">
         {/* Banner with dots navigation */}
         <div className="relative h-full w-full">
           {displayAds.map((ad, i) => (
@@ -193,18 +195,19 @@ const BannerAd: React.FC<BannerAdProps> = ({
               onClick={() => handleAdClick(ad)}
               style={{ cursor: ad.redirectUrl || onAdClick ? 'pointer' : 'default' }}
             >
-              <div className="h-full w-full object-cover relative">
+              <div className="h-full w-full relative flex items-center justify-center bg-gray-100">
                 <Image 
                   src={ad.imageUrl || '/api/placeholder/800/400'} 
                   alt={ad.title || 'Advertisement'}
                   layout="fill"
+                  objectFit="contain"
                   priority
                 />
               </div>
               <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent flex flex-col justify-top space-y-8 items-center pt-4">
-                <p className="text-white font-bold text-lg">{ad.title || 'Advertisement'}</p>
+                {/* <p className="text-white font-bold text-lg">{ad.title || 'Advertisement'}</p> */}
                 <div className='relative top-14'>
-                  <p className="mt-2 text-sm text-white px-10 text-center">{ad.content || 'Click to learn more'}</p>
+                  {/* <p className="mt-2 text-sm text-white px-10 text-center">{ad.content || 'Click to learn more'}</p> */}
                 </div>
               </div>
             </div>

@@ -123,14 +123,17 @@ const PopupAd: React.FC<PopupAdProps> = ({
   };
 
   // Handle ad click
-  const handleAdClick = () => {
+  const handleAdClick : any = () => {
     const currentAd = ads[currentAdIndex];
-    if (onAdClick && currentAd) {
-      onAdClick(currentAd);
-    } else if (currentAd?.redirectUrl) {
-      // If no onAdClick handler but we have a redirectUrl, navigate to it
-      window.open(currentAd.redirectUrl, '_blank');
+
+    if (currentAd?.redirectUrl) {
+      let url=currentAd?.redirectUrl
+      if (!/^https?:\/\//i.test(currentAd?.redirectUrl)) {
+        url = 'https://' + currentAd?.redirectUrl;
+      }
+      window.open(url, '_blank');
     }
+    
   };
 
   // If still loading, there are no ads, or there's an error, don't render anything
@@ -141,7 +144,7 @@ const PopupAd: React.FC<PopupAdProps> = ({
   const currentAd = ads[currentAdIndex];
 
   return isVisible ? (
-    <div className={`fixed bottom-4 right-4 bg-white rounded-lg shadow-lg p-4 z-50 max-w-sm ${className}`}>
+    <div className={`fixed bottom-4 right-4 bg-white rounded-lg shadow-lg p-4 z-50 cursor-pointer max-w-sm ${className}`}  >
       <button 
         onClick={handleClose}
         className="absolute top-2 right-2 rounded-xl bg-white p-1 text-red-500 z-10 hover:text-red-700"
@@ -150,7 +153,7 @@ const PopupAd: React.FC<PopupAdProps> = ({
         <X size={20} />
       </button>
       
-      <div className="flex flex-col">
+      <div className="flex flex-col" onClick={handleAdClick}>
         {currentAd.imageUrl && (
           <div className="relative h-40 w-full mb-3">
             <Image 
@@ -166,24 +169,20 @@ const PopupAd: React.FC<PopupAdProps> = ({
         
         <div 
           className="cursor-pointer" 
-          onClick={handleAdClick}
         >
           {currentAd.title && (
             <h3 className="font-medium text-gray-900 mb-1">{currentAd.title}</h3>
           )}
           
-          <p className="text-sm text-gray-800">{currentAd.description}</p>
+          <p className="text-sm text-gray-800">{currentAd.content}</p>
           
           {currentAd.link && (
-            <a 
-              href={currentAd.link}
+            <p 
               className="text-blue-500 text-sm mt-2 block hover:underline"
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
+              
             >
               Learn More
-            </a>
+            </p>
           )}
         </div>
       </div>

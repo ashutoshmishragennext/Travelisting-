@@ -6,6 +6,7 @@ import { useParams } from 'next/navigation';
 import PopupAd from '@/components/advertisements/adshow/Popup';
 import BannerAd from '@/components/advertisements/adshow/Banner';
 import Navbar from '@/components/shared/Gennextfooter';
+import StickyFeaturedDeal from '@/components/advertisements/adshow/FeaturedDeal';
 
 // TypeScript interfaces
 interface DealMetadata {
@@ -44,28 +45,24 @@ interface DealData {
   updatedAt: string;
 }
 
-// Advertisement Components
-interface SidebarAdProps {}
 
-const SidebarAd: React.FC<SidebarAdProps> = () => (
-  <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg shadow-md p-6 mb-8 text-white">
-    <h3 className="text-xl font-bold mb-2">Special Offer!</h3>
-    <p className="mb-4">Get an extra 10% off when you book within the next 24 hours!</p>
-    <button className="bg-white text-purple-700 hover:bg-gray-100 font-bold py-2 px-4 rounded">
-      Claim Offer
-    </button>
-  </div>
-);
 
 interface ImageCarouselProps {
-  images: string | null;
+  images: string[] | null;
 }
 
 const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
   const [currentSlide, setCurrentSlide] = useState<number>(0);
   
   // For demo purposes, using the same image multiple times
-  const imageArray = images ? [images, images, images] : [];
+  const imageArray:any = [];
+
+  if(images && images.length >0){
+    images.map((item)=>{
+      imageArray.push(item);
+    })
+  }
+
   
   if (!imageArray.length) return null;
   
@@ -73,26 +70,26 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
     <div className="relative bg-white rounded-lg shadow-md p-4 mb-8">
       <h3 className="text-xl font-bold mb-4">More Destinations</h3>
       <div className="relative h-64 overflow-hidden rounded-lg">
-        {imageArray.map((img, index) => (
+        {imageArray.map((img : any, index : any) => (
           <div 
             key={index} 
-            className={`absolute w-full h-full transition-opacity duration-500 ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}
+            className={`absolute w-96 h-full m-auto transition-opacity duration-500 ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}
           >
             <Image 
               src={img} 
               alt={`Featured destination ${index + 1}`} 
               fill
-              className="object-cover"
+              className="object-fit"
             />
-            <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-4">
+            {/* <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-4">
               <h4 className="font-bold">Featured Destination {index + 1}</h4>
               <p>Exclusive deals available now!</p>
-            </div>
+            </div> */}
           </div>
         ))}
       </div>
       <div className="flex justify-center mt-4 space-x-2">
-        {imageArray.map((_, index) => (
+        {imageArray.map((_:any, index:any) => (
           <button 
             key={index} 
             onClick={() => setCurrentSlide(index)}
@@ -142,18 +139,33 @@ const DealDetails: React.FC = () => {
   const [showPopup, setShowPopup] = useState<boolean>(false);
   const params = useParams();
   const id = params.id as string;
+  const [imagePush , setImagePush] = useState<string[]>([]);
+  const imageArray2:any = [];
+
+
+  useEffect(()=> {
+    const fetchDeals = async () => {
+      const response = await fetch("/api/deals");
+      const data = await response.json();
+      data.map((item : any) => {
+          imageArray2.push(item.images);
+      })
+      setImagePush(imageArray2);
+    }
+    fetchDeals();
+}, [])
 
   useEffect(() => {
     const fetchDealDetails = async (): Promise<void> => {
       if (!id) return;
       
       try {
-        const response = await fetch(`/api/deals?id=${id}`);
+        const response = await fetch(`/api/deals?DealId=${id}`);
         if (!response.ok) {
           throw new Error('Failed to fetch deal data');
         }
-        const data: DealData = await response.json();
-        setDeal(data);
+        const data: any = await response.json();
+        setDeal(data[0]);
       } catch (error) {
         console.error('Error fetching deal details:', error);
       } finally {
@@ -227,42 +239,59 @@ const DealDetails: React.FC = () => {
       <BannerAd 
       className=' h-52'
       />
+
+      <StickyFeaturedDeal />
+
       
       <div className="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         {/* Deal Header */}
         <div className="bg-white rounded-lg shadow-md overflow-hidden mb-8">
-          <div className="relative h-96 md:h-[500px]">
-            {images ? (
-              <Image 
-                src={images} 
-                alt={title || metadata?.propertyName || 'Travel deal'} 
-                className="object-contain"
-                fill
-                sizes="100vw"
-                priority
-              />
-            ) : (
-              <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                <span className="text-gray-500">No image available</span>
-              </div>
-            )}
-            <div className="absolute top-4 right-4 bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-bold">
-              {travelType}
-            </div>
-          </div>
-          
-          <div className="p-6">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              {title || metadata?.propertyName || 'Travel Package'}
-            </h1>
+          <div className=' flex pl-4'>
             <div className="flex items-center text-gray-600 mb-4">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
               </svg>
               <span>{displayLocation()}</span>
             </div>
+          </div>
+          
+          <div className="relative h-64 md:h-80 ">
+            {images ? (
+              <Image 
+                src={images} 
+                alt={title || metadata?.propertyName || 'Travel deal'} 
+                layout="fill"
+                objectFit="contain"
+                priority
+                fill
+              />
+            ) : (
+              <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                <span className="text-gray-500">No image available</span>
+              </div>
+            )}
+            <div className="absolute top-4 right-4 space-y-4 ">
+              <div className='bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-bold'>
+                {travelType}
+              </div>
             
-            {(price || discount) && (
+            <div className=' hidden lg:block space-y-2'>
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500">VALID FROM</h3>
+                  <p className="text-base font-medium text-gray-900">{formatDate(validFrom)}</p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500">VALID UNTIL</h3>
+                  <p className="text-base font-medium text-gray-900">{formatDate(validTo)}</p>
+                </div>
+            </div>
+            </div>
+          </div>
+          
+          <div className="p-6">
+            
+            
+            {/* {(price || discount) && (
               <div className="flex items-center mb-4">
                 {price && (
                   <span className={`text-2xl font-bold ${discount ? 'text-gray-400 line-through mr-2' : 'text-green-600'}`}>
@@ -280,9 +309,9 @@ const DealDetails: React.FC = () => {
                   </span>
                 )}
               </div>
-            )}
+            )} */}
 
-            <div className="border-t border-gray-200 pt-4 mt-4">
+            <div className=" lg:hidden block border-t border-gray-200 pt-4 mt-4">
               <div className="flex justify-between mb-4">
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">VALID FROM</h3>
@@ -323,7 +352,7 @@ const DealDetails: React.FC = () => {
             )} */}
             
             {/* Carousel Advertisement */}
-            <ImageCarousel images={images} />
+            <ImageCarousel images={imagePush} />
           </div>
 
           {/* Sidebar */}
@@ -375,17 +404,6 @@ const DealDetails: React.FC = () => {
               </div>
             )}
 
-            {/* Call to Action */}
-            <div className="bg-blue-50 rounded-lg shadow-md p-6 mb-8">
-              <h3 className="text-lg font-bold text-blue-800 mb-2">Interested in this deal?</h3>
-              <p className="text-blue-600 mb-4">Contact the travel agent for more information or to book this package.</p>
-              <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded">
-                Book Now
-              </button>
-            </div>
-            
-            {/* Sidebar Advertisement */}
-            <SidebarAd />
           </div>
         </div>
       </div>
