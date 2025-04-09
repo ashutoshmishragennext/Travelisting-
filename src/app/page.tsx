@@ -1,31 +1,47 @@
-
 "use client"
-import Hero1 from "@/components/Hero";
+import { useEffect, useState } from "react";
 import Navigation from "@/components/Navigation";
-import PlanManagement from "@/components/Plans";
-import Homebar from "@/components/search/Homebar";
-
-import FoodCarousel from "@/components/shared/Banner";
 import Footer from "@/components/shared/Gennextfooter";
-
-import Navbar from "@/components/shared/Navebar";
-import MakeMyTripClone from "@/components/shared/travlisting/Travlisting";
 import TravelDealSearch from "./search/page";
-
-// In your page/component:
-
-export default function Home() {
-  return (
-    <main className="relative">
-      {/* <NavBar /> */}
-
-      {/* <Navbar/> */}
-      <Navigation  />
+import { useSession } from "next-auth/react";
+import Homepage from "@/components/Homepage";
  
-      
-      <TravelDealSearch/>
-      
-      <Footer/>
-    </main>
-  ); 
+export default function Home() {
+  const { data: session, status } = useSession();
+  const [isClient, setIsClient] = useState(false);
+  console.log(status)
+  
+  // Use useEffect to handle client-side rendering
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // Don't render anything until client-side hydration is complete
+  if (!isClient) {
+    return <p>Loading...</p>;
+  }
+
+  // Show loading state while checking authentication
+  if (status === "loading") {
+    
+    return (<p>Loading...</p>);
+    
+  }
+
+  // If user is not authenticated, show the Homepage component
+  if (status === "authenticated") {
+    
+    return (
+      <main className="relative">
+        <Navigation />
+        <TravelDealSearch />
+        <Footer />
+      </main>
+    );
+    
+  }
+
+  // If user is authenticated, show the main application
+  return <Homepage />;
+ 
 }
