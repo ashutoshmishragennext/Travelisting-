@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import BannerAd from "@/components/advertisements/adshow/Banner";
 import StickyFeaturedDeal from "@/components/advertisements/adshow/FeaturedDeal";
+import FullPopupAd from "@/components/advertisements/adshow/FullPopUp";
 
 const TravelDealSearch = () => {
   const [dealTypes, setDealTypes] = useState<{ id: string; name: string }[]>(
@@ -384,6 +385,8 @@ const TravelDealSearch = () => {
         }}
       >
         <StickyFeaturedDeal />
+
+        <FullPopupAd />
 
         <div
           className=" inset-0 h-full mt-12 bg-black bg-opacity-0 "
