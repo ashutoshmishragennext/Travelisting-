@@ -17,6 +17,9 @@ const config: Config = {
       }
     },
     extend: {
+      screens: {
+        'xs': '500px', // custom breakpoint
+      },
       keyframes: {
         'accordion-down': {
           from: {
