@@ -11,8 +11,11 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
+import { Menu, X } from "lucide-react";
 
 export default function Homepage() {
+  const [isOpen, setIsOpen] = useState(false)
   const features = [
     {
       icon: <Globe className="h-6 w-6 text-primary" />,
@@ -75,55 +78,137 @@ export default function Homepage() {
     <div className="flex flex-col min-h-screen">
       {/* Navigation */}
       <nav className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <Link href="/">
-                <div className="flex items-center">
-                  <Image
-                    src="/logo.jpg"
-                    height={40}
-                    width={40}
-                    alt="Travelisting Logo"
-                  />
-                  <span className="ml-2 text-xl font-semibold text-primary">
-                    Travelisting
-                  </span>
-                </div>
-              </Link>
-            </div>
-            <div className="hidden md:flex items-center space-x-4">
-              {/* <Link href="/about" className="text-gray-600 hover:text-primary px-3 py-2 rounded-md">
-                About
-              </Link>
-              <Link href="/features" className="text-gray-600 hover:text-primary px-3 py-2 rounded-md">
-                Features
-              </Link>
-              <Link href="/pricing" className="text-gray-600 hover:text-primary px-3 py-2 rounded-md">
-                Pricing
-              </Link>
-              <Link href="/contact" className="text-gray-600 hover:text-primary px-3 py-2 rounded-md">
-                Contact
-              </Link> */}
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link href="/auth/login">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16">
+          {/* Logo */}
+          <div className="flex items-center">
+            <Link href="/">
+              <div className="flex items-center">
+                <Image
+                  src="/logo.jpg"
+                  height={40}
+                  width={40}
+                  alt="Travelisting Logo"
+                  className="h-8 w-8 md:h-10 md:w-10"
+                />
+                <span className="ml-2 text-lg md:text-xl font-semibold text-primary">
+                  Travelisting
+                </span>
+              </div>
+            </Link>
+          </div>
+
+          {/* Desktop Navigation Links - Hidden on mobile */}
+          <div className="hidden md:flex items-center space-x-4">
+            {/* Uncomment these if you want to use them */}
+            {/* <Link href="/about" className="text-gray-600 hover:text-primary px-3 py-2 rounded-md text-sm font-medium">
+              About
+            </Link>
+            <Link href="/features" className="text-gray-600 hover:text-primary px-3 py-2 rounded-md text-sm font-medium">
+              Features
+            </Link>
+            <Link href="/pricing" className="text-gray-600 hover:text-primary px-3 py-2 rounded-md text-sm font-medium">
+              Pricing
+            </Link>
+            <Link href="/contact" className="text-gray-600 hover:text-primary px-3 py-2 rounded-md text-sm font-medium">
+              Contact
+            </Link> */}
+          </div>
+
+          {/* Desktop Auth Buttons - Hidden on mobile */}
+          <div className="hidden md:flex items-center space-x-2 md:space-x-4">
+            <Link href="/auth/login">
+              <Button
+                variant="outline"
+                className="border-primary text-primary hover:bg-primary hover:text-white text-sm"
+              >
+                Sign In
+              </Button>
+            </Link>
+            <Link href="/auth/register">
+              <Button className="bg-primary hover:bg-primary/90 text-white text-sm">
+                Register Now
+              </Button>
+            </Link>
+          </div>
+
+          {/* Mobile menu button */}
+          <div className="md:hidden flex items-center">
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-primary focus:outline-none"
+            >
+              {isOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Menu - appears when isOpen is true */}
+      {isOpen && (
+        <div className="md:hidden bg-white pb-3 px-4">
+          <div className="flex flex-col space-y-2 pt-2">
+            {/* Uncomment these if you want mobile nav links */}
+            {/* <Link 
+              href="/about" 
+              className="text-gray-600 hover:text-primary px-3 py-2 rounded-md text-base font-medium"
+              onClick={() => setIsOpen(false)}
+            >
+              About
+            </Link>
+            <Link 
+              href="/features" 
+              className="text-gray-600 hover:text-primary px-3 py-2 rounded-md text-base font-medium"
+              onClick={() => setIsOpen(false)}
+            >
+              Features
+            </Link>
+            <Link 
+              href="/pricing" 
+              className="text-gray-600 hover:text-primary px-3 py-2 rounded-md text-base font-medium"
+              onClick={() => setIsOpen(false)}
+            >
+              Pricing
+            </Link>
+            <Link 
+              href="/contact" 
+              className="text-gray-600 hover:text-primary px-3 py-2 rounded-md text-base font-medium"
+              onClick={() => setIsOpen(false)}
+            >
+              Contact
+            </Link> */}
+
+            <div className="pt-2 border-t border-gray-200">
+              <Link 
+                href="/auth/login" 
+                className="w-full"
+                onClick={() => setIsOpen(false)}
+              >
                 <Button
                   variant="outline"
-                  className="border-primary text-primary hover:bg-primary hover:text-white"
+                  className="w-full border-primary text-primary hover:bg-primary hover:text-white mb-2"
                 >
                   Sign In
                 </Button>
               </Link>
-              <Link href="/auth/register">
-                <Button className="bg-primary hover:bg-primary/90 text-white">
+              <Link 
+                href="/auth/register" 
+                className="w-full"
+                onClick={() => setIsOpen(false)}
+              >
+                <Button className="w-full bg-primary hover:bg-primary/90 text-white">
                   Register Now
                 </Button>
               </Link>
             </div>
           </div>
         </div>
-      </nav>
+      )}
+    </nav>
 
       {/* Hero Section */}
       <section className="relative bg-gradient-to-r from-gold-100 to-indigo-50 py-20">
