@@ -331,7 +331,7 @@ const DealDetails: React.FC = () => {
                 </div>
               )}
 
-      {[city, state, country].filter(Boolean).length && (
+      {[city, state, country].filter(Boolean).length > 0 && (
           <div className=' flex'>
             <div className="flex items-center text-gray-600 mb-4">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1 text-red-300" viewBox="0 0 20 20" fill="currentColor">
@@ -360,8 +360,9 @@ const DealDetails: React.FC = () => {
             {/* Description Section */}
             <div className="bg-white rounded-lg shadow-md p-6 mb-8">
               <h2 className="text-xl font-bold mb-4">Description</h2>
-              <p className="text-gray-700 whitespace-pre-line">{description || 'No description available.'}</p>
+              <div  dangerouslySetInnerHTML={{ __html: description }} />
             </div>
+
 
             {/* Amenities Section (if available) */}
             {/* {metadata?.amenities && (

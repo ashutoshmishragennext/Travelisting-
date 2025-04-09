@@ -574,7 +574,8 @@ const TravelDealSearch = () => {
                     )}
 
                     {deal.description && (
-                      <p className="text-sm">{deal.description}</p>
+                        <div   className="line-clamp-1 text-ellipsis overflow-hidden"  
+                        dangerouslySetInnerHTML={{ __html: deal.description }} />
                     )}
 
                     {/* Price */}
