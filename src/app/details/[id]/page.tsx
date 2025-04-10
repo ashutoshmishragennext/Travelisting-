@@ -49,84 +49,97 @@ interface ImageCarouselProps {
   images: string[] | null;
 }
 
-const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
-  const [currentSlide, setCurrentSlide] = useState<number>(0);
-  const router = useRouter();
+// const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
+//   const [currentSlide, setCurrentSlide] = useState<number>(0);
+//   const router = useRouter();
   
-  // For demo purposes, using the same image multiple times
-  const imageArray: string[] = [];
-  const redirectUrl: string[] = [];
+//   // For demo purposes, using the same image multiple times
+//   const imageArray: string[] = [];
+//   const redirectUrl: string[] = [];
 
-  if (images && images.length > 0) {
-    images.forEach((item) => {
-      const parts = item.split(" ");
-      imageArray.push(parts[0]);
-      // Make sure we capture the redirect URL correctly, even if it has spaces
-      redirectUrl.push(parts.slice(1).join(" "));
-    });
-  }
+//   if (images && images.length > 0) {
+//     images.forEach((item) => {
+//       const parts = item.split(" ");
+//       imageArray.push(parts[0]);
+//       redirectUrl.push(parts[1]);
+//     });
+//   }
   
-  if (!imageArray.length) return null;
+//   if (!imageArray.length) return null;
   
-  const handleDealClick = (index: number) => {
-    const dealId = redirectUrl[index];
-    console.log("Deal id to push", dealId);
+//   const handleDealClick = (img: string) => {
+//     console.log("Image ", img);
     
-    // Use prevent default and a timeout to ensure the router has time to process
-    router.push(`/details/${dealId}`);
-  };
+//     const index = imageArray.indexOf(img);
+//     const dealId = redirectUrl[index]
 
-  // Auto-rotate images every 4 seconds
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     setCurrentSlide((prevSlide) => (prevSlide + 1) % imageArray.length);
-  //   }, 4000);
-    
-  //   // Clean up interval on component unmount
-  //   return () => clearInterval(interval);
-  // }, []);
+//     // Use prevent default and a timeout to ensure the router has time to process
+//     // router.push(`/details/${dealId}`);
+//   };
 
-  return (
-    // Container with background that spans the full width
-    <div className="bg-white w-full py-8">
-      {/* Constrained width container to create white space on larger screens */}
-      <div className="max-w-5xl mx-auto px-4">
-        {/* Centered card container */}
-        <div className="relative bg-white rounded-lg shadow-md p-6 mb-8 text-center">
-          <h3 className="text-xl font-bold mb-4">More Destinations</h3>
-          <div className="relative h-80 overflow-hidden rounded-lg">
-            {imageArray.map((img, index) => (
-              <div 
-                key={index} 
-                className={`absolute inset-0 transition-opacity duration-500 ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}
-                onClick={() => handleDealClick(index)}
-              >
-                <Image 
-                  src={img} 
-                  alt={`Featured destination ${index + 1}`} 
-                  objectFit="contain"
-                  priority
-                  fill
-                  className="cursor-pointer"
-                />
-              </div>
-            ))}
-          </div>
-          <div className="flex justify-center mt-4 space-x-2">
-            {imageArray.map((_, index) => (
-              <button 
-                key={index} 
-                onClick={() => setCurrentSlide(index)}
-                className={`w-3 h-3 rounded-full ${index === currentSlide ? 'bg-blue-600' : 'bg-gray-300'}`}
-                aria-label={`Go to slide ${index + 1}`}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+
+//   useEffect(() => {
+//       // If there are no ads or only one ad, no need for rotation
+//       if (imageArray.length <= 1) return;
+      
+//       let timeoutId: NodeJS.Timeout | null = null;
+
+//       let intervalId: NodeJS.Timeout | null = null;
+      
+//       if (imageArray.length > 1) {
+//         intervalId = setInterval(() => {
+//           setCurrentSlide((prevSlide) => (prevSlide + 1) % imageArray.length);
+//         }, 3000);
+//       }
+//       // Clean up on unmount or when dependencies change
+//       return () => {
+//         if (intervalId) clearInterval(intervalId);
+//         if (timeoutId) clearTimeout(timeoutId);
+//       };
+//     }, [ 3000, imageArray.length]);
+  
+
+//   return (
+//     // Container with background that spans the full width
+//     <div className="bg-white w-full py-8">
+//       {/* Constrained width container to create white space on larger screens */}
+//       <div className="max-w-5xl mx-auto px-4">
+//         {/* Centered card container */}
+//         <div className="relative bg-white rounded-lg shadow-md p-6 mb-8 text-center">
+//           <h3 className="text-xl font-bold mb-4">More Destinations</h3>
+//           <div className="relative h-80 overflow-hidden rounded-lg">
+//             {imageArray.map((img, index) => (
+//               <div 
+//                 key={index} 
+//                 className={`absolute inset-0 transition-opacity duration-500 ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}
+//               >
+//                 <Image 
+//                   src={img} 
+//                   alt={`Featured destination ${index + 1}`} 
+//                   objectFit="contain"
+//                   priority
+//                   fill
+//                   className="cursor-pointer"
+//                   onClick={() => handleDealClick(img)}
+//                 />
+//               </div>
+//             ))}
+//           </div>
+//           <div className="flex justify-center mt-4 space-x-2">
+//             {imageArray.map((_, index) => (
+//               <button 
+//                 key={index} 
+//                 onClick={() => setCurrentSlide(index)}
+//                 className={`w-3 h-3 rounded-full ${index === currentSlide ? 'bg-blue-600' : 'bg-gray-300'}`}
+//                 aria-label={`Go to slide ${index + 1}`}
+//               />
+//             ))}
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
 
 
 const DealDetails: React.FC = () => {
@@ -400,7 +413,9 @@ const DealDetails: React.FC = () => {
         </div>
 
         {/* More Destinations Carousel - Centered with max width */}
+        {/* { imagePush.length > 0 && 
         <ImageCarousel images={imagePush} />
+  } */}
       </div>
       
       {/* Full-screen image modal */}
