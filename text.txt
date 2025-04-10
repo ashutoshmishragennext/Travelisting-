@@ -101,7 +101,6 @@ interface CreateDealPageProps {
   onBack: (dealCreated?: boolean) => void;
 }
 
-
 export default function CreateDealPage({ onBack }: CreateDealPageProps) {
   const router = useRouter();
   const [dealTypes, setDealTypes] = useState<DealType[]>([]);
@@ -115,8 +114,7 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [uploadingImage, setUploadingImage] = useState<boolean>(false);
   const [pendingSubmit, setPendingSubmit] = useState<boolean>(false);
-  const [validationErrors, setValidationErrors] = useState<string[]>([]);
-  const [image , setImage] = useState<string>("");
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const user = useCurrentUser();
 
   // Initialize form data with default values
@@ -237,6 +235,15 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
       ...prev,
       [field]: value,
     }));
+    
+    // Clear validation error when field is edited
+    if (validationErrors[field]) {
+      setValidationErrors((prev) => {
+        const updated = { ...prev };
+        delete updated[field];
+        return updated;
+      });
+    }
   };
 
   // Handle array fields for basic info
@@ -253,6 +260,15 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
         [field]: newArray,
       };
     });
+    
+    // Clear validation error when field is edited
+    if (validationErrors[field]) {
+      setValidationErrors((prev) => {
+        const updated = { ...prev };
+        delete updated[field];
+        return updated;
+      });
+    }
   };
 
   const handleAddBasicArrayItem = (
@@ -290,6 +306,15 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
         [fieldId]: value,
       },
     }));
+    
+    // Clear validation error when field is edited
+    if (validationErrors[`metadata.${fieldId}`]) {
+      setValidationErrors((prev) => {
+        const updated = { ...prev };
+        delete updated[`metadata.${fieldId}`];
+        return updated;
+      });
+    }
   };
 
   // Handle array field changes for metadata
@@ -310,6 +335,15 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
         },
       };
     });
+    
+    // Clear validation error when field is edited
+    if (validationErrors[`metadata.${fieldId}`]) {
+      setValidationErrors((prev) => {
+        const updated = { ...prev };
+        delete updated[`metadata.${fieldId}`];
+        return updated;
+      });
+    }
   };
 
   // Add item to array field in metadata
@@ -363,7 +397,6 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
         body: formData,
       });
 
-
       if (!uploadResponse.ok) {
         throw new Error("Image upload failed: " + uploadResponse.statusText);
       }
@@ -377,6 +410,15 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
           ...prevData,
           images: result.url,
         }));
+        
+        // Clear image validation error
+        if (validationErrors.images) {
+          setValidationErrors((prev) => {
+            const updated = { ...prev };
+            delete updated.images;
+            return updated;
+          });
+        }
       } else {
         throw new Error("No URL returned from upload");
       }
@@ -389,7 +431,6 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
       );
     } finally {
       setUploadingImage(false);
-      setImage("");
     }
   };
 
@@ -403,22 +444,21 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
 
   // Validate form before submission
   const validateForm = () => {
-    const errors: string[] = [];
+    const errors: Record<string, string> = {};
 
-    // Check basic fields (except description)
-    if (!dealFormData.validTo) errors.push("Valid to date is required");
+    // Check for valid to date
+    if (!dealFormData.validTo) errors.validTo = "Valid to date is required";
     
     // Check for contact information
     if (!dealFormData.contactPhones.some(phone => phone.trim() !== "")) 
-      errors.push("At least one contact phone is required");
+      errors.contactPhones = "At least one contact phone is required";
+      
     if (!dealFormData.contactEmails.some(email => email.trim() !== "")) 
-      errors.push("At least one contact email is required");
+      errors.contactEmails = "At least one contact email is required";
     
     // Check if image is required
-    if (!dealFormData.images) { 
-      setImage("Image is required");
-      errors.push("Image is required");
-    }
+    if (!dealFormData.images) errors.images = "Cover image is required";
+    
     // Check metadata fields
     if (selectedTemplate) {
       selectedTemplate.schema.fields.forEach(field => {
@@ -426,30 +466,28 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
           const value = dealFormData.metadata[field.id];
           if (field.type === "array") {
             if (!Array.isArray(value) || !value.some(item => item.trim() !== "")) {
-              errors.push(`${field.label} is required`);
+              errors[`metadata.${field.id}`] = `${field.label} is required`;
             }
           } else if (field.type === "object") {
             if (!value || Object.keys(value).length === 0) {
-              errors.push(`${field.label} is required`);
+              errors[`metadata.${field.id}`] = `${field.label} is required`;
             }
           } else if (!value && value !== 0) {
-            errors.push(`${field.label} is required`);
+            errors[`metadata.${field.id}`] = `${field.label} is required`;
           }
         }
       });
     }
 
     setValidationErrors(errors);
-    return errors.length === 0;
+    return Object.keys(errors).length === 0;
   };
-
 
   // Submit the deal form data to the API
   const submitDealForm = async () => {
     try {
       // Validate form before submission
       if (!validateForm()) {
-        window.scrollTo(0, 0);
         return false;
       }
 
@@ -493,7 +531,6 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
       setError(
         err instanceof Error ? err.message : "An unknown error occurred"
       );
-      window.scrollTo(0, 0);
       return false;
     } finally {
       setSubmitting(false);
@@ -506,13 +543,10 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
     
     // Validate form first
     if (!validateForm()) {
-      window.scrollTo(0, 0);
       return;
     }
     
-    if (image.length > 0) {
-      return;
-    } 
+    // If there's an image and it's already uploaded, proceed with form submission
     if (dealFormData.images) {
       await submitDealForm();
     } 
@@ -528,38 +562,53 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
 
   // Render metadata field based on field type
   const renderMetadataField = (field: Field) => {
+    const errorKey = `metadata.${field.id}`;
+    const hasError = !!validationErrors[errorKey];
+    
+    const renderFieldError = () => {
+      return hasError && (
+        <div className="text-red-500 text-xs mt-1">
+          {validationErrors[errorKey]}
+        </div>
+      );
+    };
+    
     switch (field.type) {
       case "text":
         return (
-          <div className="space-y-2" key={field.id}>
+          <div className="space-y-1" key={field.id}>
             <FloatingLabelInput
               id={field.id}
               label={field.label}
               value={dealFormData.metadata[field.id] || ""}
               onChange={(e) => handleMetadataChange(field.id, e.target.value)}
               placeholder={`Enter ${field.label.toLowerCase()}`}
-              required={true}
+              required={field.required}
+              className={hasError ? "border-red-500" : ""}
             />
+            {renderFieldError()}
           </div>
         );
   
       case "textarea":
         return (
-          <div className="space-y-2" key={field.id}>
+          <div className="space-y-1" key={field.id}>
             <FloatingLabelTextarea
               id={field.id}
               label={field.label}
               value={dealFormData.metadata[field.id] || ""}
               onChange={(e) => handleMetadataChange(field.id, e.target.value)}
               placeholder={`Enter ${field.label.toLowerCase()}`}
-              required={true}
+              required={field.required}
+              className={hasError ? "border-red-500" : ""}
             />
+            {renderFieldError()}
           </div>
         );
   
       case "number":
         return (
-          <div className="space-y-2" key={field.id}>
+          <div className="space-y-1" key={field.id}>
             <FloatingLabelInput
               id={field.id}
               type="number"
@@ -569,28 +618,32 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
                 handleMetadataChange(field.id, parseFloat(e.target.value) || "")
               }
               placeholder={`Enter ${field.label.toLowerCase()}`}
-              required={true}
+              required={field.required}
+              className={hasError ? "border-red-500" : ""}
             />
+            {renderFieldError()}
           </div>
         );
   
       case "date":
         return (
-          <div className="space-y-2" key={field.id}>
+          <div className="space-y-1" key={field.id}>
             <FloatingLabelInput
               id={field.id}
               type="date"
               label={field.label}
               value={dealFormData.metadata[field.id] || ""}
               onChange={(e) => handleMetadataChange(field.id, e.target.value)}
-              required={true}
+              required={field.required}
+              className={hasError ? "border-red-500" : ""}
             />
+            {renderFieldError()}
           </div>
         );
   
       case "select":
         return (
-          <div className="space-y-2" key={field.id}>
+          <div className="space-y-1" key={field.id}>
             {(field.options ?? []).length <= 3 ? (
               <div>
                 <Label htmlFor={field.id}>
@@ -606,36 +659,41 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
                         value={option}
                         checked={dealFormData.metadata[field.id] === option}
                         onChange={() => handleMetadataChange(field.id, option)}
-                        required={true}
+                        required={field.required}
                         className="accent-blue-500"
                       />
                       <span>{option}</span>
                     </label>
                   ))}
                 </div>
+                {renderFieldError()}
               </div>
             ) : (
-              <FloatingLabelSelect
-                id={field.id}
-                label={field.label}
-                value={dealFormData.metadata[field.id] || ""}
-                onValueChange={(value) => handleMetadataChange(field.id, value)}
-                required={true}
-              >
-                <option value="">Select {field.label}</option>
-                {field.options?.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </FloatingLabelSelect>
+              <div>
+                <FloatingLabelSelect
+                  id={field.id}
+                  label={field.label}
+                  value={dealFormData.metadata[field.id] || ""}
+                  onValueChange={(value) => handleMetadataChange(field.id, value)}
+                  required={field.required}
+                  className={hasError ? "border-red-500" : ""}
+                >
+                  <option value="">Select {field.label}</option>
+                  {field.options?.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </FloatingLabelSelect>
+                {renderFieldError()}
+              </div>
             )}
           </div>
         );
   
       case "array":
         return (
-          <div className="space-y-2" key={field.id}>
+          <div className="space-y-1" key={field.id}>
             <Label>
               {field.label}
               {field.required && <span className="text-red-500">*</span>}
@@ -658,7 +716,8 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
                       )
                     }
                     placeholder={`Enter ${field.label.toLowerCase()} item`}
-                    required={true && index === 0}
+                    required={field.required && index === 0}
+                    className={hasError ? "border-red-500" : ""}
                   />
                   <Button
                     type="button"
@@ -685,20 +744,21 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
                 <Plus className="h-4 w-4 mr-2" />
                 Add {field.label} Item
               </Button>
+              {renderFieldError()}
             </div>
           </div>
         );
   
       case "object":
         return (
-          <div className="space-y-2" key={field.id}>
+          <div className="space-y-1" key={field.id}>
             <Label>
               {field.label}
               {field.required && <span className="text-red-500">*</span>}
             </Label>
-            <div className="border p-4 rounded-md bg-gray-50">
+            <div className={`border p-4 rounded-md bg-gray-50 ${hasError ? "border-red-500" : ""}`}>
               <textarea
-                className="w-full min-h-32 p-2 rounded-md font-mono text-sm"
+                className="w-full min-h-24 p-2 rounded-md font-mono text-sm"
                 value={JSON.stringify(
                   dealFormData.metadata[field.id] || {},
                   null,
@@ -714,12 +774,13 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
                   }
                 }}
                 placeholder={`Enter ${field.label.toLowerCase()} as JSON`}
-                required={true}
+                required={field.required}
               />
               <p className="text-xs text-gray-500 mt-1">
                 Enter valid JSON for this field
               </p>
             </div>
+            {renderFieldError()}
           </div>
         );
   
@@ -744,7 +805,7 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
     <div className="container mx-auto px-4">
       <Button
         variant="ghost"
-        className="mb-6 flex items-center"
+        className="mb-4 flex items-center"
         onClick={() => onBack(false)}
       >
         <ArrowLeft className="h-4 w-4 mr-2" />
@@ -752,7 +813,7 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
       </Button>
   
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-md mb-6 flex items-start">
+        <div className="bg-red-50 border border-red-200 text-red-700 p-3 rounded-md mb-4 flex items-start">
           <AlertCircle className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
           <span>{error}</span>
         </div>
@@ -771,269 +832,120 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
               )}
             </div>
   
-            <FloatingLabelSelect
-              id="dealType"
-              label="Deal Type"
-              value={selectedDealType}
-              onValueChange={handleDealTypeChange}
-              required
-              className="w-[200px]"
-            >
-              {dealTypes.map((dealType) => (
-                <option key={dealType.id} value={dealType.id}>
-                  {dealType.name}
-                </option>
-              ))}
-            </FloatingLabelSelect>
+            <div>
+              <FloatingLabelSelect
+                id="dealType"
+                label="Deal Type"
+                value={selectedDealType}
+                onValueChange={handleDealTypeChange}
+                required
+                className="w-[200px]"
+              >
+                <option value="">Select Deal Type</option>
+                {dealTypes.map((dealType) => (
+                  <option key={dealType.id} value={dealType.id}>
+                    {dealType.name}
+                  </option>
+                ))}
+              </FloatingLabelSelect>
+              {validationErrors.dealTypeDefinitionId && (
+                <div className="text-red-500 text-xs mt-1">
+                  {validationErrors.dealTypeDefinitionId}
+                </div>
+              )}
+            </div>
           </CardHeader>
   
           <CardContent className="p-4">
             {selectedDealType ? (
               selectedTemplate ? (
-                <div className="space-y-4">
-                  
-
+                <div className="space-y-3">
                   {/* Two-column layout for metadata fields */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {/* First column */}
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                       {selectedTemplate.schema.fields
                         .filter((_, index) => index % 2 === 0)
                         .sort((a, b) => a.sequence - b.sequence)
                         .map((field) => renderMetadataField(field))}
                     </div>
-
-                    {/* Image Upload Section */}
-                  <div className="space-y-4" id="Image">
-                    <Label className="text-sm">Image<span className="text-red-500">*</span></Label>
-                    <div className="space-y-2">
-                      {uploadingImage ? (
-                        <div className="flex items-center space-x-2 p-2 border rounded">
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                          <span className="text-sm">Uploading image...</span>
-                        </div>
-                      ) : (
-                        <ImageCropper
-                          onImageCropped={(croppedImage) =>
-                            handleImageUpload(croppedImage, "cover")
-                          }
-                          type="cover"
-                        />
-                        
-                      )}
-                      {image.length > 0 && (
-                          <p className=" text-red-500 text-xs">{image}</p>
-                         )}
-                    </div>
-                    </div>
-
-                    
   
                     {/* Second column */}
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                       {selectedTemplate.schema.fields
                         .filter((_, index) => index % 2 !== 0)
                         .sort((a, b) => a.sequence - b.sequence)
                         .map((field) => renderMetadataField(field))}
                     </div>
 
-                    <FloatingLabelInput
-                      id="validTo"
-                      type="date"
-                      label="Valid To"
-                      value={dealFormData.validTo}
-                      onChange={(e) => handleBasicInputChange("validTo", e.target.value)}
-                      required
-                    />
-  
-                    <div className="space-y-4">
-                      <div>
-                      <Label className="text-sm">Contact Phones<span className="text-red-500">*</span></Label>
-                        <div className="space-y-2 mt-1">
-                          {dealFormData.contactPhones.map((phone, index) => (
-                            <div key={index} className="flex gap-2">
-                              <FloatingLabelInput
-                                id={`phone-${index}`}
-                                label={`Phone ${index + 1}`}
-                                value={phone}
-                                onChange={(e) =>
-                                  handleBasicArrayItemChange(
-                                    "contactPhones",
-                                    index,
-                                    e.target.value
-                                  )
-                                }
-                                placeholder="Phone number"
-                                required={index === 0} // Only the first phone is required
-                              />
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() =>
-                                  handleRemoveBasicArrayItem(
-                                    "contactPhones",
-                                    index
-                                  )
-                                }
-                                disabled={
-                                  dealFormData.contactPhones.length <= 1
-                                }
-                              >
-                                <Trash className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          ))}
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                              handleAddBasicArrayItem("contactPhones")
-                            }
-                            className="mt-1"
-                          >
-                            <Plus className="h-4 w-4 mr-1" />
-                            Add Phone
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-  
-                    <div className="space-y-4">
-                      <div>
-                        <Label className="text-sm">Contact Emails<span className="text-red-500">*</span></Label>
-                        <div className="space-y-2 mt-1">
-                          {dealFormData.contactEmails.map((email, index) => (
-                            <div key={index} className="flex gap-2">
-                              <FloatingLabelInput
-                                id={`email-${index}`}
-                                type="email"
-                                label={`Email ${index + 1}`}
-                                value={email}
-                                onChange={(e) =>
-                                  handleBasicArrayItemChange(
-                                    "contactEmails",
-                                    index,
-                                    e.target.value
-                                  )
-                                }
-                                placeholder="Email address"
-                                required={index === 0} // Only the first email is required
-                              />
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() =>
-                                  handleRemoveBasicArrayItem(
-                                    "contactEmails",
-                                    index
-                                  )
-                                }
-                                disabled={
-                                  dealFormData.contactEmails.length <= 1
-                                }
-                              >
-                                <Trash className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          ))}
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                              handleAddBasicArrayItem("contactEmails")
-                            }
-                            className="mt-1"
-                          >
-                            <Plus className="h-4 w-4 mr-1" />
-                            Add Email
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                    
-                  </div>
-  
-                  
-
-
                     <div>
-                        <Label className="text-sm">Description (Optional)</Label>
-                        <div className="min-h-[200px] mt-1">
-                          {typeof window !== 'undefined' && (
-                            <ReactQuill
-                              theme="snow"
-                              value={dealFormData.description}
-                              onChange={(content) =>
-                                handleBasicInputChange("description", content)
-                              }
-                              className="h-40"
-                              placeholder="Enter detailed description..."
-                            />
-                          )}
-                        </div>
-                      </div>
-  
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                      {dealFormData.images && (
-                        <div className="relative border rounded-md overflow-hidden">
-                          <Image
-                            src={dealFormData.images}
-                            alt="Deal image"
-                            className="object-cover"
-                            width={200}
-                            height={200}
-                          />
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="sm"
-                            className="absolute top-1 right-1 h-7 w-7 opacity-90"
-                            onClick={handleRemoveImage}
-                          >
-                            <Trash className="h-3 w-3" />
-                          </Button>
+                      <FloatingLabelInput
+                        id="validTo"
+                        type="date"
+                        label="Valid To"
+                        value={dealFormData.validTo}
+                        onChange={(e) => handleBasicInputChange("validTo", e.target.value)}
+                        required
+                        className={validationErrors.validTo ? "border-red-500" : ""}
+                      />
+                      {validationErrors.validTo && (
+                        <div className="text-red-500 text-xs mt-1">
+                          {validationErrors.validTo}
                         </div>
                       )}
                     </div>
-                </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500 text-sm">
-                  <Info className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                  <p>Loading deal template...</p>
-                </div>
-              )
-            ) : (
-              <div className="text-center py-8 text-gray-500 text-sm">
-                <Info className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                <p>Please select a deal type to begin</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                  </div>
   
-        {/* Form Submission */}
-        <div className="flex justify-end gap-3">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => onBack(false)}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            size="sm"
-            disabled={submitting || uploadingImage || !selectedDealType || pendingSubmit}
-          >
-            {submitting || pendingSubmit ? "Creating..." : (uploadingImage ? "Uploading image..." : "Create Deal")}
-          </Button>
-        </div>
-      </form>
-    </div>
-  );
-}
+                  {/* Description section with reduced spacing */}
+                  <div className="space-y-2 mt-3">
+                    <Label className="text-sm">Description (Optional)</Label>
+                    <div className="min-h-[180px]">
+                      {typeof window !== 'undefined' && (
+                        <ReactQuill
+                          theme="snow"
+                          value={dealFormData.description}
+                          onChange={(content) =>
+                            handleBasicInputChange("description", content)
+                          }
+                          placeholder="Enter detailed description..."
+                        />
+                      )}
+                    </div>
+                  </div>
+  
+                  {/* Contact information section with more compact layout */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+                    <div>
+                      <Label className="text-sm">Contact Phones<span className="text-red-500">*</span></Label>
+                      <div className="space-y-2 mt-1">
+                        {dealFormData.contactPhones.map((phone, index) => (
+                          <div key={index} className="flex gap-2">
+                            <FloatingLabelInput
+                              id={`phone-${index}`}
+                              label={`Phone ${index + 1}`}
+                              value={phone}
+                              onChange={(e) =>
+                                handleBasicArrayItemChange(
+                                  "contactPhones",
+                                  index,
+                                  e.target.value
+                                )
+                              }
+                              placeholder="Phone number"
+                              required={index === 0}
+                              className={validationErrors.contactPhones ? "border-red-500" : ""}
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() =>
+                                handleRemoveBasicArrayItem(
+                                  "contactPhones",
+                                  index
+                                )
+                              }
+                              disabled={
+                                dealFormData.contactPhones.length <= 1
+
+

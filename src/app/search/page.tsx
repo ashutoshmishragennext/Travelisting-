@@ -669,7 +669,7 @@ useEffect(() => {
       </div>
 
       {/* Mobile Bottom Navigation Bar - Only visible on small screens */}
-      {isMobile && (
+      {isMobile && !pathname?.includes("/dashboard") && (
   <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-50">
     <div className="flex justify-around items-center h-16">
       <button
