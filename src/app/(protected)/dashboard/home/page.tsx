@@ -49,6 +49,11 @@ export default function AdminDashboard() {
     return () => window.removeEventListener('resize', checkIfMobile);
   }, []);
 
+  
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}, [activeComponent]);
+
   if (status === 'unauthenticated') {
     router.push('/auth/login');
   }
@@ -69,9 +74,6 @@ export default function AdminDashboard() {
     { id: 'advertisement', label: 'Advertisement', icon: <RiAdvertisementLine className="h-5 w-5" /> },
   ];
 
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}, [activeComponent]);
 
   // Render the appropriate component based on selection
   const renderMainContent = () => {
