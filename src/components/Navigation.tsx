@@ -128,7 +128,7 @@ export default function CombinedLayout() {
         <div className="flex items-center justify-between p-4">
           {/* Logo Section */}
           <div className="flex items-center space-x-2">
-            <Link href="/">
+            <Link href="/dashboard">
               <div className="flex space-x-1">
                 <Image src="/logo.jpg" height={40} width={40} alt="Logo" />
                 <h1 className="text-primary text-2xl font-normal">
