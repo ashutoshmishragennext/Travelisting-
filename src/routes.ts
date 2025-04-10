@@ -1,6 +1,6 @@
 import { Role } from "@/schemas";
 
-export const DEFAULT_LOGIN_REDIRECT: string = "/";
+export const DEFAULT_LOGIN_REDIRECT: string = "/dashboard";
 
 // Prefix for API authentication routes.
 export const apiAuthPrefix: string = "/api/auth";

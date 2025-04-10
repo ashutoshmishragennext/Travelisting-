@@ -30,7 +30,7 @@ export default function AdminDashboard() {
   const user = useCurrentUser();
   
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [activeComponent, setActiveComponent] = useState('profile');
+  const [activeComponent, setActiveComponent] = useState('search');
   const [isMobile, setIsMobile] = useState(false);
   
   // Check if window is defined (client-side) and set initial mobile state

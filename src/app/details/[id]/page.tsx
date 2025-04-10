@@ -1,6 +1,6 @@
 "use client"
 import { useEffect, useState } from 'react';
-import Navigation from '@/components/pages/Navbar';
+import Navigation from "@/components/Navigation";
 import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import PopupAd from '@/components/advertisements/adshow/Popup';
@@ -51,60 +51,59 @@ interface ImageCarouselProps {
 
 // const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
 //   const [currentSlide, setCurrentSlide] = useState<number>(0);
+//   const [imageArray, setImageArray] = useState<string[]>([]);
+//   const [redirectUrls, setRedirectUrls] = useState<string[]>([]);
 //   const router = useRouter();
   
-//   // For demo purposes, using the same image multiple times
-//   const imageArray: string[] = [];
-//   const redirectUrl: string[] = [];
-
-//   if (images && images.length > 0) {
-//     images.forEach((item) => {
-//       const parts = item.split(" ");
-//       imageArray.push(parts[0]);
-//       redirectUrl.push(parts[1]);
-//     });
-//   }
-  
-//   if (!imageArray.length) return null;
-  
-//   const handleDealClick = (img: string) => {
-//     console.log("Image ", img);
-    
-//     const index = imageArray.indexOf(img);
-//     const dealId = redirectUrl[index]
-
-//     // Use prevent default and a timeout to ensure the router has time to process
-//     // router.push(`/details/${dealId}`);
-//   };
-
-
+//   // Parse image URLs and redirect URLs - ALWAYS execute this hook
 //   useEffect(() => {
-//       // If there are no ads or only one ad, no need for rotation
-//       if (imageArray.length <= 1) return;
+//     if (images && images.length > 0) {
+//       const imgArr: string[] = [];
+//       const redArr: string[] = [];
       
-//       let timeoutId: NodeJS.Timeout | null = null;
-
-//       let intervalId: NodeJS.Timeout | null = null;
+//       images.forEach((item) => {
+//         const parts = item.split(" ");
+//         if (parts[0] && parts[0].trim() !== "") {
+//           imgArr.push(parts[0]);
+//           redArr.push(parts[1] || "");
+//         }
+//       });
       
-//       if (imageArray.length > 1) {
-//         intervalId = setInterval(() => {
-//           setCurrentSlide((prevSlide) => (prevSlide + 1) % imageArray.length);
-//         }, 3000);
-//       }
-//       // Clean up on unmount or when dependencies change
-//       return () => {
-//         if (intervalId) clearInterval(intervalId);
-//         if (timeoutId) clearTimeout(timeoutId);
-//       };
-//     }, [ 3000, imageArray.length]);
+//       setImageArray(imgArr);
+//       setRedirectUrls(redArr);
+//     }
+//   }, [images]);
   
+//   // Handle slide rotation - ALWAYS execute this hook
+//   useEffect(() => {
+//     // Only set up interval if we have multiple images
+//     if (imageArray.length <= 1) return;
+    
+//     const intervalId = setInterval(() => {
+//       setCurrentSlide((prevSlide) => (prevSlide + 1) % imageArray.length);
+//     }, 3000);
+    
+//     // Clean up on unmount
+//     return () => {
+//       clearInterval(intervalId);
+//     };
+//   }, [imageArray.length]);
+  
+//   const handleDealClick = (index: number) => {
+//     if (index >= 0 && redirectUrls[index]) {
+//       console.log("Redirecting to:", redirectUrls[index], " ",index);
+//       router.push(`/details/${redirectUrls[index]}`);
+//     }
+//   };
+  
+//   // Early return AFTER all hooks are called
+//   if (imageArray.length === 0) {
+//     return null;
+//   }
 
 //   return (
-//     // Container with background that spans the full width
 //     <div className="bg-white w-full py-8">
-//       {/* Constrained width container to create white space on larger screens */}
 //       <div className="max-w-5xl mx-auto px-4">
-//         {/* Centered card container */}
 //         <div className="relative bg-white rounded-lg shadow-md p-6 mb-8 text-center">
 //           <h3 className="text-xl font-bold mb-4">More Destinations</h3>
 //           <div className="relative h-80 overflow-hidden rounded-lg">
@@ -113,28 +112,33 @@ interface ImageCarouselProps {
 //                 key={index} 
 //                 className={`absolute inset-0 transition-opacity duration-500 ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}
 //               >
-//                 <Image 
-//                   src={img} 
-//                   alt={`Featured destination ${index + 1}`} 
-//                   objectFit="contain"
-//                   priority
-//                   fill
-//                   className="cursor-pointer"
-//                   onClick={() => handleDealClick(img)}
-//                 />
+//                 {img && (
+//                   <Image 
+//                     src={img} 
+//                     alt={`Featured destination ${index + 1}`} 
+//                     fill
+//                     style={{ objectFit: "contain" }}
+//                     priority={index === currentSlide}
+//                     className="cursor-pointer"
+//                     onClick={() => handleDealClick(index)}
+//                   />
+//                 )}
 //               </div>
 //             ))}
 //           </div>
-//           <div className="flex justify-center mt-4 space-x-2">
-//             {imageArray.map((_, index) => (
-//               <button 
-//                 key={index} 
-//                 onClick={() => setCurrentSlide(index)}
-//                 className={`w-3 h-3 rounded-full ${index === currentSlide ? 'bg-blue-600' : 'bg-gray-300'}`}
-//                 aria-label={`Go to slide ${index + 1}`}
-//               />
-//             ))}
-//           </div>
+          
+//           {imageArray.length > 1 && (
+//             <div className="flex justify-center mt-4 space-x-2">
+//               {imageArray.map((_, index) => (
+//                 <button 
+//                   key={index} 
+//                   onClick={() => setCurrentSlide(index)}
+//                   className={`w-3 h-3 rounded-full ${index === currentSlide ? 'bg-blue-600' : 'bg-gray-300'}`}
+//                   aria-label={`Go to slide ${index + 1}`}
+//                 />
+//               ))}
+//             </div>
+//           )}
 //         </div>
 //       </div>
 //     </div>
@@ -152,17 +156,47 @@ const DealDetails: React.FC = () => {
   const [imagePush, setImagePush] = useState<string[]>([]);
   const imageArray2:any = [];
 
-  useEffect(() => {
-    const fetchDeals = async () => {
-      const response = await fetch("/api/deals");
-      const data = await response.json();
-      data.map((item : any) => {
-          imageArray2.push(item.images+" "+item.id);
-      })
-      setImagePush(imageArray2);
-    }
-    fetchDeals();
-  }, [])
+// Inside DealDetails component:
+
+// Update the useEffect where you're fetching deals
+// useEffect(() => {
+//   let isMounted = true;
+
+//   const fetchDeals = async () => {
+//     try {
+//       const response = await fetch("/api/deals");
+      
+//       if (!response.ok) {
+//         throw new Error(`Failed to fetch deals: ${response.status}`);
+//       }
+      
+//       const data = await response.json();
+      
+//       if (!isMounted) return;
+      
+//       // Make sure we're dealing with an array
+//       if (Array.isArray(data)) {
+//         const validImages = data
+//           .filter(item => item.images && item.images.trim() !== "" && item.id)
+//           .map(item => `${item.images} ${item.id}`);
+        
+//         console.log("Valid carousel images:", validImages);
+//         setImagePush(validImages);
+//       } else {
+//         console.error("Expected array but got:", typeof data);
+//       }
+//     } catch (error) {
+//       console.error("Error fetching deals for carousel:", error);
+//     }
+//   };
+  
+//   fetchDeals();
+  
+//   // Cleanup function
+//   return () => {
+//     isMounted = false;
+//   };
+// }, []);
 
   useEffect(() => {
     const fetchDealDetails = async (): Promise<void> => {
