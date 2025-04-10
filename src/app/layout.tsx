@@ -23,8 +23,8 @@ export const metadata: Metadata = {
   ],
   viewport: "minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, viewport-fit=cover",
   icons: [
-    { rel: "apple-touch-icon", url: "/logo.png" },
-    { rel: "icon", url: "/logo.png" },
+    { rel: "apple-touch-icon", url: "/logo-512.png" },
+    { rel: "icon", url: "/logo-512.png" },
   ]
  
 };
@@ -43,8 +43,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <head>
           <meta name="theme-color" content="#ffffff"/>
           <link rel="manifest" href="/manifest.json"/>
-          <link rel="icon" href="/logo.png" />
-          <link rel="apple-touch-icon" href="/logo.png" />
+          <link rel="icon" href="/logo-512.png" />
+          <link rel="apple-touch-icon" href="/logo-512.png" />
         </head>
         <body>
           {children}
