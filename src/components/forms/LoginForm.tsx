@@ -138,7 +138,7 @@ function LoginForm({ api }: any) {
 
           <Link
             href="/auth/register"
-            className="text-secondary underline hover:text-primary"
+            className="text-primary underline hover:underline-offset-2"
           >
             Register
           </Link>
