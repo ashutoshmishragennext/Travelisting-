@@ -45,105 +45,7 @@ interface DealData {
   updatedAt: string;
 }
 
-interface ImageCarouselProps {
-  images: string[] | null;
-}
 
-// const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
-//   const [currentSlide, setCurrentSlide] = useState<number>(0);
-//   const [imageArray, setImageArray] = useState<string[]>([]);
-//   const [redirectUrls, setRedirectUrls] = useState<string[]>([]);
-//   const router = useRouter();
-  
-//   // Parse image URLs and redirect URLs - ALWAYS execute this hook
-//   useEffect(() => {
-//     if (images && images.length > 0) {
-//       const imgArr: string[] = [];
-//       const redArr: string[] = [];
-      
-//       images.forEach((item) => {
-//         const parts = item.split(" ");
-//         if (parts[0] && parts[0].trim() !== "") {
-//           imgArr.push(parts[0]);
-//           redArr.push(parts[1] || "");
-//         }
-//       });
-      
-//       setImageArray(imgArr);
-//       setRedirectUrls(redArr);
-//     }
-//   }, [images]);
-  
-//   // Handle slide rotation - ALWAYS execute this hook
-//   useEffect(() => {
-//     // Only set up interval if we have multiple images
-//     if (imageArray.length <= 1) return;
-    
-//     const intervalId = setInterval(() => {
-//       setCurrentSlide((prevSlide) => (prevSlide + 1) % imageArray.length);
-//     }, 3000);
-    
-//     // Clean up on unmount
-//     return () => {
-//       clearInterval(intervalId);
-//     };
-//   }, [imageArray.length]);
-  
-//   const handleDealClick = (index: number) => {
-//     if (index >= 0 && redirectUrls[index]) {
-//       console.log("Redirecting to:", redirectUrls[index], " ",index);
-//       router.push(`/details/${redirectUrls[index]}`);
-//     }
-//   };
-  
-//   // Early return AFTER all hooks are called
-//   if (imageArray.length === 0) {
-//     return null;
-//   }
-
-//   return (
-//     <div className="bg-white w-full py-8">
-//       <div className="max-w-5xl mx-auto px-4">
-//         <div className="relative bg-white rounded-lg shadow-md p-6 mb-8 text-center">
-//           <h3 className="text-xl font-bold mb-4">More Destinations</h3>
-//           <div className="relative h-80 overflow-hidden rounded-lg">
-//             {imageArray.map((img, index) => (
-//               <div 
-//                 key={index} 
-//                 className={`absolute inset-0 transition-opacity duration-500 ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}
-//               >
-//                 {img && (
-//                   <Image 
-//                     src={img} 
-//                     alt={`Featured destination ${index + 1}`} 
-//                     fill
-//                     style={{ objectFit: "contain" }}
-//                     priority={index === currentSlide}
-//                     className="cursor-pointer"
-//                     onClick={() => handleDealClick(index)}
-//                   />
-//                 )}
-//               </div>
-//             ))}
-//           </div>
-          
-//           {imageArray.length > 1 && (
-//             <div className="flex justify-center mt-4 space-x-2">
-//               {imageArray.map((_, index) => (
-//                 <button 
-//                   key={index} 
-//                   onClick={() => setCurrentSlide(index)}
-//                   className={`w-3 h-3 rounded-full ${index === currentSlide ? 'bg-blue-600' : 'bg-gray-300'}`}
-//                   aria-label={`Go to slide ${index + 1}`}
-//                 />
-//               ))}
-//             </div>
-//           )}
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
 
 
 const DealDetails: React.FC = () => {
@@ -153,50 +55,6 @@ const DealDetails: React.FC = () => {
   const [showImageModal, setShowImageModal] = useState<boolean>(false);
   const params = useParams();
   const id = params.id as string;
-  const [imagePush, setImagePush] = useState<string[]>([]);
-  const imageArray2:any = [];
-
-// Inside DealDetails component:
-
-// Update the useEffect where you're fetching deals
-// useEffect(() => {
-//   let isMounted = true;
-
-//   const fetchDeals = async () => {
-//     try {
-//       const response = await fetch("/api/deals");
-      
-//       if (!response.ok) {
-//         throw new Error(`Failed to fetch deals: ${response.status}`);
-//       }
-      
-//       const data = await response.json();
-      
-//       if (!isMounted) return;
-      
-//       // Make sure we're dealing with an array
-//       if (Array.isArray(data)) {
-//         const validImages = data
-//           .filter(item => item.images && item.images.trim() !== "" && item.id)
-//           .map(item => `${item.images} ${item.id}`);
-        
-//         console.log("Valid carousel images:", validImages);
-//         setImagePush(validImages);
-//       } else {
-//         console.error("Expected array but got:", typeof data);
-//       }
-//     } catch (error) {
-//       console.error("Error fetching deals for carousel:", error);
-//     }
-//   };
-  
-//   fetchDeals();
-  
-//   // Cleanup function
-//   return () => {
-//     isMounted = false;
-//   };
-// }, []);
 
   useEffect(() => {
     const fetchDealDetails = async (): Promise<void> => {
@@ -218,7 +76,6 @@ const DealDetails: React.FC = () => {
 
     fetchDealDetails();
     
-    // Show popup after 5 seconds
     const popupTimer = setTimeout(() => {
       setShowPopup(true);
     }, 5000);
@@ -226,7 +83,6 @@ const DealDetails: React.FC = () => {
     return () => clearTimeout(popupTimer);
   }, [id]);
 
-  // Handle image modal
   const toggleImageModal = () => {
     setShowImageModal(!showImageModal);
   };
@@ -300,7 +156,8 @@ const DealDetails: React.FC = () => {
                     src={images} 
                     alt={title || metadata?.propertyName || 'Travel deal'} 
                     layout="fill"
-                    objectFit="contain"
+                    objectFit="fit"
+                    className=' w-[80%]'                    
                     priority
                     fill
                   />
@@ -386,37 +243,51 @@ const DealDetails: React.FC = () => {
           </div>
           
           {/* Mobile-only contact section */}
-          <div className="p-6 lg:hidden">
-            <div className="border-t border-gray-200 pt-4 mt-4">
-              <div className="flex justify-between">
-                <div>
-                  {contactPhones && contactPhones.length > 0 && (
-                    <div className="mb-2">
+          <div className=" px-6 pb-6 md:hidden">
+          {contactPhones && contactPhones.length > 0 && (
+                    <div className=" fixed right-0  ">
                       {contactPhones.map((phone, index) => (
-                        <div key={index} className="flex items-center mb-2">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                        <div key={index} className="flex bg-gray-200 items-center mb-2 rotate-90 p-2 rounded-l-lg">
+                          <a href={`tel:${phone}`}>
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 mr-2 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
                             <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
                           </svg>
-                          <a href={`tel:${phone}`} className="text-blue-600 hover:underline">Phone</a>
+                          </a>
                         </div>
                       ))}
                     </div>
                   )}
                   
                   {contactEmails && contactEmails.length > 0 && (
-                    <div>
+                    <div className=' fixed right-0 mt-12 '>
                       {contactEmails.map((email, index) => (
-                        <div key={index} className="flex items-center mb-2">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                        <div key={index} className=" bg-gray-200  flex items-center mb-2 rotate-90  p-2 rounded-r-lg">
+                          <a href={`mailto:${email}`}>
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 mr-2 text-green-600" viewBox="0 0 20 20" fill="currentColor">
                             <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
                             <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
                           </svg>
-                          <a href={`mailto:${email}`} className="text-blue-600 hover:underline">Email</a>
+                          </a>
+                          {/* <a href={`mailto:${email}`} className="text-blue-600 hover:underline">Email</a> */}
                         </div>
                       ))}
                     </div>
                   )}
 
+            <div className="border-t border-gray-200 pt-4 mt-4">
+              <div className="flex justify-between">
+                
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500">VALID UNTIL</h3>
+                  <p className="text-base font-medium text-gray-900">{formatDate(validTo)}</p>
+                  
+                </div>
+                <div>
+
+                <div className="bg-blue-500 text-white px-4 py-2 mt-2 rounded-full text-xs font-bold">
+                    {travelType}
+                  </div>
+                  
                   {[city, state, country].filter(Boolean).length > 0 && (
                     <div className="flex">
                       <div className="flex items-center text-gray-600 mb-4">
@@ -427,13 +298,6 @@ const DealDetails: React.FC = () => {
                       </div>
                     </div>
                   )}
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500">VALID UNTIL</h3>
-                  <p className="text-base font-medium text-gray-900">{formatDate(validTo)}</p>
-                  <div className="bg-blue-500 text-white px-4 py-2 mt-2 rounded-full text-sm font-bold">
-                    {travelType}
-                  </div>
                 </div>
               </div>
             </div>
@@ -446,10 +310,6 @@ const DealDetails: React.FC = () => {
           <div dangerouslySetInnerHTML={{ __html: description }} />
         </div>
 
-        {/* More Destinations Carousel - Centered with max width */}
-        {/* { imagePush.length > 0 && 
-        <ImageCarousel images={imagePush} />
-  } */}
       </div>
       
       {/* Full-screen image modal */}
@@ -465,7 +325,7 @@ const DealDetails: React.FC = () => {
               </svg>
             </button>
             {images && (
-              <div className="relative w-full h-5/6">
+              <div className="relative w-full h-[90%]">
                 <Image 
                   src={images} 
                   alt={title || metadata?.propertyName || 'Travel deal'} 

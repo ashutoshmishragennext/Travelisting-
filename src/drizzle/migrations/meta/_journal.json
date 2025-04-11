@@ -169,6 +169,13 @@
       "when": 1744005187312,
       "tag": "0023_graceful_grandmaster",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1744361352352,
+      "tag": "0024_chunky_havok",
+      "breakpoints": true
     }
   ]
 }

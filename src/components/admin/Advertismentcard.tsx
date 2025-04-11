@@ -12,6 +12,7 @@ type AdTypeFormProps = {
     description: string;
     price: string;
     image: string;
+    timePeriod : string;
     width: string;
     height: string;
     createdBy: string;
@@ -20,6 +21,7 @@ type AdTypeFormProps = {
     name: string;
     description: string;
     price: string;
+    timePeriod : string;
     image: string;
     width: string;
     height: string;
@@ -67,6 +69,19 @@ const AdTypeForm = ({ formData, setFormData, isEditing, handleSubmit, handleCanc
             />
           </div>
           
+          <div className="space-y-2">
+            <Label htmlFor="price">Valid Duration</Label>
+            <Input
+              id="timePeriod"
+              name="timePeriod"
+              type="text"
+              value={formData.timePeriod}
+              onChange={handleChange}
+              placeholder="duration in 1D1M1Y"
+              required
+            />
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="price">Price (Rs)</Label>
             <Input

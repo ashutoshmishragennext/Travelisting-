@@ -18,9 +18,9 @@ export async function GET(req: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, description, createdBy ,price,height, width } = body;
+    const { name, description, createdBy ,price,height, width,timePeriod } = body;
 
-    if (!name || !description  || !createdBy || !price || !height || !width) {
+    if (!name || !description  || !createdBy || !price || !height || !width || timePeriod) {
       return NextResponse.json(
         { message: "All fields are required." },
         { status: 400 }
@@ -34,6 +34,7 @@ export async function POST(request: NextRequest) {
         description,
         createdBy,
         price,
+        timePeriod,
         height,
         width,
       })

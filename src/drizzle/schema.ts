@@ -153,6 +153,7 @@ export const AdvertisementDefinitionTable = pgTable(
     price: text("price").default("1000").notNull(),
     height: text("height"),
     width: text("width"),
+    timePeriod : text("time_period"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   }

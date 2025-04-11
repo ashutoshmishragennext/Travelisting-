@@ -43,7 +43,7 @@ export async function PUT(
   try {
     const id = params.id;
     const body = await request.json();
-    const { name, description, price, width, height } = body;
+    const { name, description, price, width, height,timePeriod } = body;
 
     if (!name) {
       return NextResponse.json(
@@ -60,6 +60,7 @@ export async function PUT(
         price,
         width,
         height,
+        timePeriod,
         updatedAt: new Date(),
       })
       .where(eq(AdvertisementDefinitionTable.id, id))

@@ -33,6 +33,7 @@ interface Advertisement {
   description: string;
   image: string;
   price: string;
+  timePeriod : string;
   createdBy: string;
   createdAt: string;
   updatedAt: string;
@@ -81,40 +82,41 @@ const AdvertisementSelector = () => {
     name: " ",
     description: " ",
     image: "",
-    redirectUrl: "", // Add this line
+    redirectUrl: "", 
 
   });
   const [customPopupAd, setCustomPopupAd] = useState<CustomAd>({
     name: " ",
     description: " ",
     image: "",
-    redirectUrl: "", // Add this line
+    redirectUrl: "", 
 
   });
   const [customSidebarAd, setCustomSidebarAd] = useState<CustomAd>({
     name: " ",
     description: " ",
     image: "",
-    redirectUrl: "", // Add this line
+    redirectUrl: "", 
 
   });
   const [customFeaturedAd, setCustomFeaturedAd] = useState<CustomAd>({
     name: " ",
     description: " ",
     image: "",
-    redirectUrl: "", // Add this line
+    redirectUrl: "", 
 
   });
   const [customNotificationAd, setCustomNotificationAd] = useState<CustomAd>({
     name: " ",
     description: " ",
     image: "",
-    redirectUrl: "", // Add this line
+    redirectUrl: "", 
 
   });
 
   const [openForms, setOpenForms] = useState<Record<string, boolean>>({});
 
+  // Open close content
   const toggleAdForm = (type: string) => {
     setOpenForms((prev) => ({
       ...prev,
@@ -128,6 +130,14 @@ const AdvertisementSelector = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeBannerIndex, setActiveBannerIndex] = useState(0);
+  const [activeSection, setActiveSection] = useState<'myAds' | 'buyAds' | null>('myAds');
+  const [days, setDays] = useState({
+    BANNER : '',
+    NOTIFICATION : '',
+    SIDEBAR : "",
+    FEATURE : "",
+    POPUP : ""
+  });
   const router = useRouter();
 
   const handleImageUpload = async (croppedImage: string, type: string) => {
@@ -170,8 +180,6 @@ const AdvertisementSelector = () => {
     }
   };
 
-  // Fetch advertisements data and user's existing ads
-  // Modify the useEffect where you fetch data to create the correct mapping
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -255,17 +263,10 @@ const AdvertisementSelector = () => {
           });
           setUserAdMap(adMap);
 
-          // Set bought status based on user's existing ads
           userAdsData.data.forEach((ad: any) => {
             const adType = adIdToTypeMap[ad.AdvertisementTypeId] || ad.type;
             setAdBoughtStatus(adType, true);
 
-            // if (ad.title || ad.content || ad.imageUrl || ad.redirectUrl) {
-            //   updateCustomAdContent(adType, "name", ad.title || "");
-            //   updateCustomAdContent(adType, "description", ad.content || "");
-            //   updateCustomAdContent(adType, "image", ad.imageUrl || "");
-            //   updateCustomAdContent(adType, "redirectUrl", ad.redirectUrl || ""); // Add this line
-            // }
           });
         }
 
@@ -303,15 +304,13 @@ const AdvertisementSelector = () => {
     }
   };
 
-  // Handle advertisement type selection
+  // Handle Price for advertisements
   const toggleAdType = (type: string) => {
     // Check if ad is already bought
     if (isAdBought(type)) {
       return;
     }
-
     let initialPrice = 0;
-
     if (selectedTypes.includes(type)) {
       setSelectedTypes(selectedTypes.filter((t) => t !== type));
       initialPrice -= Number(
@@ -553,30 +552,12 @@ const AdvertisementSelector = () => {
     const type = type2.toUpperCase();
     const customAd = getCustomAdContent(type);
     const userAd = userAdMap[type];
-
+    
     return (
       <div className="space-y-4 mb-6">
-        {/* <div>
-          <label className="block text-sm font-medium mb-1">Title</label>
-          <Input
-            value={customAd.name}
-            onChange={(e) =>
-              updateCustomAdContent(type, "name", e.target.value)
-            }
-            placeholder={`Enter your ${formatAdTypeName(type)} title`}
-          />
-        </div> */}
-        {/* <div>
-          <label className="block text-sm font-medium mb-1">Description</label>
-          <Textarea
-            value={customAd.description}
-            onChange={(e) =>
-              updateCustomAdContent(type, "description", e.target.value)
-            }
-            placeholder={`Enter your ${formatAdTypeName(type)} description`}
-            rows={3}
-          />
-        </div> */}
+        
+        
+      
         <div>
           <label className="block text-sm font-medium mb-1">Redirect URL</label>
           <Input
@@ -644,7 +625,7 @@ const AdvertisementSelector = () => {
           Update {formatAdTypeName(type)} Advertisement
         </Button>
         {userAd && (
-          <div className="text-xs text-gray-500 mt-1">
+          <div className="text-xs text-gray-500 mt-1 font-bold">
             <p>Active until: {new Date(userAd.endDate).toLocaleDateString()}</p>
           </div>
         )}
@@ -652,11 +633,42 @@ const AdvertisementSelector = () => {
     );
   };
 
+  const calculateDays = (timePeriod: string | undefined): number => {
+    if (!timePeriod) return 0;
+
+    const dayMatch = timePeriod.match(/(\d+)D/);
+    const monthMatch = timePeriod.match(/(\d+)M/);
+    const yearMatch = timePeriod.match(/(\d+)Y/);
+
+    const days = dayMatch ? parseInt(dayMatch[1]) : 0;
+    const months = monthMatch ? parseInt(monthMatch[1]) : 0;
+    const years = yearMatch ? parseInt(yearMatch[1]) : 0;
+
+    return days + (months * 30) + (years * 365);
+};
+
+  const getValidity = (type2 : string): number => {
+    const type = type2.toUpperCase();
+    const adDays = advertisements.find(
+      (item) => item.name.trim().toUpperCase() === type
+    )?.timePeriod;
+
+    const actualDays = calculateDays(adDays);
+
+
+    return actualDays;
+  }
+
   // Render different ad type previews
   const renderAdPreview = (type2: string) => {
     const type = type2.toUpperCase();
     const ad = isAdBought(type)  ? getCustomAdContent(type) : getAdByType(type);
     if (!ad) return null;
+
+    const adDefination = advertisements.find(
+      (item) => item.name.trim().toUpperCase() === type
+    )?.description;
+
 
     // Get default image from ad definition when no custom image is available
     let defaultAdImage = "";
@@ -677,6 +689,12 @@ const AdvertisementSelector = () => {
     switch (type) {
       case "BANNER":
         return (
+
+          <div>
+            <div className=" p-4 flex flex-col ">
+                <label className="block text-sm font-medium mb-1">Description</label>
+                <div>{adDefination}</div>
+              </div>
           <div
             className={`w-full overflow-hidden ${
               isAdBought(type) ? "hover:opacity-90 transition-opacity" : ""
@@ -691,6 +709,8 @@ const AdvertisementSelector = () => {
                   <Lock size={16} className="text-gray-600" />
                 )}
               </div>
+
+              
 
               {/* Banner with dots navigation instead of horizontal slider */}
               <div className="relative h-full w-full">
@@ -755,11 +775,21 @@ const AdvertisementSelector = () => {
               </div>
             </div>
           </div>
+          </div>
+
         );
 
       case "POPUP ADVERTISEMENT":
       case "POPUP":
         return (
+
+          
+          <div>
+            <div className=" p-4 flex flex-col ">
+                <label className="block text-sm font-medium mb-1">Description</label>
+                <div>{adDefination}</div>
+              </div>
+
           <div
             className={` ${
               isAdBought(type) ? "hover:opacity-90 transition-opacity" : ""
@@ -801,10 +831,18 @@ const AdvertisementSelector = () => {
               </div>
             </div>
           </div>
+          </div>
+
         );
 
       case "SIDEBAR":
         return (
+          
+          <div>
+            <div className=" p-4 flex flex-col ">
+                <label className="block text-sm font-medium mb-1">Description</label>
+                <div>{adDefination}</div>
+              </div>
           <div
             className={` ${
               isAdBought(type) ? "hover:opacity-90 transition-opacity" : ""
@@ -853,17 +891,24 @@ const AdvertisementSelector = () => {
               </div>
             </div>
           </div>
+          </div>
         );
 
       case "FEATURED DEAL":
       case "FEATURED":
         return (
+          
+          <div>
+            <div className=" p-4 flex flex-col ">
+                <label className="block text-sm font-medium mb-1">Description</label>
+                <div>{adDefination}</div>
+              </div>
           <div
             className={` ${
               isAdBought(type) ? "hover:opacity-90 transition-opacity" : ""
             }  w-[970px] ` }
           >
-            <div className="w-full h-64 relative bg-gray-50 rounded-lg overflow-hidden">
+            <div className="w-full h-full relative bg-gray-50 rounded-lg overflow-hidden">
               {/* Show lock/unlock icon */}
               <div className="absolute top-2 right-2 z-10 bg-white/80 rounded-full p-2">
                 {isAdBought(type) ? (
@@ -873,7 +918,7 @@ const AdvertisementSelector = () => {
                 )}
               </div>
 
-              <div className="h-[120px] w-[970px] object-cover relative">
+              <div className="h-[120px] w-[970px] object-cover relative my-2">
                 <Image
                   src={image}
                   alt={title}
@@ -887,23 +932,23 @@ const AdvertisementSelector = () => {
                   <span className="bg-blue-600 text-white px-2 py-1 rounded text-xs inline-block w-fit mb-2">
                     FEATURED
                   </span>
-                  <h3 className="text-white font-bold text-xl text-center -translate-y-1">
-                    {title}
-                  </h3>
-                </div>
-                <div className="flex-1 flex flex-col justify-around">
-                  <p className="text-white/90 text-sm mt-1 px-8 text-center">
-                    {description}
-                  </p>
-                  <Button className="mt-3 w-fit">Learn More</Button>
+                  
                 </div>
               </div>
             </div>
           </div>
+          </div>
+
         );
 
       case "NOTIFICATION":
         return (
+          
+          <div>
+            <div className=" p-4 flex flex-col ">
+                <label className="block text-sm font-medium mb-1">Description</label>
+                <div>{adDefination}</div>
+              </div>
           <div
             className={` ${
               isAdBought(type) ? "hover:opacity-90 transition-opacity" : ""
@@ -948,6 +993,8 @@ const AdvertisementSelector = () => {
               </p>
             </div>
           </div>
+          </div>
+
         );
 
       default:
@@ -975,9 +1022,7 @@ const AdvertisementSelector = () => {
     }
   };
 
-  // Format advertisement name for display
   const formatAdTypeName = (typeName: string) => {
-    // Convert "POPUP ADVERTISEMENT" to "Popup Advertisement" for display
     return typeName
       .toLowerCase()
       .split(" ")
@@ -985,156 +1030,192 @@ const AdvertisementSelector = () => {
       .join(" ");
   };
 
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Advertisement Management</h1>
 
+// Add this function to toggle sections
+const toggleSection = (section: 'myAds' | 'buyAds') => {
+  setActiveSection(prev => prev === section ? null : section);
+};
 
-      {/* Advertisement type selector buttons */}
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">Advertisement Types</h2>
-        <div className="flex flex-wrap gap-2">
+return (
+  <div className="container mx-auto px-4 py-8">
+    <div className="flex gap-4 mb-6 max-w-64">
+      <Button 
+        variant={activeSection === 'myAds' ? 'default' : 'outline'} 
+        onClick={() => toggleSection('myAds')}
+        className="flex-1"
+      >
+        My Advertisements
+      </Button>
+      <Button 
+        variant={activeSection === 'buyAds' ? 'default' : 'outline'} 
+        onClick={() => toggleSection('buyAds')}
+        className="flex-1"
+      >
+        Buy Advertisements
+      </Button>
+    </div>
+
+    {/* My Ads Section */}
+    {activeSection === 'myAds' && (
+      <div className="mb-8 animate-fadeIn">
+        <h2 className="text-xl font-semibold mb-4">
+          Your Purchased Advertisements
+        </h2>
+        
+        {/* Buttons for purchased ads */}
+        <div className="flex flex-wrap gap-2 mb-6">
+          {adTypes.map((type) => 
+            isAdBought(type) && (
+              <Button
+                key={type}
+                variant={openForms[type] ? "default" : "outline"}
+                onClick={() => toggleAdForm(type) }
+                className="min-w-32"
+              >
+                <Unlock size={16} className="mr-2 text-green-600" />
+                {formatAdTypeName(type)}
+              </Button>
+            )
+          )}
+        </div>
+        
+        {/* Display selected ad details */}
+        <div className="grid grid-cols-1 gap-8">
+          {adTypes.map(
+            (type) =>
+              isAdBought(type) && openForms[type] && (
+                <div key={type} className="p-4 border rounded-lg relative">
+                  <h3 className="font-semibold mb-3 flex items-center">
+                    <Unlock
+                      size={16}
+                      className="mr-2 text-green-600"
+                    />
+                    {formatAdTypeName(type)} Advertisement
+                  </h3>
+
+                  <div className="mb-6">
+                    <h4 className="font-medium mb-3">Preview</h4>
+                    <div className="cursor-pointer">
+                      {renderAdPreview(type)}
+                    </div>
+                  </div>
+
+                  <div className="mt-4 border-t pt-4">
+                    <h4 className="font-medium mb-3">Edit Advertisement</h4>
+                    {renderAdConfigForm(type)}
+                  </div>
+                </div>
+              )
+          )}
+        </div>
+        
+        {!adTypes.some(type => isAdBought(type)) && (
+          <div className="text-center py-8 text-gray-500">
+            You haven't purchased any advertisements yet.
+          </div>
+        )}
+      </div>
+    )}
+
+    {/* Buy Ads Section */}
+    {activeSection === 'buyAds' && (
+      <div className="mb-8 animate-fadeIn">
+        <h2 className="text-xl font-semibold mb-4">Available Advertisement Types</h2>
+        
+        {/* Buttons for available ads */}
+        <div className="flex flex-wrap gap-2 mb-6">
           {adTypes.map((type) => (
-            <Button
-              key={type}
-              variant={
-                isAdBought(type)
-                  ? "default"
-                  : selectedTypes.includes(type)
-                  ? "default"
-                  : "outline"
-              }
-              onClick={() => toggleAdType(type)}
-              className={`min-w-32 ${
-                type.toLocaleLowerCase().includes("email") ? "hidden" : ""
-              } ${isAdBought(type) ? "bg-green-600 hover:bg-green-700" : ""}`}
-              disabled={isAdBought(type)}
-            >
-              {isAdBought(type) ? (
-                <>
-                  <Unlock size={16} className="mr-2" />
-                  {formatAdTypeName(type)}
-                </>
-              ) : (
-                <>
-                  {selectedTypes.includes(type) ? (
-                    ""
-                  ) : (
+            !isAdBought(type) && (
+              <Button
+                key={type}
+                variant={selectedTypes.includes(type) ? "default" : "outline"}
+                onClick={() => toggleAdType(type)}
+                className={`min-w-32 ${
+                  type.toLocaleLowerCase().includes("email") ? "hidden" : ""
+                }`}
+              >
+                {selectedTypes.includes(type) ? (
+                  formatAdTypeName(type)
+                ) : (
+                  <>
                     <Lock size={16} className="mr-2" />
-                  )}
-                  {formatAdTypeName(type)}
-                </>
-              )}
-            </Button>
+                    {formatAdTypeName(type)}
+                  </>
+                )}
+              </Button>
+            )
           ))}
         </div>
-      </div>
 
-      {selectedTypes.length > 0 && (
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle>Your Selection</CardTitle>
-            <CardDescription>
-              You've selected {selectedTypes.length} advertisement type
-              {selectedTypes.length !== 1 ? "s" : ""}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ul className="list-disc pl-5 space-y-1">
-              {selectedTypes.map((type) => (
-                <li key={type}>{getAdByType(type)?.name}</li>
-              ))}
-            </ul>
-          </CardContent>
-          <CardFooter className="flex flex-wrap justify-between gap-4">
-            <AdvertisementPayment
-              selectedTypes={selectedTypes.map((type) => {
-                const ad = advertisements.find(
-                  (item) => item.name.trim().toUpperCase() === type
-                );
-                return ad?.id || ""; // Return the ID of the found advertisement or empty string if not found
-              })}
-              totalPrice={Number(totalPrice)}
-              getAdByType={getAdByType}
-              onPaymentSuccess={handlePaymentSuccess}
-              onPaymentError={handlePaymentError}
-              isTotalHide = {false}
-            />
-          </CardFooter>
-        </Card>
-      )}
+        {/* Selected ads payment forms and payment sections */}
+        {selectedTypes.length > 0 && (
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle>Your Selection</CardTitle>
+              <CardDescription>
+                You've selected {selectedTypes.length} advertisement type
+                {selectedTypes.length !== 1 ? "s" : ""}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="list-disc pl-5 space-y-1">
+                {selectedTypes.map((type) => (
+                  <li key={type} className=" font-bold">{getAdByType(type)?.name} <span className="font-normal">(Valid for : {getValidity(type)} Days)</span></li>
+                ))}
+              </ul>
+            </CardContent>
+            <CardFooter className="flex flex-wrap justify-between gap-4">
+              <AdvertisementPayment
+                selectedTypes={selectedTypes.map((type) => {
+                  const ad = advertisements.find(
+                    (item) => item.name.trim().toUpperCase() === type
+                  );
+                  return ad?.id || "";
+                })}
+                totalPrice={Number(totalPrice)}
+                getAdByType={getAdByType}
+                onPaymentSuccess={handlePaymentSuccess}
+                onPaymentError={handlePaymentError}
+                isTotalHide={false}
+              />
+            </CardFooter>
+          </Card>
+        )}
 
-      {/* Purchased ads section */}
-      {(bannerBought ||
-        popupBought ||
-        sidebarBought ||
-        featuredBought ||
-        notificationBought) && (
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-4 mt-8">
-            Your Purchased Advertisements
-          </h2>
-          <div className="grid grid-cols-1 gap-8">
-            {adTypes.map(
-              (type) =>
-                isAdBought(type) && (
-                  <div key={type} className="p-4 border rounded-lg relative">
-                    <h3 className="font-semibold mb-3 flex items-center">
-                      <Unlock
-                        size={16}
-                        className="mr-2 text-green-600 cursor-pointer"
-                        onClick={() => toggleAdForm(type)}
-                      />
-                      {formatAdTypeName(type)} Advertisement
-                    </h3>
-
-                    <div className="mb-6">
-                      <h4 className="font-medium mb-3">Preview</h4>
-                      <div
-                        className="cursor-pointer"
-                        onClick={() => toggleAdForm(type)}
-                      >
-                        {renderAdPreview(type)}
-                      </div>
+        {/* Preview section for selected but not purchased ads */}
+        {selectedTypes.length > 0 && advertisements.length > 0 && (
+          <div className="mb-8 mt-8">
+            <h2 className="text-xl font-semibold mb-4">
+              Selected Advertisement Previews
+            </h2>
+            <div className="grid grid-cols-1 gap-8">
+              {selectedTypes.map(
+                (type) =>
+                  !isAdBought(type) && (
+                    <div key={type} className="p-4 border rounded-lg relative">
+                      <h3 className="font-semibold mb-3 flex items-center">
+                        <Lock size={16} className="mr-2 text-gray-600" />
+                        {getAdByType(type)?.name}
+                      </h3>
+                      {renderAdPreview(type)}
                     </div>
-
-                    {openForms[type] && (
-                      <div className="mt-4 border-t pt-4">
-                        <h4 className="font-medium mb-3">Edit Advertisement</h4>
-                        {renderAdConfigForm(type)}
-                      </div>
-                    )}
-                  </div>
-                )
-            )}
+                  )
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
+    )}
 
-      {/* Preview section for selected but not purchased ads */}
-      {selectedTypes.length > 0 && advertisements.length > 0 && (
-        <div className="mb-8 mt-8">
-          <h2 className="text-xl font-semibold mb-4">
-            Selected Advertisement Previews
-          </h2>
-          <div className="grid grid-cols-1 gap-8">
-            {selectedTypes.map(
-              (type) =>
-                !isAdBought(type) && (
-                  <div key={type} className="p-4 border rounded-lg relative">
-                    <h3 className="font-semibold mb-3 flex items-center">
-                      <Lock size={16} className="mr-2 text-gray-600" />
-                      {getAdByType(type)?.name}
-                    </h3>
-                    {renderAdPreview(type)}
-                  </div>
-                )
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
+    {/* Show a message if no section is selected */}
+    {!activeSection && (
+      <div className="text-center py-16 text-gray-500">
+        <h2 className="text-xl font-semibold mb-4">Advertisement Management</h2>
+        <p>Please select "My Ads" to view and manage your purchased advertisements, or "Buy Ads" to browse available ad types.</p>
+      </div>
+    )}
+  </div>
+);
 };
 
 export default AdvertisementSelector;

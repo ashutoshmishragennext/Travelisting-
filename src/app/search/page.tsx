@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/select";
 import { Loader2, MapPin, Search } from "lucide-react";
 import Image from "next/image";
-import { useRouter , usePathname  } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import BannerAd from "@/components/advertisements/adshow/Banner";
 import StickyFeaturedDeal from "@/components/advertisements/adshow/FeaturedDeal";
@@ -72,23 +72,23 @@ const TravelDealSearch = () => {
   const [selectedTab, setSelectedTab] = useState("Flights");
 
   // Add this with your other useState declarations
-const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
-// Add this useEffect to detect mobile screens
-useEffect(() => {
-  const checkIfMobile = () => {
-    setIsMobile(window.innerWidth < 640); // 640px is the 'sm' breakpoint in Tailwind
-  };
-  
-  // Set initial value
-  checkIfMobile();
-  
-  // Add event listener for window resize
-  window.addEventListener('resize', checkIfMobile);
-  
-  // Cleanup
-  return () => window.removeEventListener('resize', checkIfMobile);
-}, []);
+  // Add this useEffect to detect mobile screens
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth < 640); // 640px is the 'sm' breakpoint in Tailwind
+    };
+
+    // Set initial value
+    checkIfMobile();
+
+    // Add event listener for window resize
+    window.addEventListener("resize", checkIfMobile);
+
+    // Cleanup
+    return () => window.removeEventListener("resize", checkIfMobile);
+  }, []);
   // Fetch all available deal types
   const fetchDealTypes = async () => {
     try {
@@ -228,8 +228,10 @@ useEffect(() => {
 
       if (data.success) {
         setSearchResults(data.deals);
-          setTimeout(() => {
-          document.getElementById("Cards")?.scrollIntoView({ behavior: "smooth" });
+        setTimeout(() => {
+          document
+            .getElementById("Cards")
+            ?.scrollIntoView({ behavior: "smooth" });
         }, 100);
       } else {
         setError(data.error || "Search failed");
@@ -247,12 +249,11 @@ useEffect(() => {
     fetchDealTypes();
   }, []);
 
-
   const renderMetadataFields = () => {
     if (!metadataSchema || !metadataSchema.schema?.fields) return null;
 
     return (
-      <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-0 bg-white">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-0 bg-white">
         {metadataSchema.schema.fields.map((field) => {
           const value = formData.metadata?.[field.id] || "";
 
@@ -265,9 +266,9 @@ useEffect(() => {
               return (
                 <div
                   key={field.id}
-                  className="mb-4 bg-white bg-opacity-90 rounded xs:p-3 xs:border"
+                  className="mb-4 bg-white bg-opacity-90 rounded sm:p-3 sm:border"
                 >
-                  <label className="  xs:block hidden text-sm font-medium text-gray-700 mb-1">
+                  <label className="  sm:block hidden text-sm font-medium text-gray-700 mb-1">
                     {field.label}
                     {field.required && (
                       <span className="text-red-500 ml-1">*</span>
@@ -333,57 +334,102 @@ useEffect(() => {
               );
 
             case "select":
-              return (
-                <div
-                  key={field.id}
-                  className="mb-4 bg-white bg-opacity-90 rounded xs:p-3 xs:border"
-                >
-                  <label className="xs:block hidden text-sm font-medium text-gray-700 mb-1">
-                    {field.label}
-                    {field.required && (
-                      <span className="text-red-500 ml-1">*</span>
-                    )}
-                  </label>
-                  <Select
-                    value={value}
-                    onValueChange={(newValue) =>
-                      handleSelectChange(newValue, field.id)
-                    }
-                  >
-                    <SelectTrigger className="w-full bg-transparent border-gray-300">
-                      <SelectValue placeholder={`Select ${field.label}`} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {field.options?.map((option) => (
-                        <SelectItem key={option} value={option}>
-                          {option}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              );
+              // Use radio buttons if there are exactly two options
+              if (field.options?.length === 2) {
+                // Set default value to first option if no value is selected
+                const currentValue = value || field.options[0];
 
+                  if (!value && field.options?.length === 2) {
+                    handleSelectChange(field.options[1], field.id);
+                  }
+
+                return (
+                  <div
+                    key={field.id}
+                    className="mb-4 bg-white bg-opacity-90 rounded sm:p-3 sm:border"
+                  >
+                    <label className="sm:block hidden text-sm font-medium text-gray-700 mb-1">
+                      {field.label}
+                      {field.required && (
+                        <span className="text-red-500 ml-1">*</span>
+                      )}
+                    </label>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {/* Create a new array with first and second elements swapped */}
+                      {[...field.options].map((option, index, array) => {
+                        if (index === 0) {
+                          option = array[1];
+                        } else if (index === 1) {
+                          option = array[0];
+                        }
+
+                        return (
+                          <div key={option} className="flex items-center">
+                            <input
+                              type="radio"
+                              id={`${field.id}-${option}`}
+                              name={`metadata.${field.id}`}
+                              value={option}
+                              checked={currentValue === option}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  handleSelectChange(option, field.id);
+                                }
+                              }}
+                              className="mr-2"
+                              required={field.required}
+                            />
+                            <label
+                              htmlFor={`${field.id}-${option}`}
+                              className="text-sm text-gray-700"
+                            >
+                              {option}
+                            </label>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              } else {
+                // Use dropdown for more than two options
+                return (
+                  <div
+                    key={field.id}
+                    className="mb-4 bg-white bg-opacity-90 rounded sm:p-3 sm:border"
+                  >
+                    <label className="sm:block hidden text-sm font-medium text-gray-700 mb-1">
+                      {field.label}
+                      {field.required && (
+                        <span className="text-red-500 ml-1">*</span>
+                      )}
+                    </label>
+                    <Select
+                      value={value}
+                      onValueChange={(newValue) =>
+                        handleSelectChange(newValue, field.id)
+                      }
+                    >
+                      <SelectTrigger className="w-full bg-transparent border-gray-300">
+                        <SelectValue placeholder={`Select ${field.label}`} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {field.options?.map((option) => (
+                          <SelectItem key={option} value={option}>
+                            {option}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                );
+              }
             default:
               return null;
           }
         })}
       </div>
     );
-  };
-
-  const handleTabChange = (tab: string) => {
-    setSelectedTab(tab);
-    // Find the deal type that matches the selected tab
-    const matchingDealType = dealTypes.find(
-      (dealType) =>
-        dealType.name.toLowerCase() === tab.toLowerCase() ||
-        (tab === "Flight Deals" && dealType.name.toLowerCase().includes("deal"))
-    );
-
-    if (matchingDealType) {
-      handleDealTypeSelect(matchingDealType.id);
-    }
   };
 
   const icons = ["✈️", "🏨", "💰", "📦"];
@@ -404,9 +450,11 @@ useEffect(() => {
           backgroundSize: "cover",
         }}
       >
-        <StickyFeaturedDeal isShowAbove={true} />
+        {dealTypes && metadataSchema &&
+        <StickyFeaturedDeal isShowAbove={true} />}
 
-        <FullPopupAd />
+          {dealTypes && metadataSchema &&
+        <FullPopupAd />}
 
         <div
           className=" inset-0 h-full mt-12 bg-black bg-opacity-0 "
@@ -420,7 +468,7 @@ useEffect(() => {
             {/* Navigation Tabs */}
             <div className="flex justify-center max-w-3xl border-primary mx-auto mt-12 z-50">
               {isLoadingDealTypes ? (
-                <div className="p-4 text-white flex items-center">
+                <div className="p-4 text-primary flex items-center">
                   <Loader2 className="h-5 w-5 mr-3 animate-spin" />
                   Loading deal types...
                 </div>
@@ -457,7 +505,7 @@ useEffect(() => {
                                   selectedDealType === dealType.id
                                     ? "bg-primary text-white"
                                     : "bg-white bg-opacity-90 text-primary hover:bg-opacity-100"
-                                } px-2 xs:px-4 md:px-8 py-4 flex items-center justify-center transition-colors duration-200 rounded-lg `}
+                                } px-2 sm:px-4 md:px-8 py-4 flex items-center justify-center transition-colors duration-200 rounded-lg `}
                               >
                                 <span className="mr-2">
                                   {dealType.name
@@ -485,7 +533,7 @@ useEffect(() => {
                         <div className=" bg-white p-6 pb-0 rounded-lg text-gray-800">
                           <form
                             onSubmit={handleSubmit}
-                            className=" xs:flex space-x-4 items-start mb-4"
+                            className=" sm:flex space-x-4 items-start mb-4"
                           >
                             {renderMetadataFields()}
 
@@ -498,12 +546,14 @@ useEffect(() => {
                                 {isLoading ? (
                                   <span className="flex items-center">
                                     <Loader2 className="animate-spin  h-5 w-5" />
-                                    <p className="pl-2 xs:hidden">Searching...</p>
+                                    <p className="pl-2 sm:hidden">
+                                      Searching...
+                                    </p>
                                   </span>
                                 ) : (
                                   <span className="flex items-center">
                                     <Search className=" h-5 w-5" />
-                                    <p className=" pl-2 xs:hidden">Search</p>
+                                    <p className=" pl-2 sm:hidden">Search</p>
                                   </span>
                                 )}
                               </Button>
@@ -597,8 +647,10 @@ useEffect(() => {
                     )}
 
                     {deal.description && (
-                        <div   className="line-clamp-1 text-ellipsis overflow-hidden"  
-                        dangerouslySetInnerHTML={{ __html: deal.description }} />
+                      <div
+                        className="line-clamp-1 text-ellipsis overflow-hidden"
+                        dangerouslySetInnerHTML={{ __html: deal.description }}
+                      />
                     )}
 
                     {/* Price */}
@@ -670,35 +722,38 @@ useEffect(() => {
 
       {/* Mobile Bottom Navigation Bar - Only visible on small screens */}
       {isMobile && !pathname?.includes("/dashboard") && (
-  <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-50">
-    <div className="flex justify-around items-center h-16">
-      <button
-        onClick={() => {router.push("/")}}
-        className={`flex flex-col items-center justify-center p-2 flex-1 ${
-          pathname === "/" 
-            ? 'text-primary font-medium'
-            : 'text-gray-500 hover:text-gray-700'
-        }`}
-      >
-        <Search className="h-5 w-5 mb-1" />
-        <span className="text-xs">Search</span>
-      </button>
-      
-      <button
-        onClick={() => {router.push("/dashboard")}}
-        className={`flex flex-col items-center justify-center p-2 flex-1 ${
-          pathname?.includes("/dashboard")
-            ? 'text-primary font-medium'
-            : 'text-gray-500 hover:text-gray-700'
-        }`}
-      >
-        <LuPackageSearch className="h-5 w-5 mb-1" />
-        <span className="text-xs">List Deal</span>
-      </button>
-    </div>
-  </div>
-)}
+        <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-50">
+          <div className="flex justify-around items-center h-16">
+            <button
+              onClick={() => {
+                router.push("/");
+              }}
+              className={`flex flex-col items-center justify-center p-2 flex-1 ${
+                pathname === "/"
+                  ? "text-primary font-medium"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              <Search className="h-5 w-5 mb-1" />
+              <span className="text-xs">Search</span>
+            </button>
 
+            <button
+              onClick={() => {
+                router.push("/dashboard");
+              }}
+              className={`flex flex-col items-center justify-center p-2 flex-1 ${
+                pathname?.includes("/dashboard")
+                  ? "text-primary font-medium"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              <LuPackageSearch className="h-5 w-5 mb-1" />
+              <span className="text-xs">List Deal</span>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

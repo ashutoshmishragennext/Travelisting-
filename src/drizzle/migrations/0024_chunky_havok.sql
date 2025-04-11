@@ -1,0 +1,1 @@
+ALTER TABLE "advertise_type_definitions" ADD COLUMN "time_period" text;

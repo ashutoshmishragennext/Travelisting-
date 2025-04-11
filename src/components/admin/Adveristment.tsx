@@ -26,6 +26,7 @@ type AdvertisementType = {
   name: string;
   description: string;
   price: string;
+  timePeriod : string;
   image?: string;
   width: string;
   height: string;
@@ -47,6 +48,7 @@ const AdvertisementDefinitionPage = () => {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
+    timePeriod : '',
     price: '1000',
     image: '',
     width: '800',
@@ -105,6 +107,7 @@ const AdvertisementDefinitionPage = () => {
       name: '',
       description: '',
       price: '1000',
+      timePeriod : '',
       image: '',
       width: '800',
       height: '600',
@@ -121,6 +124,7 @@ const AdvertisementDefinitionPage = () => {
       description: ad.description,
       price: ad.price,
       image: ad.image || '',
+      timePeriod : ad.timePeriod,
       width: ad.width,
       height: ad.height,
       createdBy: ad.createdBy,
@@ -179,6 +183,7 @@ const AdvertisementDefinitionPage = () => {
         price: formData.price,
         image: formData.image,
         width: formData.width,
+        timePeriod : formData.timePeriod,
         height: formData.height,
         createdBy: user?.id, 
       };
@@ -206,6 +211,7 @@ const AdvertisementDefinitionPage = () => {
             name: formData.name,
             description: formData.description,
             price: formData.price,
+            timePeriod : formData.timePeriod,
             image: formData.image,
             width: formData.width,
             height: formData.height,
@@ -240,6 +246,7 @@ const AdvertisementDefinitionPage = () => {
           description: newAd.description || '',
           price: newAd.price || '1000',
           image: newAd.image || '',
+          timePeriod : newAd.timePeriod,
           width: newAd.width || '800',
           height: newAd.height || '600',
           createdAt: newAd.createdAt,

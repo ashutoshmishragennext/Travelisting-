@@ -28,7 +28,8 @@ interface StickyFeaturedDealProps {
   reappearDelay?: number; // Time before showing the ad again after closing, default 30000ms (30 seconds)
   onClose?: () => void;
   onAdClick?: (ad: AdItem) => void;
-  isShowAbove ?: boolean;
+  isShowAbove?: boolean;
+  initialDelay?: number; // Time before showing the ad for the first time, default 20000ms (20 seconds)
 }
 
 const StickyFeaturedDeal: React.FC<StickyFeaturedDealProps> = ({
@@ -36,9 +37,11 @@ const StickyFeaturedDeal: React.FC<StickyFeaturedDealProps> = ({
   reappearDelay = 45000,
   onClose,
   onAdClick,
-  isShowAbove = false
+  isShowAbove = false,
+  initialDelay = 8000
 }) => {
-  const [isVisible, setIsVisible] = useState<boolean>(true);
+  const [isVisible, setIsVisible] = useState<boolean>(false); // Start with not visible
+  const [isFirstLoad, setIsFirstLoad] = useState<boolean>(true);
   const [currentAd, setCurrentAd] = useState<AdItem | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -66,7 +69,16 @@ const StickyFeaturedDeal: React.FC<StickyFeaturedDealProps> = ({
             // Select a random featured deal
             const randomIndex = Math.floor(Math.random() * featuredDeals.length);
             setCurrentAd(featuredDeals[randomIndex]);
-            setIsVisible(true);
+            
+            // Set initial delay for first appearance
+            if (isFirstLoad) {
+              setTimeout(() => {
+                setIsVisible(true);
+                setIsFirstLoad(false);
+              }, initialDelay);
+            } else {
+              setIsVisible(true);
+            }
           }
         } else {
           throw new Error('Failed to fetch advertisements');
@@ -80,7 +92,7 @@ const StickyFeaturedDeal: React.FC<StickyFeaturedDealProps> = ({
     };
     
     fetchAds();
-  }, []);
+  }, [initialDelay, isFirstLoad]);
 
   // Handle close button click
   const handleClose = () => {
@@ -110,7 +122,7 @@ const StickyFeaturedDeal: React.FC<StickyFeaturedDealProps> = ({
   }
 
   return (
-    <div className={`fixed ${isShowAbove ? "bottom-16" : "bottom-2"} lg:bottom-2  bg-transparent left-0 right-0 flex justify-center z-50 ${className}`}>
+    <div className={`fixed ${isShowAbove ? "bottom-16" : "bottom-2"} sm:bottom-2  bg-transparent left-0 right-0 flex justify-center z-50 ${className}`}>
       <div className="max-w-[700px] w-full h-30 bg-white shadow-lg rounded-t-lg overflow-hidden relative">
         <button 
           onClick={handleClose}
