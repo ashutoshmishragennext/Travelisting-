@@ -101,6 +101,11 @@ interface CreateDealPageProps {
   onBack: (dealCreated?: boolean) => void;
 }
 
+interface ProfileData {
+  primaryContactPhone : string;
+  primaryContactEmail : string;
+}
+
 
 export default function CreateDealPage({ onBack }: CreateDealPageProps) {
   const router = useRouter();
@@ -117,9 +122,8 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
   const [pendingSubmit, setPendingSubmit] = useState<boolean>(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [image , setImage] = useState<string>("");
-  const [profile,setProfile]=useState();
+  const [profile,setProfile]=useState<ProfileData | null>(null);
   const user = useCurrentUser();
-  console.log("profile",profile);
   
 
   // Initialize form data with default values
@@ -138,8 +142,8 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
       new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
       "yyyy-MM-dd"
     ),
-    contactPhones: [""],
-    contactEmails: [""],
+    contactPhones: [],
+    contactEmails: [],
     dealTypeDefinitionId: "",
     metadata: {},
     images: "",
@@ -160,6 +164,7 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
     submitPendingForm();
   }, [pendingSubmit, uploadingImage, dealFormData.images]);
 
+  
   // Fetch deal types and metadata
   useEffect(() => {
     const fetchData = async () => {
@@ -184,8 +189,15 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
         if (!ProfileResponce.ok) {
           throw new Error("Failed to fetch metadata");
         }
-        const Profile = await ProfileResponce.json();
+        const Profile : any = await ProfileResponce.json();
         setProfile(Profile[0])
+        if (Profile[0] && Profile[0].primaryContactPhone && Profile[0].primaryContactEmail) {
+          setDealFormData((prevData) => ({
+            ...prevData,
+            contactPhones: [Profile[0].primaryContactPhone],
+            contactEmails: [Profile[0].primaryContactEmail],
+          }));
+        }
         setDealTypes(dealTypesData.dealTypes);
         setMetadata(metadataData.metadata);
       } catch (err) {
