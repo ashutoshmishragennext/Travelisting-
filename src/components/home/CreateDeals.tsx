@@ -804,16 +804,31 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
 
                   {/* Two-column layout for metadata fields */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* First column */}
-                    <div className="space-y-4">
+                    <div>
+                     {/* First column */}
+
+                    <div className="space-y-4 mb-4">
                       {selectedTemplate.schema.fields
                         .filter((_, index) => index % 2 === 0)
                         .sort((a, b) => a.sequence - b.sequence)
                         .map((field) => renderMetadataField(field))}
                     </div>
+                                         {/* Second column */}
+                    <div className="space-y-4">
+                      {selectedTemplate.schema.fields
+                        .filter((_, index) => index % 2 !== 0)
+                        .sort((a, b) => a.sequence - b.sequence)
+                        .map((field) => renderMetadataField(field))}
+                    </div>
+                    </div>
+                    
                      
+                  
+                    <div className=" space-y-4">
+
+                      
                          {/* Image Upload Section */}
-                  <div className="space-y-4" id="Image">
+                  <div className="space-y-2 lg:space-y-4" id="Image">
                     <Label className="text-sm">Image<span className="text-red-500">*</span></Label>
                     <div className="space-y-2">
                       {uploadingImage ? (
@@ -835,8 +850,6 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
                          )}
                     </div>
                     </div>
-                  
-
                     <FloatingLabelInput
                       id="validTo"
                       type="date"
@@ -844,18 +857,12 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
                       value={dealFormData.validTo}
                       onChange={(e) => handleBasicInputChange("validTo", e.target.value)}
                       required
-                    />
-  
-                    {/* Second column */}
-                    <div className="space-y-4">
-                      {selectedTemplate.schema.fields
-                        .filter((_, index) => index % 2 !== 0)
-                        .sort((a, b) => a.sequence - b.sequence)
-                        .map((field) => renderMetadataField(field))}
+                    />                  
                     </div>
-
-                  
+                  </div>
   
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Phones */}
                     <div className="space-y-4">
                       <div>
                       <Label className="text-sm">Contact Phones<span className="text-red-500">*</span></Label>
@@ -909,7 +916,7 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
                         </div>
                       </div>
                     </div>
-  
+                      {/* Emails */}
                     <div className="space-y-4">
                       <div>
                         <Label className="text-sm">Contact Emails<span className="text-red-500">*</span></Label>
@@ -966,8 +973,6 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
                     </div>
                     
                   </div>
-  
-                  
 
 
                     <div>
