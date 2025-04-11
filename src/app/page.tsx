@@ -5,9 +5,11 @@ import Footer from "@/components/shared/Gennextfooter";
 import TravelDealSearch from "./search/page";
 import { useSession } from "next-auth/react";
 import Homepage from "@/components/Homepage";
+import { useCurrentUser } from "@/hooks/auth";
  
 export default function Home() {
-  const { data: session, status } = useSession();
+  // const { data: session, status } = useSession();
+  const user = useCurrentUser();
   const [isClient, setIsClient] = useState(false);
   console.log(status)
   
@@ -22,14 +24,14 @@ export default function Home() {
   }
 
   // Show loading state while checking authentication
-  if (status === "loading") {
+  // if (status === "loading") {
     
-    return (<p>Loading...</p>);
+  //   return (<p>Loading...</p>);
     
-  }
+  // }
 
   // If user is not authenticated, show the Homepage component
-  if (status === "authenticated") {
+  if (user) {
     
     return (
       <main className="relative">
