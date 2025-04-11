@@ -117,7 +117,10 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
   const [pendingSubmit, setPendingSubmit] = useState<boolean>(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [image , setImage] = useState<string>("");
+  const [profile,setProfile]=useState();
   const user = useCurrentUser();
+  console.log("profile",profile);
+  
 
   // Initialize form data with default values
   const [dealFormData, setDealFormData] = useState<DealFormData>({
@@ -177,6 +180,12 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
         }
         const metadataData = await metadataResponse.json();
 
+        const ProfileResponce = await fetch(`/api/vendor?userId=${user?.id}`);
+        if (!ProfileResponce.ok) {
+          throw new Error("Failed to fetch metadata");
+        }
+        const Profile = await ProfileResponce.json();
+        setProfile(Profile[0])
         setDealTypes(dealTypesData.dealTypes);
         setMetadata(metadataData.metadata);
       } catch (err) {
@@ -732,13 +741,13 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
     }
   };
   
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        Loading form...
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="flex justify-center items-center h-64">
+  //       Loading form...
+  //     </div>
+  //   );
+  // }
   
   return (
     <div className="container mx-auto px-4">
@@ -802,8 +811,8 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
                         .sort((a, b) => a.sequence - b.sequence)
                         .map((field) => renderMetadataField(field))}
                     </div>
-
-                    {/* Image Upload Section */}
+                     
+                         {/* Image Upload Section */}
                   <div className="space-y-4" id="Image">
                     <Label className="text-sm">Image<span className="text-red-500">*</span></Label>
                     <div className="space-y-2">
@@ -826,16 +835,7 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
                          )}
                     </div>
                     </div>
-
-                    
-  
-                    {/* Second column */}
-                    <div className="space-y-4">
-                      {selectedTemplate.schema.fields
-                        .filter((_, index) => index % 2 !== 0)
-                        .sort((a, b) => a.sequence - b.sequence)
-                        .map((field) => renderMetadataField(field))}
-                    </div>
+                  
 
                     <FloatingLabelInput
                       id="validTo"
@@ -845,6 +845,16 @@ export default function CreateDealPage({ onBack }: CreateDealPageProps) {
                       onChange={(e) => handleBasicInputChange("validTo", e.target.value)}
                       required
                     />
+  
+                    {/* Second column */}
+                    <div className="space-y-4">
+                      {selectedTemplate.schema.fields
+                        .filter((_, index) => index % 2 !== 0)
+                        .sort((a, b) => a.sequence - b.sequence)
+                        .map((field) => renderMetadataField(field))}
+                    </div>
+
+                  
   
                     <div className="space-y-4">
                       <div>
