@@ -78,28 +78,6 @@ export default function CombinedLayout() {
   // if (!profile) return null;
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const servicesResponse = await fetch(`/api/serviceCategory`);
-        const servicesResult = await servicesResponse.json();
-        setServices(servicesResult);
-
-        const productsResponse = await fetch(`/api/productCategory`);
-        const productsResult = await productsResponse.json();
-        setProducts(productsResult);
-
-        setFilteredItems(
-          activeTab === "services" ? servicesResult : productsResult
-        );
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  useEffect(() => {
     const checkVendorProfile = async () => {
       if (role === "USER") {
         try {
@@ -137,9 +115,6 @@ export default function CombinedLayout() {
     await signOut({ redirectTo: "/auth/login" });
   };
 
-  const handleNavigate = (id: string) => {
-    router.push(`/${activeTab}Categories/${id}`);
-  };
 
   const toggleShowAll = () => {
     setShowAll(!showAll);
@@ -153,7 +128,7 @@ export default function CombinedLayout() {
         <div className="flex items-center justify-between p-4">
           {/* Logo Section */}
           <div className="flex items-center space-x-2">
-            <Link href="/">
+            <Link href="/dashboard">
               <div className="flex space-x-1">
                 <Image src="/logo.jpg" height={40} width={40} alt="Logo" />
                 <h1 className="text-primary text-2xl font-normal">

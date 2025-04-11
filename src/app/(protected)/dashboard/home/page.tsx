@@ -7,6 +7,7 @@ import {
   ChevronRight,
   File,
   FileText,
+  Search,
   User
 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
@@ -21,6 +22,7 @@ import { FaAd, FaAdversal, FaIdeal, FaMoneyBill } from "react-icons/fa";
 import { BookmarkFilledIcon } from "@radix-ui/react-icons";
 import { RiAdvertisementLine } from "react-icons/ri";
 import { LuPackageSearch } from "react-icons/lu";
+import TravelDealSearch from "@/app/search/page";
 
 export default function AdminDashboard() {
   const { status } = useSession();
@@ -28,7 +30,7 @@ export default function AdminDashboard() {
   const user = useCurrentUser();
   
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [activeComponent, setActiveComponent] = useState('profile');
+  const [activeComponent, setActiveComponent] = useState('search');
   const [isMobile, setIsMobile] = useState(false);
   
   // Check if window is defined (client-side) and set initial mobile state
@@ -47,6 +49,11 @@ export default function AdminDashboard() {
     return () => window.removeEventListener('resize', checkIfMobile);
   }, []);
 
+  
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}, [activeComponent]);
+
   if (status === 'unauthenticated') {
     router.push('/auth/login');
   }
@@ -62,15 +69,19 @@ export default function AdminDashboard() {
   // Navigation items for sidebar and mobile navbar
   const navItems = [
     { id: 'profile', label: 'Profile', icon: <User className="h-5 w-5" /> },
+    { id: 'search', label: 'Search', icon: <Search className="h-5 w-5" /> },
     { id: 'deals', label: 'Deals', icon: <LuPackageSearch className="h-5 w-5" /> },
     { id: 'advertisement', label: 'Advertisement', icon: <RiAdvertisementLine className="h-5 w-5" /> },
   ];
+
 
   // Render the appropriate component based on selection
   const renderMainContent = () => {
     switch (activeComponent) {
       case 'profile':
         return <Profile/>;
+      case 'search':
+        return <TravelDealSearch/>;
       case 'deals':
         return <Deals/>;
       case 'advertisement':
@@ -110,7 +121,7 @@ export default function AdminDashboard() {
                       onClick={() => setActiveComponent(item.id)}
                       className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                         activeComponent === item.id
-                          ? 'bg-gray-100 text-blue-600 font-medium'
+                          ? 'bg-gray-100 text-primary font-medium'
                           : 'text-gray-700 hover:bg-gray-50'
                       }`}
                     >
@@ -139,7 +150,7 @@ export default function AdminDashboard() {
               onClick={() => setActiveComponent(item.id)}
               className={`flex flex-col items-center justify-center p-2 flex-1 ${
                 activeComponent === item.id
-                  ? 'text-blue-600'
+                  ? 'text-primary'
                   : 'text-gray-500'
               }`}
             >
